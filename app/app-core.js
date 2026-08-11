@@ -1,49 +1,49 @@
 const horizons = [
-  {id:'environment',triplet:'Re-enchantment ↔ Natural Environment ↔ Resources',title:'Natural Environment / Resources',questions:[
-    'What living or material resources does this situation draw upon?',
-    'What needs time and favourable conditions to rise again or regenerate?',
-    'Are resources being treated as inventory, or as part of a relationship that can be depleted or renewed?'
+  {id:'environment',triplet:'Re-enchantment ↔ Natural Environment ↔ Resources',title:'Natural Environment / Resources',plainTitle:'Environment & resources',questions:[
+    'What living or material resources does this situation depend on?',
+    'What needs time and the right conditions to recover?',
+    'Are any resources being used in a way that cannot keep going?'
   ]},
-  {id:'culture',triplet:'Transformation ↔ Culture ↔ Values',title:'Culture / Values',questions:[
-    'What story, norm or value currently makes this situation seem inevitable?',
-    'What is being preserved because it is familiar rather than because it is viable?',
-    'What transformation in values would change what becomes possible?'
+  {id:'culture',triplet:'Transformation ↔ Culture ↔ Values',title:'Culture / Values',plainTitle:'Culture & values',questions:[
+    'What story, habit or value makes the present situation seem inevitable?',
+    'What is being kept simply because it is familiar?',
+    'What change in values would open up different possibilities?'
   ]},
-  {id:'infrastructure',triplet:'Creativity ↔ Infrastructure ↔ Affordance',title:'Infrastructure / Affordance',questions:[
-    'What can people actually do within the present structures?',
-    'Which desired actions are impossible because the infrastructure does not support them?',
-    'What small creative change could create a new affordance?'
+  {id:'infrastructure',triplet:'Creativity ↔ Infrastructure ↔ Affordance',title:'Infrastructure / Affordance',plainTitle:'Structures & options',questions:[
+    'What can people actually do within the present setup?',
+    'What useful option is blocked because the structure does not allow it?',
+    'What small practical change could open up a new option?'
   ]},
-  {id:'society',triplet:'Dialogue ↔ Society ↔ Support',title:'Society / Support',questions:[
-    'Who is in dialogue, and who is being spoken about rather than spoken with?',
-    'Does each party have meaningful influence, or only an opportunity to speak?',
-    'Is support enabling participation, or creating dependency / rescuing?'
+  {id:'society',triplet:'Dialogue ↔ Society ↔ Support',title:'Society / Support',plainTitle:'Relationships & support',questions:[
+    'Who is actually in conversation, and who is being spoken about rather than spoken with?',
+    'Does each person have real influence, or only a chance to speak?',
+    'Is support helping people take part, or making them more dependent?'
   ]},
-  {id:'outer',triplet:'Curiosity ↔ Outer Self ↔ Capacity',title:'Outer Self / Capacity',questions:[
-    'Where has certainty replaced curiosity?',
-    'What capacity exists but is not being used?',
-    'What skill, relationship or question would expand the range of possible action?'
+  {id:'outer',triplet:'Curiosity ↔ Outer Self ↔ Capacity',title:'Outer Self / Capacity',plainTitle:'Skills & capacity',questions:[
+    'Where might certainty be stopping useful questions?',
+    'What ability or resource is already there but not being used?',
+    'What skill, relationship or question could widen the options?'
   ]},
-  {id:'inner',triplet:'Participation ↔ Inner Self ↔ Well-being',title:'Inner Self / Well-being',questions:[
-    'What is it actually like to be the people living this situation?',
-    'What meaningful participation is becoming more possible or less possible?',
-    'What capacities are changing alongside subjective wellbeing?'
+  {id:'inner',triplet:'Participation ↔ Inner Self ↔ Well-being',title:'Inner Self / Well-being',plainTitle:'Experience & wellbeing',questions:[
+    'What is this situation actually like for the people living it?',
+    'Who is becoming more able, or less able, to take part meaningfully?',
+    'What is changing in people’s energy, confidence or wellbeing?'
   ]},
-  {id:'noself',triplet:'Nothing / Everything ↔ No Self ↔ Everything / Nothing',title:'Context orientation / No Self',noScore:true,questions:[
-    'What if the present description of the problem is itself part of the problem?',
-    'Which perspective is being treated as the centre?',
-    'What observation would force a causal revision?',
-    'What becomes visible if attention shifts from the content of the dispute to the context generating it?'
+  {id:'noself',triplet:'Nothing / Everything ↔ No Self ↔ Everything / Nothing',title:'Context orientation / No Self',plainTitle:'Step back & widen the frame',noScore:true,questions:[
+    'What if the way the problem is being described is part of what keeps it stuck?',
+    'Whose point of view is being treated as the centre?',
+    'What new information would force us to rethink the explanation?',
+    'What becomes visible if we look at the setting around the dispute, not only the dispute itself?'
   ]}
 ];
 
 const provenanceTypes = [
-  ['user_reported_observation','User-reported observation'],
-  ['user_interpretation','User interpretation / attribution'],
-  ['ai_inference','AI inference'],
-  ['verified_external','Independently verified'],
-  ['absent_party_account','Absent-party account'],
-  ['unknown','Unknown / unclear']
+  ['user_reported_observation','Something I directly observed or was told'],
+  ['user_interpretation','My interpretation'],
+  ['ai_inference','An AI inference'],
+  ['verified_external','Checked against an independent source'],
+  ['absent_party_account','Someone else’s account'],
+  ['unknown','I am not sure']
 ];
 
 let step = 1;
@@ -68,12 +68,18 @@ function logEvent(type, detail={}){
   localStorage.setItem('rheo_research_log_v0_2', JSON.stringify(logs));
 }
 
+function displayHorizonTitle(id){
+  const h=horizons.find(x=>x.id===id);
+  return h?.plainTitle || h?.title || id;
+}
+
 function init(){
   renderHorizons();
   addEvidence({text:'',provenance:'user_reported_observation',about:'system'});
   addEvidence({text:'',provenance:'user_interpretation',about:'other_party'});
   addMove(); addMove();
   bind();
+  updateSafetyGate();
   logEvent('app_open');
 }
 
@@ -121,15 +127,15 @@ function renderHorizons(){
   const host=$('horizonCards');host.innerHTML='';
   horizons.forEach(h=>{
     const el=document.createElement('section');el.className='card horizon';
-    const statuses=h.noScore?'<span class="muted">Not scored or rated</span>':`<div class="statuses">
-      <label><input type="radio" name="${h.id}Status" value="restriction"> Restriction</label>
-      <label><input type="radio" name="${h.id}Status" value="uncertain" checked> Uncertain</label>
-      <label><input type="radio" name="${h.id}Status" value="open"> Flowing</label>
+    const statuses=h.noScore?'<span class="muted">No rating needed</span>':`<div class="statuses">
+      <label><input type="radio" name="${h.id}Status" value="restriction"> Seems blocked</label>
+      <label><input type="radio" name="${h.id}Status" value="uncertain" checked> Not sure</label>
+      <label><input type="radio" name="${h.id}Status" value="open"> Seems to be working</label>
       <label><input type="radio" name="${h.id}Status" value="irrelevant"> Not relevant</label>
     </div>`;
-    el.innerHTML=`<div class="horizonTop"><div><div class="horizonTriplet">${h.triplet}</div><h3>${h.title}</h3></div>${statuses}</div>
+    el.innerHTML=`<div class="horizonTop"><div><h3>${h.plainTitle}</h3><details class="researchDetails"><summary>RWB lens</summary><div class="horizonTriplet">${h.triplet}</div></details></div>${statuses}</div>
       <ul class="questions">${h.questions.map(q=>`<li>${q}</li>`).join('')}</ul>
-      <label>Your observations</label><textarea id="${h.id}Notes" rows="4"></textarea>`;
+      <label>What do you notice?</label><textarea id="${h.id}Notes" rows="4"></textarea>`;
     host.appendChild(el);
   });
 }
@@ -141,13 +147,13 @@ function addEvidence(seed={}){
   item.dataset.evidence=evidenceCount;
   item.innerHTML=`
     <label>Statement ${evidenceCount}</label>
-    <textarea class="evidenceText" rows="3" placeholder="One consequential proposition at a time.">${escapeTextarea(seed.text||'')}</textarea>
+    <textarea class="evidenceText" rows="3" placeholder="Put one important claim or observation here.">${escapeTextarea(seed.text||'')}</textarea>
     <div class="evidenceMeta">
-      <div><label>Provenance</label><select class="evidenceProvenance">${provenanceTypes.map(([v,l])=>`<option value="${v}" ${seed.provenance===v?'selected':''}>${l}</option>`).join('')}</select></div>
-      <div><label>About</label><select class="evidenceAbout">
+      <div><label>Where does this come from?</label><select class="evidenceProvenance">${provenanceTypes.map(([v,l])=>`<option value="${v}" ${seed.provenance===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div><label>Who or what is this about?</label><select class="evidenceAbout">
         ${['system','self','other_party','third_party','environment','unknown'].map(v=>`<option value="${v}" ${seed.about===v?'selected':''}>${pretty(v)}</option>`).join('')}
       </select></div>
-      <div><label>Confidence</label><select class="evidenceConfidence">
+      <div><label>How sure are you?</label><select class="evidenceConfidence">
         ${['low','medium','high'].map(v=>`<option value="${v}" ${(seed.confidence||'medium')===v?'selected':''}>${pretty(v)}</option>`).join('')}
       </select></div>
     </div>
@@ -186,7 +192,7 @@ function go(n){
   document.querySelectorAll('[data-step-panel]').forEach(p=>p.classList.toggle('hidden',+p.dataset.stepPanel!==step));
   document.querySelectorAll('.progress button').forEach(b=>b.classList.toggle('active',+b.dataset.step===step));
   $('backBtn').style.visibility=step===1?'hidden':'visible';
-  $('nextBtn').textContent=step===7?'Review report':'Next';
+  $('nextBtn').textContent=step===7?'Review plan':'Next';
   if(step===7)renderSMEAC();
   if(step===2)updateSingleNarratorNotice();
   logEvent('step_view',{step});
