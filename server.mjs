@@ -88,7 +88,7 @@ function strictOutputSchema(source) {
     if (!value || typeof value !== 'object') return value;
     const out = {};
     for (const [k,v] of Object.entries(value)) {
-      if (['$schema','$id','title','description'].includes(k)) continue;
+      if (['$schema','$id','title'].includes(k)) continue;
       if (k === 'const') { out.enum = [v]; continue; }
       out[k] = walk(v);
     }
