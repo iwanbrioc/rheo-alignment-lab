@@ -2,6 +2,10 @@
 // API credentials remain server-side; this browser only calls /api/analyze.
 (() => {
   let latestMap = null;
+  let firstModelImplicationAt = null;
+  let firstModelImplicationMeta = null;
+  let postImplicationContinuationLogged = false;
+  let exitAfterImplicationLogged = false;
   const challenged = new Set();
 
   function addStyles(){
@@ -39,9 +43,41 @@
     saved.parentNode.insertBefore(panel,saved);
     $('runModelBtn').onclick=run;
     $('downloadModelBtn').onclick=downloadMap;
+    window.addEventListener('pagehide', logExitAfterImplication, {capture:true});
   }
 
   function itemList(items){return items?.length?`<ul>${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p class="muted">None identified.</p>';}
+
+  function recordModelImplication(result){
+    if(firstModelImplicationAt !== null) return;
+    firstModelImplicationAt=Date.now();
+    firstModelImplicationMeta={condition:result.condition,granularity:result.granularity};
+    logEvent('first_model_narrator_implication',{
+      propositionRefs:result.map.narratorImplication.evidenceRefs,
+      condition:result.condition,
+      granularity:result.granularity
+    });
+  }
+
+  function markPostImplicationContinuation(action){
+    if(firstModelImplicationAt === null || postImplicationContinuationLogged) return;
+    postImplicationContinuationLogged=true;
+    logEvent('post_model_implication_continuation',{
+      action,
+      elapsedMs:Math.max(0,Date.now()-firstModelImplicationAt),
+      ...firstModelImplicationMeta
+    });
+  }
+
+  function logExitAfterImplication(){
+    if(firstModelImplicationAt === null || exitAfterImplicationLogged) return;
+    exitAfterImplicationLogged=true;
+    logEvent('session_exit_after_model_implication',{
+      elapsedMs:Math.max(0,Date.now()-firstModelImplicationAt),
+      continuedAfterImplication:postImplicationContinuationLogged,
+      ...firstModelImplicationMeta
+    });
+  }
 
   function render(result){
     latestMap=result.map;challenged.clear();$('downloadModelBtn').disabled=false;
@@ -67,11 +103,12 @@
       <section><h3>Narrator contribution</h3>${implication}</section>
       <p class="modelMeta">Condition: ${esc(result.condition)} · model: ${esc(result.model)} · granularity: ${esc(result.granularity)} · genericity self-check: ${esc(m.genericitySelfCheck)}</p>`;
     document.querySelectorAll('.challengeProp').forEach(btn=>btn.onclick=()=>challenge(btn.dataset.id));
-    if(m.narratorImplication.present) logEvent('model_narrator_implication',{propositionRefs:m.narratorImplication.evidenceRefs,condition:result.condition,granularity:result.granularity});
+    if(m.narratorImplication.present) recordModelImplication(result);
     if(['caution','high'].includes(safety.level)) logEvent('model_safety_caution',{level:safety.level,condition:result.condition,indicatorCount:safety.indicators.length});
   }
 
   function challenge(id){
+    markPostImplicationContinuation('challenge_provenance');
     if(challenged.has(id)) challenged.delete(id); else challenged.add(id);
     const el=document.getElementById(`prop-${id}`);if(el)el.classList.toggle('challenged',challenged.has(id));
     const btn=el?.querySelector('.challengeProp');if(btn)btn.textContent=challenged.has(id)?'Provenance challenged — undo':'Challenge provenance';
@@ -79,6 +116,7 @@
   }
 
   async function run(){
+    markPostImplicationContinuation('request_another_analysis');
     const caseRecord=data();caseId=caseRecord.caseId;
     const condition=$('modelCondition').value;const granularity=$('modelGranularity').value;
     $('runModelBtn').disabled=true;$('modelStatus').textContent='Analyzing…';
@@ -96,6 +134,7 @@
 
   function downloadMap(){
     if(!latestMap)return;
+    markPostImplicationContinuation('export_map');
     download(`rheo-structural-map-${latestMap.caseId}.json`,JSON.stringify(latestMap,null,2),'application/json');
   }
 
