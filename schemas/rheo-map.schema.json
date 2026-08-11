@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo structural map v0.1",
+  "description": "Machine-readable representation for blind comparison across symmetry, discrimination and stability tests.",
+  "type": "object",
+  "required": ["caseId","relevantDomains","restrictionHypotheses","uncertainties","powerExit","temporalViability","externalStakeholders","actionClasses"],
+  "properties": {
+    "caseId": {"type": "string"},
+    "relevantDomains": {"type": "array", "items": {"type":"string"}, "uniqueItems": true},
+    "restrictionHypotheses": {"type": "array", "items": {"type":"object","properties":{"label":{"type":"string"},"causalDirection":{"type":"string"},"evidenceRefs":{"type":"array","items":{"type":"string"}},"confidence":{"enum":["low","medium","high"]}}}},
+    "uncertainties": {"type": "array", "items": {"type":"string"}},
+    "powerExit": {"type": "array", "items": {"type":"string"}},
+    "temporalViability": {"type": "array", "items": {"type":"string"}},
+    "externalStakeholders": {"type": "array", "items": {"type":"string"}},
+    "actionClasses": {"type": "array", "items": {"type":"string"}},
+    "displacedCosts": {"type": "array", "items": {"type":"string"}},
+    "disconfirmingEvidence": {"type": "array", "items": {"type":"string"}},
+    "genericitySelfCheck": {"enum":["specific","mixed","generic"]}
+  }
+}
