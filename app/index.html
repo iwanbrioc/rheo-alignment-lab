@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f3efe6" />
+  <meta name="description" content="Rheo — an experimental Reciprocal Wellbeing mapping guide." />
+  <title>Rheo — Reciprocal Wellbeing Guide</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">Rheo</div>
+      <div class="tagline">Experimental Reciprocal Wellbeing decision guide</div>
+    </div>
+    <button class="ghost" id="savedBtn" type="button">Saved cases</button>
+  </header>
+
+  <main class="shell">
+    <section class="card hero" id="homeView">
+      <div class="eyebrow">Research prototype v0.2 · Reciprocal Wellbeing · Rheocracy</div>
+      <h1>What is happening?</h1>
+      <p class="lead">Describe a real situation. Rheo helps separate observation from interpretation, map relevant restrictions in reciprocal flow, surface missing perspectives and displaced costs, and turn the working map into an actionable SMEAC.</p>
+      <label for="openingContext">Your situation</label>
+      <textarea id="openingContext" rows="8" placeholder="Describe what has happened, what decision you face, and why it matters."></textarea>
+      <div class="row">
+        <button class="primary" id="startBtn" type="button">Start mapping</button>
+        <button class="secondary" id="exampleBtn" type="button">Load example</button>
+      </div>
+      <div class="notice">
+        <strong>This is not an authority or assessment.</strong> Rheo begins from one narrator's account unless other evidence is supplied. It does not calculate a Reciprocal Wellbeing score, diagnose people, or replace professional, emergency, medical, legal, safeguarding or financial advice.
+      </div>
+    </section>
+
+    <section id="wizardView" class="hidden">
+      <nav class="progress" aria-label="Progress">
+        <button data-step="1">1 Context</button>
+        <button data-step="2">2 Evidence</button>
+        <button data-step="3">3 Horizons</button>
+        <button data-step="4">4 Contractions</button>
+        <button data-step="5">5 Time & viability</button>
+        <button data-step="6">6 Moves</button>
+        <button data-step="7">7 SMEAC</button>
+      </nav>
+
+      <section class="card step" data-step-panel="1">
+        <div class="eyebrow">Step 1 · Context</div>
+        <h2>Start with the situation, not a verdict</h2>
+        <div class="grid two">
+          <div>
+            <label>Situation as you currently see it</label>
+            <textarea id="context" rows="7"></textarea>
+          </div>
+          <div>
+            <label>What matters most to you here?</label>
+            <textarea id="whatMatters" rows="7" placeholder="What are you trying to protect, change, or make possible?"></textarea>
+          </div>
+          <div>
+            <label>Who is affected or absent from this account?</label>
+            <textarea id="stakeholders" rows="5" placeholder="People in the room, people not in the room, future participants, communities, living systems..."></textarea>
+          </div>
+          <div>
+            <label>What is missing or disputed?</label>
+            <textarea id="uncertainties" rows="5" placeholder="Missing records, unheard accounts, unknown motives, causal uncertainty..."></textarea>
+          </div>
+        </div>
+        <div class="grid three">
+          <div><label>Decision horizon</label><input id="decisionHorizon" placeholder="e.g. 2 weeks" /></div>
+          <div><label>Consequence / recovery horizon</label><input id="recoveryHorizon" placeholder="e.g. trust may take 12 months to rebuild" /></div>
+          <div><label>Urgency</label><select id="urgency"><option>Low</option><option selected>Medium</option><option>High</option><option>Immediate</option></select></div>
+        </div>
+        <div class="promptbox"><strong>Temporal check:</strong> A short decision deadline does not shorten the recovery time of the system affected by the decision.</div>
+      </section>
+
+      <section class="card step hidden" data-step-panel="2">
+        <div class="eyebrow">Step 2 · Epistemic provenance</div>
+        <h2>What kind of claim is each important statement?</h2>
+        <p>Fluent summaries can quietly turn interpretation into fact. Keep consequential propositions attached to their source.</p>
+        <div id="evidenceLedger"></div>
+        <button class="secondary" id="addEvidenceBtn" type="button">Add statement</button>
+        <div class="promptbox" id="singleNarratorNotice"><strong>Single-narrator warning:</strong> At present this map is built only from the account entered here. That does not make it false, but it limits what can safely be concluded about absent people's motives or disputed events.</div>
+      </section>
+
+      <section class="step hidden" data-step-panel="3">
+        <div class="card">
+          <div class="eyebrow">Step 3 · The seven horizons</div>
+          <h2>Where does restriction appear?</h2>
+          <p>These are lenses, not scores. Mark only what is relevant. A restriction can appear in one horizon while being generated elsewhere.</p>
+        </div>
+        <div id="horizonCards"></div>
+      </section>
+
+      <section class="card step hidden" data-step-panel="4">
+        <div class="eyebrow">Step 4 · Working contraction & power</div>
+        <h2>Form a hypothesis that can be wrong</h2>
+        <div id="contractionSuggestions" class="suggestions"></div>
+        <label>Working contraction hypothesis</label>
+        <textarea id="primaryContraction" rows="5" placeholder="The restriction appears in… and may be maintained by… Evidence is currently limited by…"></textarea>
+        <label>What observation would make this interpretation wrong?</label>
+        <textarea id="disconfirmingEvidence" rows="4"></textarea>
+        <label>Whose account or local knowledge could materially change the map?</label>
+        <textarea id="missingPerspective" rows="4"></textarea>
+
+        <div class="selfImplication">
+          <label><input type="checkbox" id="narratorImplicated" /> The working map materially implicates my own actions, assumptions, incentives, or omissions.</label>
+          <small>This event is logged separately in the research prototype so later attrition is not mistaken for evidence that agreeable advice works better.</small>
+        </div>
+
+        <hr />
+        <h3>Power / safety gate</h3>
+        <p class="muted">These are uncertainty flags, not diagnoses. If safety, coercion or constrained exit may be involved, dialogue and relationship preservation are not default goals.</p>
+        <div class="grid three" id="powerGrid">
+          <div><label>Fear / retaliation</label><select id="fearRetaliation"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
+          <div><label>Constrained exit</label><select id="constrainedExit"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
+          <div><label>Surveillance / controlling behaviour</label><select id="surveillanceControl"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
+          <div><label>Material dependency</label><select id="materialDependence"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
+          <div><label>Major power asymmetry</label><select id="powerAsymmetry"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
+          <div><label>Safety uncertainty notes</label><textarea id="safetyNotes" rows="3"></textarea></div>
+        </div>
+        <div class="notice hidden" id="safetyGateNotice"><strong>Safety gate active:</strong> Do not use relationship recovery time as an argument for continued exposure to danger or coercion. Increased dialogue, disclosure, mediation or confrontation should not be assumed safe.</div>
+      </section>
+
+      <section class="card step hidden" data-step-panel="5">
+        <div class="eyebrow">Step 5 · Time, regeneration and viability</div>
+        <h2>Constrain irreversibility, not emergence</h2>
+        <div class="grid two">
+          <div><label>What could be permanently or disproportionately foreclosed?</label><textarea id="foreclose" rows="6" placeholder="Safety, habitat, trust, legitimacy, health, relationship, future options..."></textarea></div>
+          <div><label>What needs time or conditions to regenerate?</label><textarea id="regenerate" rows="6" placeholder="Attention, trust, energy, biodiversity, expertise, goodwill..."></textarea></div>
+          <div><label>Possible viability floor</label><textarea id="viabilityFloor" rows="5" placeholder="A threshold that should not be crossed because feedback may arrive too late or recovery may become impossible."></textarea></div>
+          <div><label>Full-trajectory concern</label><textarea id="trajectoryConcern" rows="5" placeholder="Could a plan cause severe early damage that later improvement would disguise? What drawdown or threshold crossing matters?"></textarea></div>
+        </div>
+        <div class="promptbox"><strong>Temporal direction:</strong> Does a proposed constraint preserve future possibility, or merely preserve the existing order?</div>
+      </section>
+
+      <section class="card step hidden" data-step-panel="6">
+        <div class="eyebrow">Step 6 · Possible moves</div>
+        <h2>Increase affordance before imposing behaviour</h2>
+        <p>Generate several possible moves. A locally successful move can still fail if somebody outside the immediate frame pays the cost.</p>
+        <div id="moves"></div>
+        <button class="secondary" id="addMoveBtn" type="button">Add another move</button>
+        <hr />
+        <div class="grid two">
+          <div><label>Administration / logistics</label><textarea id="admin" rows="5" placeholder="People, time, money, permissions, information, dependencies, practical support..."></textarea></div>
+          <div><label>Command / signal</label><textarea id="commandSignal" rows="5" placeholder="Who decides? Who must be consulted? What must be monitored? When will the map be reviewed?"></textarea></div>
+        </div>
+      </section>
+
+      <section class="card step hidden" data-step-panel="7">
+        <div class="eyebrow">Step 7 · Actionable report</div>
+        <h2>Rheocratic SMEAC</h2>
+        <p class="muted">A working map, not a verdict. Act, observe, revise.</p>
+        <div id="smeacOutput" class="report"></div>
+        <div class="row">
+          <button class="primary" id="saveBtn" type="button">Save case</button>
+          <button class="secondary" id="exportMdBtn" type="button">Export Markdown</button>
+          <button class="secondary" id="exportJsonBtn" type="button">Export JSON</button>
+          <button class="ghost" id="exportResearchBtn" type="button">Export research log</button>
+        </div>
+        <hr />
+        <div class="followup">
+          <h3>Outcome review</h3>
+          <p>Outcome data are stored separately from the live guide. Do not turn these observations into a single hidden "Rheo success" reward.</p>
+          <label>What actually happened?</label><textarea id="actualOutcome" rows="5"></textarea>
+          <label>What did the original map miss?</label><textarea id="mapMissed" rows="4"></textarea>
+          <label>What new affordance appeared or disappeared?</label><textarea id="newAffordance" rows="4"></textarea>
+          <label>What changed in resources, dialogue, creativity, curiosity, participation or capacity?</label><textarea id="systemChanges" rows="4"></textarea>
+          <label>Who, if anyone, paid a cost that the original plan did not account for?</label><textarea id="thirdPartyCost" rows="4"></textarea>
+          <button class="secondary" id="saveOutcomeBtn" type="button">Save outcome review separately</button>
+        </div>
+      </section>
+
+      <div class="wizardControls">
+        <button class="ghost" id="backBtn" type="button">Back</button>
+        <button class="primary" id="nextBtn" type="button">Next</button>
+      </div>
+    </section>
+
+    <section id="savedView" class="card hidden">
+      <div class="row spread">
+        <div><div class="eyebrow">Casebook</div><h2>Saved cases</h2></div>
+        <button class="ghost" id="closeSavedBtn" type="button">Close</button>
+      </div>
+      <div id="savedCases"></div>
+      <div class="notice">Prototype storage is local to this browser only. No data are uploaded anywhere.</div>
+    </section>
+  </main>
+
+  <footer>Rheo v0.2 research prototype · No aggregate RWB score · provenance-aware</footer>
+  <script src="app.js"></script>
+  <script>if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
+</body>
+</html>
