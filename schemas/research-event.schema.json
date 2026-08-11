@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo research event v0.2",
+  "type": "object",
+  "required": ["eventId","sessionId","at","type"],
+  "properties": {
+    "eventId": {"type":"string"},
+    "sessionId": {"type":"string"},
+    "caseId": {"type":["string","null"]},
+    "at": {"type":"string","format":"date-time"},
+    "step": {"type":"integer"},
+    "type": {"type":"string"},
+    "detail": {"type":"object"}
+  }
+}
