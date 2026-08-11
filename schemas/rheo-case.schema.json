@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/rheo-case.schema.json",
+  "title": "Rheo Case v0.2",
+  "type": "object",
+  "required": ["schemaVersion","caseId","createdAt","context","evidence","horizons","contractions","powerSafety","viability","moves"],
+  "properties": {
+    "schemaVersion": {"const": "0.2"},
+    "caseId": {"type": "string"},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "context": {
+      "type": "object",
+      "required": ["situation"],
+      "properties": {
+        "situation": {"type": "string"},
+        "whatMatters": {"type": "string"},
+        "stakeholders": {"type": "string"},
+        "uncertainties": {"type": "string"},
+        "decisionHorizon": {"type": "string"},
+        "recoveryHorizon": {"type": "string"},
+        "urgency": {"type": "string"}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text","provenance","about","confidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"},
+          "provenance": {"enum": ["user_reported_observation","user_interpretation","ai_inference","verified_external","absent_party_account","unknown"]},
+          "about": {"enum": ["system","self","other_party","third_party","environment","unknown"]},
+          "confidence": {"enum": ["low","medium","high"]}
+        }
+      }
+    },
+    "horizons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id","triplet","title","status","notes"],
+        "properties": {
+          "id": {"type": "string"},
+          "triplet": {"type": "string"},
+          "title": {"type": "string"},
+          "status": {"enum": ["restriction","uncertain","open","irrelevant","not-scored"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "contractions": {
+      "type": "object",
+      "properties": {
+        "primary": {"type": "string"},
+        "disconfirmingEvidence": {"type": "string"},
+        "missingPerspective": {"type": "string"},
+        "narratorImplicated": {"type": "boolean"}
+      }
+    },
+    "powerSafety": {
+      "type": "object",
+      "properties": {
+        "fearRetaliation": {"type": "string"},
+        "constrainedExit": {"type": "string"},
+        "surveillanceControl": {"type": "string"},
+        "materialDependence": {"type": "string"},
+        "powerAsymmetry": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "safetyGateActive": {"type": "boolean"},
+    "viability": {
+      "type": "object",
+      "properties": {
+        "foreclose": {"type": "string"},
+        "regenerate": {"type": "string"},
+        "viabilityFloor": {"type": "string"},
+        "trajectoryConcern": {"type": "string"}
+      }
+    },
+    "moves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "number": {"type": "integer"},
+          "action": {"type": "string"},
+          "restriction": {"type": "string"},
+          "affordance": {"type": "string"},
+          "displacedCost": {"type": "string"},
+          "foreclose": {"type": "string"},
+          "reversibleTest": {"type": "string"},
+          "dialogue": {"type": "string"},
+          "evidence": {"type": "string"},
+          "stopSignal": {"type": "string"}
+        }
+      }
+    },
+    "admin": {"type": "string"},
+    "commandSignal": {"type": "string"}
+  }
+}
