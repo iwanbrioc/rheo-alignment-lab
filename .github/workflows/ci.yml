@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check browser JavaScript syntax
+        run: node --check app/app.js
+      - name: Check evaluation harness
+        run: python -m py_compile evaluation/harness.py
+      - name: Parse JSON files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for p in Path('.').rglob('*.json'):
+              json.loads(p.read_text())
+              print('ok', p)
+          PY
+      - name: Run example structural screen
+        run: python evaluation/harness.py screen-pairs evaluation/example-manifest.json
