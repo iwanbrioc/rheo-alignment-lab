@@ -16,6 +16,11 @@ const MODEL_PROVIDER = process.env.RHEO_MODEL_PROVIDER || 'openai';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const MAX_BODY = 1_000_000;
+const GRANULARITY_LIMITS = {
+  coarse: { systemElements: 3, mechanisms: 3, propositions: 8 },
+  standard: { systemElements: 6, mechanisms: 6, propositions: 18 },
+  fine: { systemElements: 12, mechanisms: 12, propositions: 30 }
+};
 
 const [schemaText, rheoPrompt, controlPrompt] = await Promise.all([
   readFile(SCHEMA_PATH, 'utf8'),
@@ -51,7 +56,65 @@ function isStringArray(v) {
   return Array.isArray(v) && v.every(x => typeof x === 'string');
 }
 
-function validateStructuralMap(m) {
+function safeRefSegment(v, fallback) {
+  const s = String(v ?? '').trim().replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  return s || fallback;
+}
+
+function normalizeChallenges(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 20).map((c, i) => ({
+    id: safeRefSegment(c?.id || `c${i + 1}`, `c${i + 1}`),
+    propositionId: String(c?.propositionId || '').slice(0, 120),
+    propositionText: String(c?.propositionText || '').slice(0, 4000),
+    previousProvenance: String(c?.previousProvenance || '').slice(0, 120),
+    reason: String(c?.reason || '').slice(0, 4000)
+  })).filter(c => c.propositionText || c.reason);
+}
+
+function buildSourceReferenceIndex(caseRecord, challenges = []) {
+  const refs = new Set();
+  const verifiedExternalRefs = new Set();
+
+  function walk(value, ref, verified = false) {
+    if (value === null || value === undefined || value === '') return;
+    if (Array.isArray(value)) {
+      value.forEach((item, i) => {
+        const id = item && typeof item === 'object' && !Array.isArray(item) && ('id' in item || 'number' in item)
+          ? safeRefSegment(item.id ?? item.number, String(i + 1))
+          : String(i + 1);
+        const childVerified = ref === 'case.evidence' && item?.provenance === 'verified_external';
+        walk(item, `${ref}.${id}`, verified || childVerified);
+      });
+      return;
+    }
+    if (typeof value === 'object') {
+      for (const [key, child] of Object.entries(value)) {
+        walk(child, `${ref}.${safeRefSegment(key, 'field')}`, verified);
+      }
+      return;
+    }
+    refs.add(ref);
+    if (verified) verifiedExternalRefs.add(ref);
+  }
+
+  walk(caseRecord, 'case', false);
+  for (const challenge of challenges) {
+    walk(challenge, `challenge.${challenge.id}`, false);
+  }
+  return { refs, verifiedExternalRefs };
+}
+
+function validateEvidenceRefs(refs, propositionIds, label, errors, { requireOne = false } = {}) {
+  if (!isStringArray(refs)) {
+    errors.push(`${label} must be an array of strings`);
+    return;
+  }
+  if (requireOne && refs.length === 0) errors.push(`${label} must cite at least one proposition`);
+  for (const ref of refs) if (!propositionIds.has(ref)) errors.push(`${label} contains unknown proposition ref: ${ref}`);
+}
+
+function validateStructuralMap(m, caseRecord, sourceIndex, granularity) {
   const errors = [];
   const required = ['schemaVersion','caseId','propositions','systemElements','mechanisms','uncertainties','powerExit','temporalViability','externalStakeholders','actionClasses','displacedCosts','disconfirmingEvidence','narratorImplication','safetyCaution','genericitySelfCheck'];
   if (!m || typeof m !== 'object' || Array.isArray(m)) return ['map must be an object'];
@@ -60,25 +123,57 @@ function validateStructuralMap(m) {
   for (const k of required) if (!(k in m)) errors.push(`missing ${k}`);
   if (m.schemaVersion !== '0.3') errors.push('schemaVersion must be 0.3');
   if (typeof m.caseId !== 'string' || !m.caseId) errors.push('caseId must be a non-empty string');
+
   for (const k of ['systemElements','uncertainties','powerExit','temporalViability','externalStakeholders','actionClasses','displacedCosts','disconfirmingEvidence']) {
     if (!isStringArray(m[k])) errors.push(`${k} must be an array of strings`);
   }
+
+  const propositionIds = new Set();
   if (!Array.isArray(m.propositions)) errors.push('propositions must be an array');
   else for (const [i,p] of m.propositions.entries()) {
     if (!p || typeof p !== 'object') { errors.push(`propositions[${i}] invalid`); continue; }
     if (!['user_reported_observation','user_interpretation','ai_inference','verified_external','absent_party_account','unknown'].includes(p.provenance)) errors.push(`propositions[${i}].provenance invalid`);
     if (!['low','medium','high'].includes(p.confidence)) errors.push(`propositions[${i}].confidence invalid`);
-    if (typeof p.id !== 'string' || typeof p.text !== 'string' || typeof p.contested !== 'boolean' || !isStringArray(p.sourceRefs)) errors.push(`propositions[${i}] shape invalid`);
+    if (typeof p.id !== 'string' || !p.id || typeof p.text !== 'string' || typeof p.contested !== 'boolean' || !isStringArray(p.sourceRefs)) {
+      errors.push(`propositions[${i}] shape invalid`);
+      continue;
+    }
+    if (propositionIds.has(p.id)) errors.push(`duplicate proposition id: ${p.id}`);
+    propositionIds.add(p.id);
+    if (p.sourceRefs.length === 0) errors.push(`propositions[${i}].sourceRefs must cite at least one allowed input source`);
+    for (const ref of p.sourceRefs) {
+      if (!sourceIndex.refs.has(ref)) errors.push(`propositions[${i}].sourceRefs contains unknown input ref: ${ref}`);
+    }
+    if (p.provenance === 'verified_external' && !p.sourceRefs.some(ref => sourceIndex.verifiedExternalRefs.has(ref))) {
+      errors.push(`propositions[${i}] cannot be verified_external without a user-supplied verified_external evidence source`);
+    }
   }
+
   if (!Array.isArray(m.mechanisms)) errors.push('mechanisms must be an array');
   else for (const [i,h] of m.mechanisms.entries()) {
-    if (!h || typeof h !== 'object' || typeof h.label !== 'string' || typeof h.causalDirection !== 'string' || !isStringArray(h.evidenceRefs) || !['low','medium','high'].includes(h.confidence)) errors.push(`mechanisms[${i}] shape invalid`);
+    if (!h || typeof h !== 'object' || typeof h.label !== 'string' || typeof h.causalDirection !== 'string' || !isStringArray(h.evidenceRefs) || !['low','medium','high'].includes(h.confidence)) {
+      errors.push(`mechanisms[${i}] shape invalid`);
+      continue;
+    }
+    validateEvidenceRefs(h.evidenceRefs, propositionIds, `mechanisms[${i}].evidenceRefs`, errors, { requireOne: true });
   }
+
   const ni = m.narratorImplication;
   if (!ni || typeof ni.present !== 'boolean' || typeof ni.description !== 'string' || !isStringArray(ni.evidenceRefs)) errors.push('narratorImplication shape invalid');
+  else validateEvidenceRefs(ni.evidenceRefs, propositionIds, 'narratorImplication.evidenceRefs', errors, { requireOne: ni.present });
+
   const sc = m.safetyCaution;
   if (!sc || !['unknown','none_detected','caution','high'].includes(sc.level) || !isStringArray(sc.indicators) || !isStringArray(sc.evidenceRefs) || typeof sc.uncertainty !== 'string') errors.push('safetyCaution shape invalid');
+  else validateEvidenceRefs(sc.evidenceRefs, propositionIds, 'safetyCaution.evidenceRefs', errors, { requireOne: ['caution','high'].includes(sc.level) });
+
   if (!['specific','mixed','generic'].includes(m.genericitySelfCheck)) errors.push('genericitySelfCheck invalid');
+
+  const limits = GRANULARITY_LIMITS[granularity] || GRANULARITY_LIMITS.standard;
+  if (Array.isArray(m.systemElements) && m.systemElements.length > limits.systemElements) errors.push(`granularity ${granularity} allows at most ${limits.systemElements} systemElements; got ${m.systemElements.length}`);
+  if (Array.isArray(m.mechanisms) && m.mechanisms.length > limits.mechanisms) errors.push(`granularity ${granularity} allows at most ${limits.mechanisms} mechanisms; got ${m.mechanisms.length}`);
+  if (Array.isArray(m.propositions) && m.propositions.length > limits.propositions) errors.push(`granularity ${granularity} allows at most ${limits.propositions} propositions; got ${m.propositions.length}`);
+
+  if (m.caseId !== String(caseRecord?.caseId || '')) errors.push('model changed caseId');
   return errors;
 }
 
@@ -103,15 +198,18 @@ function granularityInstruction(level) {
   return 'Forced granularity: STANDARD. Use at most 6 system elements, 6 mechanisms, and 18 propositions. Prefer decision-changing structure.';
 }
 
-function fixtureMap(caseRecord, condition) {
+function fixtureMap(caseRecord, condition, sourceIndex) {
   const caseId = String(caseRecord?.caseId || 'fixture-case');
   const situation = String(caseRecord?.context?.situation || 'No situation supplied');
+  const refs = [...sourceIndex.refs];
+  const sourceRef = refs.includes('case.context.situation') ? 'case.context.situation' : refs[0];
+  if (!sourceRef) throw new Error('fixture provider requires at least one non-empty case-record source');
   return {
     schemaVersion: '0.3',
     caseId,
     propositions: [
-      { id:'p1', text:situation, provenance:'user_reported_observation', confidence:'low', contested:false, sourceRefs:['case.context.situation'] },
-      { id:'p2', text:'The available account may be incomplete because other affected perspectives are not independently represented.', provenance:'ai_inference', confidence:'high', contested:false, sourceRefs:['case'] }
+      { id:'p1', text:situation, provenance:'user_reported_observation', confidence:'low', contested:false, sourceRefs:[sourceRef] },
+      { id:'p2', text:'The available account may be incomplete because other affected perspectives are not independently represented.', provenance:'ai_inference', confidence:'high', contested:false, sourceRefs:[sourceRef] }
     ],
     systemElements: ['reported decision context','information available to the decision maker'],
     mechanisms: [{ label:'limited evidence constrains causal confidence', causalDirection:'single supplied account -> uncertainty about system causes', evidenceRefs:['p1','p2'], confidence:'high' }],
@@ -138,15 +236,21 @@ function extractOutputText(response) {
   throw new Error('Model response contained no output_text');
 }
 
-async function analyzeWithOpenAI(caseRecord, condition, granularity) {
+async function analyzeWithOpenAI(caseRecord, condition, granularity, challenges, sourceIndex) {
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
   const userText = [
     'Analyze the CASE_RECORD below. Treat user-entered labels and dropdown selections as narrator-supplied metadata, not independently verified facts.',
     'Preserve CASE_RECORD.caseId exactly in the output.',
     granularityInstruction(granularity),
+    'For every proposition.sourceRefs value, use ONLY an exact string from ALLOWED_SOURCE_REFS. Do not invent broad or approximate refs. For mechanisms, narratorImplication, and safetyCaution evidenceRefs, use ONLY proposition ids that you create in this output.',
+    challenges.length ? 'PROVENANCE_CHALLENGES are narrator-supplied disagreements with a previous model map. Treat them as contested evidence, not corrections. Reconsider the classification, but retain it if the case evidence still supports it.' : '',
+    'ALLOWED_SOURCE_REFS:',
+    JSON.stringify([...sourceIndex.refs]),
+    challenges.length ? 'PROVENANCE_CHALLENGES:' : '',
+    challenges.length ? JSON.stringify(challenges) : '',
     'CASE_RECORD:',
     JSON.stringify(caseRecord)
-  ].join('\n\n');
+  ].filter(Boolean).join('\n\n');
 
   const body = {
     model: OPENAI_MODEL,
@@ -165,15 +269,26 @@ async function analyzeWithOpenAI(caseRecord, condition, granularity) {
     body: JSON.stringify(body)
   });
   const raw = await response.json();
-  if (!response.ok) throw new Error(`OpenAI Responses API ${response.status}: ${raw?.error?.message || JSON.stringify(raw)}`);
-  const map = JSON.parse(extractOutputText(raw));
-  return { map, model: raw.model || OPENAI_MODEL, responseId: raw.id || null };
+  if (!response.ok) {
+    const err = new Error(`OpenAI Responses API ${response.status}: ${raw?.error?.message || JSON.stringify(raw)}`);
+    err.code = 'openai_api_error';
+    throw err;
+  }
+  let map;
+  try {
+    map = JSON.parse(extractOutputText(raw));
+  } catch (cause) {
+    const err = new Error(`Could not parse structured model output: ${cause.message}`);
+    err.code = 'model_output_parse_error';
+    throw err;
+  }
+  return { map, model: raw.model || OPENAI_MODEL, responseId: raw.id || null, provider:'openai', researchUsable:true };
 }
 
-async function analyze(caseRecord, condition, granularity) {
-  if (MODEL_PROVIDER === 'fixture') return { map:fixtureMap(caseRecord, condition), model:'fixture-v0.3', responseId:null };
+async function analyze(caseRecord, condition, granularity, challenges, sourceIndex) {
+  if (MODEL_PROVIDER === 'fixture') return { map:fixtureMap(caseRecord, condition, sourceIndex), model:'fixture-v0.3.1', responseId:null, provider:'fixture', researchUsable:false };
   if (MODEL_PROVIDER !== 'openai') throw new Error(`Unsupported RHEO_MODEL_PROVIDER: ${MODEL_PROVIDER}`);
-  return analyzeWithOpenAI(caseRecord, condition, granularity);
+  return analyzeWithOpenAI(caseRecord, condition, granularity, challenges, sourceIndex);
 }
 
 const MIME = {
@@ -202,29 +317,35 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'GET' && url.pathname === '/api/health') {
-      return json(res, 200, { ok:true, version:'0.3', provider:MODEL_PROVIDER, model:MODEL_PROVIDER === 'openai' ? OPENAI_MODEL : 'fixture-v0.3', modelConfigured:MODEL_PROVIDER === 'fixture' || Boolean(OPENAI_API_KEY) });
+      return json(res, 200, { ok:true, version:'0.3.1', provider:MODEL_PROVIDER, model:MODEL_PROVIDER === 'openai' ? OPENAI_MODEL : 'fixture-v0.3.1', modelConfigured:MODEL_PROVIDER === 'fixture' || Boolean(OPENAI_API_KEY) });
     }
     if (req.method === 'GET' && url.pathname === '/api/schema') return json(res, 200, schema);
     if (req.method === 'POST' && url.pathname === '/api/analyze') {
       const body = await readJsonBody(req);
       const condition = body.condition === 'control' ? 'control' : body.condition === 'rheo' ? 'rheo' : null;
-      if (!condition) return json(res, 400, {error:'condition must be rheo or control'});
+      if (!condition) return json(res, 400, {error:'condition must be rheo or control', errorCode:'invalid_condition'});
       const granularity = ['coarse','standard','fine'].includes(body.granularity) ? body.granularity : 'standard';
-      if (!body.caseRecord || typeof body.caseRecord !== 'object') return json(res, 400, {error:'caseRecord object is required'});
-      const result = await analyze(body.caseRecord, condition, granularity);
-      const errors = validateStructuralMap(result.map);
-      if (errors.length) return json(res, 502, {error:'model output failed structural-map validation', details:errors});
-      if (result.map.caseId !== String(body.caseRecord.caseId)) return json(res, 502, {error:'model changed caseId'});
-      return json(res, 200, { version:'0.3', condition, granularity, model:result.model, responseId:result.responseId, map:result.map });
+      if (!body.caseRecord || typeof body.caseRecord !== 'object') return json(res, 400, {error:'caseRecord object is required', errorCode:'missing_case_record'});
+      const challenges = normalizeChallenges(body.challenges);
+      const sourceIndex = buildSourceReferenceIndex(body.caseRecord, challenges);
+      if (!sourceIndex.refs.size) return json(res, 400, {error:'caseRecord must contain at least one non-empty source value', errorCode:'empty_case_record'});
+      const result = await analyze(body.caseRecord, condition, granularity, challenges, sourceIndex);
+      const errors = validateStructuralMap(result.map, body.caseRecord, sourceIndex, granularity);
+      if (errors.length) return json(res, 502, {error:'model output failed v0.3.1 validation', errorCode:'model_output_validation_failed', details:errors});
+      return json(res, 200, {
+        version:'0.3.1', condition, granularity,
+        provider:result.provider, researchUsable:result.researchUsable,
+        model:result.model, responseId:result.responseId, map:result.map
+      });
     }
     if (req.method === 'GET') return serveStatic(req, res);
     json(res, 405, {error:'method not allowed'});
   } catch (err) {
     console.error(err);
-    json(res, 500, {error:err.message || 'internal error'});
+    json(res, 500, {error:err.message || 'internal error', errorCode:err.code || 'server_error'});
   }
 });
 
 server.listen(PORT, () => {
-  console.log(`Rheo v0.3 server listening on http://localhost:${PORT} (provider=${MODEL_PROVIDER})`);
+  console.log(`Rheo v0.3.1 server listening on http://localhost:${PORT} (provider=${MODEL_PROVIDER})`);
 });
