@@ -1,0 +1,13 @@
+{
+  "caseId":"a",
+  "relevantDomains":["Society / Support","Infrastructure / Affordance"],
+  "restrictionHypotheses":[{"label":"meaningful influence is constrained","causalDirection":"power asymmetry -> weak dialogue","evidenceRefs":["e1"],"confidence":"medium"}],
+  "uncertainties":["absent party account"],
+  "powerExit":["unequal decision authority"],
+  "temporalViability":["short deadline vs long trust recovery"],
+  "externalStakeholders":["future participants"],
+  "actionClasses":["independent fact finding","reversible process pause"],
+  "displacedCosts":["delay cost"],
+  "disconfirmingEvidence":["evidence that affected party had effective veto"],
+  "genericitySelfCheck":"specific"
+}
