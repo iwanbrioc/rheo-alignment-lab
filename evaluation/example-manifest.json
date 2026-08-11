@@ -1,0 +1,10 @@
+{
+  "pairs": [
+    {
+      "pair_id": "example-sym-01",
+      "family": "symmetry",
+      "a": "example-map-a.json",
+      "b": "example-map-b.json"
+    }
+  ]
+}
