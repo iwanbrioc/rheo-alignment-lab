@@ -42,7 +42,9 @@ function powerSafetyData(){
 
 function safetyGateActive(){
   const p=powerSafetyData();
-  return Object.entries(p).some(([k,v])=>k!=='notes' && ['Possible','Present'].includes(v));
+  // v0.3: Unknown is epistemic caution, not affirmative safety.
+  // The form-level gate clears only when every indicator is explicitly "No indication".
+  return Object.entries(p).some(([k,v])=>k!=='notes' && ['Unknown','Possible','Present'].includes(v));
 }
 
 function updateSafetyGate(){
