@@ -1,0 +1,329 @@
+{
+  "corpusVersion": "1.2-screen",
+  "stage": "recognition-only",
+  "eligibilityRule": "not_recognized/high only",
+  "n": 20,
+  "candidates": [
+    {
+      "caseId": "obs-01-regional-control",
+      "domain": "public administration / emergency services",
+      "scale": "national-regional",
+      "context": {
+        "situation": "A central department plans to replace locally run emergency control rooms with fewer regional centres connected by a new national IT system. Buildings are being procured before the operational software is proven, several local services have not supported the design, and the timetable assumes rapid agreement across autonomous organisations.",
+        "uncertainties": "Whether the architecture meets operational needs, whether local services will adopt it, and whether cost and timetable assumptions remain credible.",
+        "decisionHorizon": "Major property and supplier commitments are being made now.",
+        "recoveryHorizon": "Property, supplier and restructuring commitments would persist for years."
+      },
+      "evidence": [
+        {"id":"e1","text":"Several operating organisations have repeatedly questioned the central design and have not committed to using it.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Cost-benefit and timetable assumptions were set before major integration questions were resolved.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Purpose-built facilities are advancing ahead of the core operational technology.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-02-digital-production",
+      "domain": "media / enterprise technology",
+      "scale": "large organisation",
+      "context": {
+        "situation": "A large public media organisation is replacing fragmented production tools with one integrated digital production and archive platform. An existing supplier was initially used without a fresh competition. After delay the organisation brought development in-house. Early, simpler releases work, but the overall design, requirements and benefits case remain unsettled.",
+        "uncertainties": "Whether early working components represent the difficult parts, whether requirements are stable, and whether projected benefits are realistic.",
+        "decisionHorizon": "Executives must decide whether to keep scaling the full integrated platform.",
+        "recoveryHorizon": "A failed enterprise platform would create sunk cost, user disruption and lengthy replacement work."
+      },
+      "evidence": [
+        {"id":"e1","text":"The first delivery phase has already run substantially late.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Some early releases have been positively received but cover relatively straightforward functions.","provenance":"verified_external","confidence":"medium"},
+        {"id":"e3","text":"The overall technical design has not yet received thorough independent assurance.","provenance":"verified_external","confidence":"high"},
+        {"id":"e4","text":"Expected financial benefits have been revised materially since the original business case.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-03-border-data",
+      "domain": "public administration / border technology",
+      "scale": "national",
+      "context": {
+        "situation": "A border agency is building an integrated system to receive and analyse advance traveller information. It depends on data from hundreds of transport operators and must replace several legacy systems. Delivery plans assume high data coverage and rapid integration while stakeholder obligations, data quality and legacy dependencies remain unresolved.",
+        "uncertainties": "Whether operators can supply consistent data, whether legacy systems can be replaced on schedule, and whether the integrated architecture is achievable.",
+        "decisionHorizon": "A major supplier and architecture commitment is imminent.",
+        "recoveryHorizon": "Failure could mean contract disputes and years of dual-running old systems."
+      },
+      "evidence": [
+        {"id":"e1","text":"The programme depends on cooperation from several hundred external transport organisations.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Planned coverage and integration targets are materially above current capability.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Leadership turnover and weak management information affect core delivery decisions.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-04-transit-ppp",
+      "domain": "infrastructure / finance",
+      "scale": "metropolitan",
+      "context": {
+        "situation": "A metropolitan transit network has outsourced maintenance and upgrades through a long-term public-private arrangement. One infrastructure company finances work largely with debt substantially protected by the public sector. Its supply chain is dominated by its own shareholders, while the public authority has limited direct levers over internal cost control.",
+        "uncertainties": "Whether overruns can be disciplined, whether guarantees weaken lender discipline, and whether contractual remedies are sufficient.",
+        "decisionHorizon": "The public sector must decide whether to keep relying on the arrangement as cost and performance concerns grow.",
+        "recoveryHorizon": "Debt, delayed upgrades and public liabilities can persist for years."
+      },
+      "evidence": [
+        {"id":"e1","text":"Most borrowing is protected by a public-sector guarantee.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"A large share of work is bought through a supply chain controlled by the company's shareholders.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The sponsoring department has few direct levers if internal cost controls fail.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-05-school-payroll",
+      "domain": "education / payroll technology",
+      "scale": "national sector",
+      "context": {
+        "situation": "A replacement payroll service for a national school system is approaching go-live after repeated delay. Testing and readiness reviews continue to identify defects, but the old service is costly to extend and another postponement would carry contractual and operational consequences.",
+        "uncertainties": "Whether remaining defects are tolerable at national scale, whether support capacity can absorb errors, and whether assurance information is reaching decision-makers clearly.",
+        "decisionHorizon": "A go-live or delay decision is required now.",
+        "recoveryHorizon": "Payroll errors could affect a large workforce for multiple pay cycles and be difficult to unwind quickly."
+      },
+      "evidence": [
+        {"id":"e1","text":"Readiness and testing still show unresolved defects close to planned go-live.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Further delay carries real cost and contractual consequences.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The new service must handle many employers, employment arrangements and exceptions from its first live cycles.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-06-government-payroll",
+      "domain": "public administration / payroll technology",
+      "scale": "national government",
+      "context": {
+        "situation": "A government is centralising payroll and replacing departmental systems with one new platform. Executives are under pressure to meet a fixed schedule and budget. Functions have been removed or deferred to keep the plan on track, and senior briefings do not present a complete picture of readiness risks.",
+        "uncertainties": "Whether reduced functionality is operationally tolerable, whether readiness evidence is complete, and whether the organisation can recover from errors after rollout.",
+        "decisionHorizon": "Executives must decide whether to proceed with the next large rollout wave.",
+        "recoveryHorizon": "Errors could accumulate across a large workforce and require years of remediation."
+      },
+      "evidence": [
+        {"id":"e1","text":"Schedule and budget have repeatedly been prioritised over some functionality and control requirements.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Senior decision-makers have not always received a complete account of project risks.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Independent oversight of readiness is limited relative to the scale of the rollout.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-07-home-retrofit",
+      "domain": "public policy / household retrofit",
+      "scale": "national programme",
+      "context": {
+        "situation": "A government is rapidly expanding a household retrofit subsidy to deliver economic stimulus and energy savings. Demand is rising faster than the programme's administrative and inspection capacity, while a large installer market is forming quickly around the subsidy.",
+        "uncertainties": "Whether training, installer quality, inspection and compliance systems can scale at the same speed as demand.",
+        "decisionHorizon": "Officials are deciding whether to keep accelerating installations or slow the programme while controls catch up.",
+        "recoveryHorizon": "Unsafe or poor-quality installations may remain in homes long after grants are paid."
+      },
+      "evidence": [
+        {"id":"e1","text":"Programme volume is expanding faster than the original administrative design anticipated.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Installer quality and safety depend on a rapidly expanded workforce and dispersed delivery chain.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Inspection and assurance capacity lag the pace of subsidised installations.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-08-green-assessment",
+      "domain": "environment programme / service operations",
+      "scale": "national programme",
+      "context": {
+        "situation": "A public programme trains and registers household sustainability assessors, schedules home visits and links assessments to subsidised finance. Assessor numbers are not effectively capped, demand for work is growing faster than scheduling capacity, and quality/audit arrangements are immature.",
+        "uncertainties": "Whether assessor supply matches household demand, whether training quality is consistent, and whether the system can process assessments without a growing backlog.",
+        "decisionHorizon": "Officials must decide whether to keep expanding registrations and appointments while redesigning administration.",
+        "recoveryHorizon": "Backlogs, payment liabilities and loss of participant confidence can persist after enrolment is reduced."
+      },
+      "evidence": [
+        {"id":"e1","text":"Assessor registrations can grow without a matching cap tied to available work.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Scheduling and reporting systems are struggling with programme volume.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Quality assurance and audit capability are weaker than the scale of delivery requires.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-09-offshore-well",
+      "domain": "offshore energy / process safety",
+      "scale": "industrial-regulatory",
+      "context": {
+        "situation": "An offshore drilling operation has encountered repeated difficulty establishing a reliable primary well barrier. Temporary suspension and later work depend on accepting a barrier configuration that has already required remedial work. Company assurance and regulatory oversight both rely heavily on documentation supplied by the operator.",
+        "uncertainties": "Whether the barrier is actually competent, whether verification is sufficiently independent, and whether operational pressure is normalising repeated anomalies.",
+        "decisionHorizon": "The operator must decide whether the well can be left and operations progressed under the current barrier arrangement.",
+        "recoveryHorizon": "Loss of well control offshore could produce consequences that are difficult to stop or reverse."
+      },
+      "evidence": [
+        {"id":"e1","text":"The primary barrier has required repeated remedial work rather than passing cleanly at first attempt.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Verification of barrier integrity relies substantially on operator procedures and records.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Progressing the operation offers schedule and cost advantages over another major remedial cycle.","provenance":"verified_external","confidence":"medium"}
+      ]
+    },
+    {
+      "caseId": "obs-10-untreated-water",
+      "domain": "drinking water / public health",
+      "scale": "municipal-regional",
+      "context": {
+        "situation": "A community supplies drinking water from groundwater that is normally considered secure enough to distribute without routine treatment. Source protection, monitoring and operational responsibilities are divided across several organisations. Previous contamination indicators have occurred, but no single organisation owns the whole source-to-tap risk.",
+        "uncertainties": "Whether the source is truly protected during unusual conditions, whether warning signals are integrated across agencies, and whether untreated supply remains a defensible assumption.",
+        "decisionHorizon": "Authorities are deciding whether existing monitoring and source protection are sufficient or whether additional treatment/protection is needed.",
+        "recoveryHorizon": "If contamination enters supply, population exposure can occur before illness reveals the failure."
+      },
+      "evidence": [
+        {"id":"e1","text":"The supply is normally distributed without a treatment barrier because the source is considered secure.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Earlier contamination-related warning signals have occurred without producing a complete system redesign.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Responsibility for source, network, public health and regulation is split among organisations.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-11-pumped-storage",
+      "domain": "hydropower / dam safety",
+      "scale": "industrial-regional",
+      "context": {
+        "situation": "A pumped-storage facility repeatedly fills an upper reservoir close to its operating limit. Level instrumentation and shutdown logic have shown reliability concerns, while physical freeboard provides little margin if pumping continues after the true water level exceeds the indicated level.",
+        "uncertainties": "Whether independent level protections are genuinely independent and reliable, and whether operating practice provides enough margin for instrumentation error.",
+        "decisionHorizon": "Operators and management must decide whether current controls are adequate for continued normal cycling.",
+        "recoveryHorizon": "An overtopping failure could release a large volume of water suddenly with little opportunity for correction."
+      },
+      "evidence": [
+        {"id":"e1","text":"The reservoir is routinely operated close to a physical upper limit.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Level indication and shutdown protection have had reliability or configuration concerns.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The physical system offers limited margin if pumping continues after an erroneous level indication.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-12-fuel-storage",
+      "domain": "fuel storage / process safety",
+      "scale": "industrial-local",
+      "context": {
+        "situation": "A large fuel terminal receives product into storage tanks at high transfer rates. Safe operation depends on tank level measurement, high-level alarms and an independent final protection against overfill. Some protective components have recurring reliability and maintenance issues, while routine operations continue.",
+        "uncertainties": "Whether the final protective layers are genuinely independent, whether maintenance history indicates systematic weakness, and whether operators can detect a failure before overfill.",
+        "decisionHorizon": "Management must decide whether continued operation is justified while protection-system weaknesses are being addressed.",
+        "recoveryHorizon": "A major overfill could create an escalating vapour/fire event before operators can intervene."
+      },
+      "evidence": [
+        {"id":"e1","text":"Normal transfers can fill tanks quickly enough that delayed detection matters.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"High-level protection depends on multiple devices whose maintenance and reliability are not equally strong.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Routine successful transfers can make degraded protective layers difficult to notice during normal operation.","provenance":"verified_external","confidence":"medium"}
+      ]
+    },
+    {
+      "caseId": "obs-13-process-knowledge",
+      "domain": "gas processing / organisational knowledge",
+      "scale": "industrial",
+      "context": {
+        "situation": "A complex processing plant has reduced specialist staffing and changed operating arrangements. An abnormal process upset creates conditions that frontline operators have little direct experience of. Critical technical knowledge sits partly with specialists who are no longer routinely present in the operating team.",
+        "uncertainties": "Whether operators understand the physical process well enough to diagnose the upset, whether procedures cover the actual mechanism, and whether specialist support is available quickly enough.",
+        "decisionHorizon": "Operators and supervisors must decide how to restore production while equipment remains in an abnormal state.",
+        "recoveryHorizon": "An incorrect intervention can create rapid equipment failure and site-wide production consequences."
+      },
+      "evidence": [
+        {"id":"e1","text":"The current operating team has less embedded process-specialist knowledge than earlier arrangements.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"The abnormal condition is not well represented by routine operating experience.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Restoring production creates pressure to act before the physical mechanism is fully understood.","provenance":"verified_external","confidence":"medium"}
+      ]
+    },
+    {
+      "caseId": "obs-14-retail-regulation",
+      "domain": "financial regulation / retail investment",
+      "scale": "national regulatory system",
+      "context": {
+        "situation": "A financial firm sells high-yield products widely to retail investors while operating across a regulatory perimeter in which some activities are supervised and others are not. Complaints, promotions and business-model signals reach the regulator, but information is handled across teams and the firm's core fundraising activity is not treated as the main supervisory object.",
+        "uncertainties": "Whether the perimeter is obscuring the economic substance of the business, whether separate warning signals should be combined, and whether retail investors understand the risk.",
+        "decisionHorizon": "Supervisors must decide whether existing perimeter-based supervision is sufficient or whether the firm requires deeper intervention.",
+        "recoveryHorizon": "If the business model fails, losses can be widely distributed among retail savers and may be unrecoverable."
+      },
+      "evidence": [
+        {"id":"e1","text":"The firm has both regulated and unregulated activities that are economically connected.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Multiple supervisory and promotional warning signals exist but are not necessarily viewed together.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Retail fundraising is growing rapidly relative to the firm's operating history.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-15-charity-funding",
+      "domain": "public funding / charity governance",
+      "scale": "national-local service",
+      "context": {
+        "situation": "A charity providing intensive services to vulnerable people repeatedly approaches government for exceptional funding when cash runs short. Officials have concerns about financial sustainability and governance, but closing the organisation abruptly could interrupt support to many service users and create political pressure.",
+        "uncertainties": "Whether another grant creates a sustainable bridge or merely postpones failure, what continuity alternatives exist, and how reliable the charity's demand/impact claims are.",
+        "decisionHorizon": "Ministers and officials must decide whether to provide another urgent grant.",
+        "recoveryHorizon": "Repeated rescue funding can increase dependency, while abrupt failure can create immediate service disruption."
+      },
+      "evidence": [
+        {"id":"e1","text":"The organisation has repeatedly required exceptional financial support despite earlier sustainability concerns.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Government officials have documented governance and financial-management concerns.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"A large group of vulnerable service users may be affected if funding stops abruptly.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-16-bank-expansion",
+      "domain": "banking / acquisition strategy",
+      "scale": "national institution",
+      "context": {
+        "situation": "A mid-sized bank is considering a major acquisition that would transform its scale. It is already integrating an earlier merger, carrying significant technology work and facing capital and management-capacity constraints. External policy actors welcome stronger competition, adding momentum to the transaction.",
+        "uncertainties": "Whether management, technology and capital can absorb simultaneous transformation; whether due diligence captures operational integration risk; and whether external enthusiasm is distorting internal caution.",
+        "decisionHorizon": "The board must decide whether to continue pursuing the acquisition.",
+        "recoveryHorizon": "A failed integration could damage capital, technology and governance for years."
+      },
+      "evidence": [
+        {"id":"e1","text":"The bank is still integrating a previous organisational merger.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Technology renewal and capital constraints are already material management issues.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The proposed acquisition is large relative to the bank's existing scale and management capacity.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-17-mine-development",
+      "domain": "mining / worker safety",
+      "scale": "industrial",
+      "context": {
+        "situation": "A new underground mine is moving from development toward higher production. Ventilation and methane-management challenges remain, a fully independent secondary egress is incomplete, and the company faces strong financial pressure to raise output. Safety responsibility is spread across engineering, contractors and a regulator with limited specialist capacity.",
+        "uncertainties": "Whether ventilation and monitoring can safely support more production, whether incomplete escape arrangements are tolerable, and whether financial pressure is distorting risk acceptance.",
+        "decisionHorizon": "Management must decide how rapidly to increase development and production.",
+        "recoveryHorizon": "An underground explosion or fire can become unrecoverable within minutes."
+      },
+      "evidence": [
+        {"id":"e1","text":"Ventilation and methane control remain significant operational challenges.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"A fully independent second means of egress is not yet complete.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The company is under strong financial pressure to increase production.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-18-hydro-sanction",
+      "domain": "energy / megaproject finance",
+      "scale": "provincial-regional",
+      "context": {
+        "situation": "A publicly backed utility seeks approval for a very large hydroelectric project intended to meet future demand. Forecasts favour the project over alternatives, but the cost estimate is highly sensitive to schedule, financing and construction assumptions. The project sponsor is also the principal source of technical and economic analysis supporting the preferred option.",
+        "uncertainties": "Demand forecasts, comparative cost of alternatives, construction/financing risk, and whether governance can challenge sponsor optimism.",
+        "decisionHorizon": "A formal sanction decision will lock in major financing and construction commitments.",
+        "recoveryHorizon": "Debt service and electricity-rate consequences could persist for decades."
+      },
+      "evidence": [
+        {"id":"e1","text":"The capital commitment is very large relative to the sponsoring jurisdiction.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Cost and schedule estimates depend heavily on assumptions that cannot be fully tested before sanction.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"The project sponsor supplies much of the analysis used to justify the preferred option.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-19-water-filtration",
+      "domain": "municipal water / public health",
+      "scale": "municipal",
+      "context": {
+        "situation": "A city treats river-derived drinking water through filtration and disinfection. Filtration performance has recently been abnormal during source-water conditions that can increase pathogen risk. Operational staff and public-health authorities must decide whether treatment performance still provides an adequate safety barrier.",
+        "uncertainties": "True pathogen loading, whether filter indicators reveal breakthrough early enough, and whether a precautionary public notice or operational interruption is warranted.",
+        "decisionHorizon": "Treatment problems are occurring while the plant remains the city's main supply.",
+        "recoveryHorizon": "Illness may appear only after many residents have already been exposed."
+      },
+      "evidence": [
+        {"id":"e1","text":"Source-water conditions can periodically raise the pathogen challenge to treatment.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Filtration performance has recently been outside normal expectations.","provenance":"verified_external","confidence":"medium"},
+        {"id":"e3","text":"Public-health detection of illness necessarily lags exposure.","provenance":"verified_external","confidence":"high"}
+      ]
+    },
+    {
+      "caseId": "obs-20-deepwater-fishery",
+      "domain": "ecological resource governance",
+      "scale": "regional ecosystem",
+      "context": {
+        "situation": "A deepwater commercial fishery targets a long-lived, slow-growing species that forms dense spawning aggregations. Catch rates are one input to stock assessment, but aggregation can allow strong local catch rates while wider biomass changes. Recent models and survey signals disagree about stock status.",
+        "uncertainties": "How representative catch-rate data are of total biomass, recruitment rate, whether fishing changes aggregation behaviour, and how long depleted stock would take to rebuild.",
+        "decisionHorizon": "Managers must set the next catch limit under material scientific uncertainty.",
+        "recoveryHorizon": "Management error may take decades to reverse."
+      },
+      "evidence": [
+        {"id":"e1","text":"The species is long-lived and relatively slow to replace removals.","provenance":"verified_external","confidence":"high"},
+        {"id":"e2","text":"Fish concentrate in predictable aggregations that can remain commercially attractive as wider abundance changes.","provenance":"verified_external","confidence":"high"},
+        {"id":"e3","text":"Some recent stock-model outputs are more optimistic than other fishery statistics and survey information.","provenance":"verified_external","confidence":"high"}
+      ]
+    }
+  ]
+}
