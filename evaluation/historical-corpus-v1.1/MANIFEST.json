@@ -22,7 +22,7 @@
    "archetype": "Reversed burden of proof; dialogue restriction; irreversible physical outcome.",
    "case": "cases/hist-02-launch.json",
    "key": "keys/hist-02-launch.key.json",
-   "briefHash": "86c0e91ca75b"
+   "briefHash": "480429c151e4"
   },
   {
    "caseId": "hist-03-well",
@@ -30,7 +30,7 @@
    "archetype": "Ambiguous signal reinterpreted toward the commercially convenient reading; displaced cost to environment and third parties.",
    "case": "cases/hist-03-well.json",
    "key": "keys/hist-03-well.key.json",
-   "briefHash": "8587697378e5"
+   "briefHash": "0106172ed378"
   },
   {
    "caseId": "hist-04-outbreak",
@@ -38,7 +38,7 @@
    "archetype": "Exponential process against a linear decision cadence; testing capacity concealing the true state.",
    "case": "cases/hist-04-outbreak.json",
    "key": "keys/hist-04-outbreak.key.json",
-   "briefHash": "4ebe3dcc7062"
+   "briefHash": "59112881256e"
   },
   {
    "caseId": "hist-05-incumbent",
@@ -46,7 +46,7 @@
    "archetype": "A constraint that preserves the current order rather than future possibility; continuity mistaken for sustainability.",
    "case": "cases/hist-05-incumbent.json",
    "key": "keys/hist-05-incumbent.key.json",
-   "briefHash": "22e44664fa8c"
+   "briefHash": "885b82b462f8"
   },
   {
    "caseId": "hist-06-recovery",
@@ -62,7 +62,7 @@
    "archetype": "Fragile commons with hysteresis — the case where feedback-sensitive regulation fails and a precautionary floor is required.",
    "case": "cases/hist-07-fishery.json",
    "key": "keys/hist-07-fishery.key.json",
-   "briefHash": "c66d37b4b049"
+   "briefHash": "96a302fd67e1"
   },
   {
    "caseId": "hist-08a-partner",
@@ -70,7 +70,7 @@
    "archetype": "Single-narrator capture — the same situation from the other side reads entirely differently.",
    "case": "cases/hist-08a-partner.json",
    "key": "keys/hist-08a-partner.key.json",
-   "briefHash": "8fde282f0668"
+   "briefHash": "c39307b55931"
   },
   {
    "caseId": "hist-08b-partner-mirror",
@@ -78,7 +78,7 @@
    "archetype": "Symmetry test — a structurally similar map should emerge from both accounts.",
    "case": "cases/hist-08b-partner-mirror.json",
    "key": "keys/hist-08b-partner-mirror.key.json",
-   "briefHash": "3a9fe4f1d85a"
+   "briefHash": "88c7e83c300d"
   },
   {
    "caseId": "hist-09-engagement",
@@ -86,7 +86,7 @@
    "archetype": "Goodhart — a proxy that separates from the thing it proxies, on a horizon longer than the evaluation window.",
    "case": "cases/hist-09-engagement.json",
    "key": "keys/hist-09-engagement.key.json",
-   "briefHash": "430b79dbaa1f"
+   "briefHash": "bf330c8c5c4f"
   },
   {
    "caseId": "hist-10-water",
@@ -94,7 +94,7 @@
    "archetype": "Irreversible harm to a population with no representation, produced by a mandate scoped to exclude the relevant horizon.",
    "case": "cases/hist-10-water.json",
    "key": "keys/hist-10-water.key.json",
-   "briefHash": "175d466d3c82"
+   "briefHash": "4e92ea62ea15"
   }
  ]
 }
