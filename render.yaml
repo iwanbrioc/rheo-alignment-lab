@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: rheo
+    runtime: node
+    plan: free
+    branch: v0.3.1-evaluation-ui-repair
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    domains:
+      - rheocracy.org
+    envVars:
+      - key: RHEO_MODEL_PROVIDER
+        value: openai
+      - key: OPENAI_MODEL
+        value: gpt-5.6
+      - key: OPENAI_API_KEY
+        sync: false
