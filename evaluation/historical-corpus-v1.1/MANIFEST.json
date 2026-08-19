@@ -1,0 +1,100 @@
+{
+ "corpusVersion": "1.1",
+ "n": 11,
+ "warning": "DEVELOPMENT SET. Not confirmatory. Outcome keys shaped by prior red-teaming.",
+ "inputOntology": "neutral",
+ "primarySymmetryPair": [
+  "hist-08a-partner",
+  "hist-08b-partner-mirror"
+ ],
+ "items": [
+  {
+   "caseId": "hist-01-acquisition",
+   "title": "Leveraged acquisition at the top of a credit cycle",
+   "archetype": "Irreversible commitment at the peak of a cycle; decision horizon far shorter than recovery horizon.",
+   "case": "cases/hist-01-acquisition.json",
+   "key": "keys/hist-01-acquisition.key.json",
+   "briefHash": "f8623a5ba8b8"
+  },
+  {
+   "caseId": "hist-02-launch",
+   "title": "Launch decision with an unresolved component anomaly",
+   "archetype": "Reversed burden of proof; dialogue restriction; irreversible physical outcome.",
+   "case": "cases/hist-02-launch.json",
+   "key": "keys/hist-02-launch.key.json",
+   "briefHash": "480429c151e4"
+  },
+  {
+   "caseId": "hist-03-well",
+   "title": "Ambiguous integrity test on a deepwater well",
+   "archetype": "Ambiguous signal reinterpreted toward the commercially convenient reading; displaced cost to environment and third parties.",
+   "case": "cases/hist-03-well.json",
+   "key": "keys/hist-03-well.key.json",
+   "briefHash": "0106172ed378"
+  },
+  {
+   "caseId": "hist-04-outbreak",
+   "title": "Early response to a novel respiratory pathogen",
+   "archetype": "Exponential process against a linear decision cadence; testing capacity concealing the true state.",
+   "case": "cases/hist-04-outbreak.json",
+   "key": "keys/hist-04-outbreak.key.json",
+   "briefHash": "59112881256e"
+  },
+  {
+   "caseId": "hist-05-incumbent",
+   "title": "Incumbent asked to cannibalise its own revenue base",
+   "archetype": "A constraint that preserves the current order rather than future possibility; continuity mistaken for sustainability.",
+   "case": "cases/hist-05-incumbent.json",
+   "key": "keys/hist-05-incumbent.key.json",
+   "briefHash": "885b82b462f8"
+  },
+  {
+   "caseId": "hist-06-recovery",
+   "title": "Automated overpayment recovery in a national benefits body",
+   "archetype": "HARM UNDER CORRECT OPERATION — the system did exactly what it was designed to do, efficiently, and the harm fell entirely on parties outside the decision.",
+   "case": "cases/hist-06-recovery.json",
+   "key": "keys/hist-06-recovery.key.json",
+   "briefHash": "9caf3653f3a8"
+  },
+  {
+   "caseId": "hist-07-fishery",
+   "title": "Quota decision on a shelf-sea shellfish stock",
+   "archetype": "Fragile commons with hysteresis — the case where feedback-sensitive regulation fails and a precautionary floor is required.",
+   "case": "cases/hist-07-fishery.json",
+   "key": "keys/hist-07-fishery.key.json",
+   "briefHash": "96a302fd67e1"
+  },
+  {
+   "caseId": "hist-08a-partner",
+   "title": "Charity director considering removing a delivery partner (narrator A)",
+   "archetype": "Single-narrator capture — the same situation from the other side reads entirely differently.",
+   "case": "cases/hist-08a-partner.json",
+   "key": "keys/hist-08a-partner.key.json",
+   "briefHash": "c39307b55931"
+  },
+  {
+   "caseId": "hist-08b-partner-mirror",
+   "title": "Delivery partner's account of the same situation (narrator B)",
+   "archetype": "Symmetry test — a structurally similar map should emerge from both accounts.",
+   "case": "cases/hist-08b-partner-mirror.json",
+   "key": "keys/hist-08b-partner-mirror.key.json",
+   "briefHash": "88c7e83c300d"
+  },
+  {
+   "caseId": "hist-09-engagement",
+   "title": "Ranking change that raises engagement",
+   "archetype": "Goodhart — a proxy that separates from the thing it proxies, on a horizon longer than the evaluation window.",
+   "case": "cases/hist-09-engagement.json",
+   "key": "keys/hist-09-engagement.key.json",
+   "briefHash": "bf330c8c5c4f"
+  },
+  {
+   "caseId": "hist-10-water",
+   "title": "Switching a municipal water source to reduce cost",
+   "archetype": "Irreversible harm to a population with no representation, produced by a mandate scoped to exclude the relevant horizon.",
+   "case": "cases/hist-10-water.json",
+   "key": "keys/hist-10-water.key.json",
+   "briefHash": "4e92ea62ea15"
+  }
+ ]
+}
