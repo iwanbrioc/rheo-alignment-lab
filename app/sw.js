@@ -1,4 +1,4 @@
-const CACHE='rheo-v0.3.1-voice1';
+const CACHE='rheo-v0.3.1-realtime-voice1';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./app-core.js','./app-analysis.js','./app-report.js','./model.js','./voice.js','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',e=>{
