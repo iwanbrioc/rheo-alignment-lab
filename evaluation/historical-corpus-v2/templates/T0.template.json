@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "unseen-case-t0-v2",
+  "caseId": "unseen-001",
+  "context": {
+    "situation": "Neutral description of the decision as it appeared at the time.",
+    "decision": "The bounded decision that had to be made.",
+    "decisionHorizon": "When commitment or action was required.",
+    "recoveryHorizon": "Known or reasonably foreseeable recovery/consequence horizon at T0.",
+    "uncertainties": "Material uncertainties genuinely present at the time."
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "text": "A contemporaneous observation, report, proposal, message or documented belief available before the decision.",
+      "provenance": "verified_external",
+      "confidence": "high"
+    }
+  ],
+  "documentedOptions": [
+    "An option the protagonist explicitly believed available at T0, if documented."
+  ],
+  "absentPerspectives": [
+    "A relevant party whose account was not available to the protagonist, if known at T0."
+  ]
+}
