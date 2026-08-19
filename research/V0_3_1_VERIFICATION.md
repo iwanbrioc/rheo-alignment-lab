@@ -8,9 +8,11 @@
 
 `research/CHANGE_RECORD_V0_3_1_EVALUATION_UI_REPAIR.md` was committed first on the branch, before implementation changes.
 
+A subsequent presentation-only integration of the production Coming to Our Senses / CTOS Hub visual system is separately recorded in `research/CHANGE_RECORD_V0_3_1_CTOS_DESIGN_SYSTEM.md`. That record preserves the research schema/model/evaluator invariants and notes that visual treatment itself may affect trust, salience, friction or retention.
+
 ## CI verification
 
-GitHub Actions PR run **31506959824**, job **93830880717**, completed successfully on 2026-08-11.
+GitHub Actions PR run **31506959824**, job **93830880717**, completed successfully on 2026-08-11 for the original v0.3.1 repair set. Later branch runs continued to pass the same syntax, JSON, evaluator and fixture-pipeline checks after the deployment and design-system additions.
 
 Verified by CI:
 
@@ -81,11 +83,13 @@ Browser-level usability and false-positive/false-negative behaviour have not yet
 
 Fewer than 7/9 scored dimensions is now marked uninterpretable for a lexical family summary. The threshold is a development guard, not a validated confirmatory criterion.
 
-## Plain-language UI verification status
+## Plain-language UI and CTOS visual system
 
-The main guide has been rewritten so the default path uses ordinary-language headings and questions. Research terminology is retained behind progressive disclosure. Internal ids, output schema and model condition names remain stable.
+The main guide uses ordinary-language headings and questions, with research terminology behind progressive disclosure. Internal ids, output schema and model condition names remain stable.
 
-CI verifies syntax only. No user study, accessibility audit or browser interaction study has yet established that the new wording improves comprehension, completion or decision quality.
+The visual layer now follows the production CTOS system supplied for this project and checked against `iwanbrioc/CTOShub`: Geist for UI/body, Plus Jakarta Sans for display headings, Geist Mono for research metadata; the periwinkle/purple/teal signature gradient for the landing hero; monochromatic work surfaces; sharp input/button/card radii; 1px-border depth; restrained shadows; colour used as a signal; seven horizon accent strips; responsive dark-mode tokens; and reduced-motion handling. PWA colours/icon/cache were updated to match.
+
+No CTOS illustration or institutional mark was redrawn or fabricated. The redesign is a presentation change and must not be treated as evidence of RWB performance or user benefit.
 
 ## Still unverified / required next
 
@@ -94,7 +98,7 @@ CI verifies syntax only. No user study, accessibility audit or browser interacti
 3. **Similarity calibration.** Use labelled same-structure/different-wording and different-structure/similar-wording pairs with blind human ratings before adopting any semantic machine scorer.
 4. **Independent third arm.** Obtain an independently authored generic strong-reasoning control under `INDEPENDENT_CONTROL_SPEC_V0_3_1.md`; freeze it before outcome comparison.
 5. **Provenance-challenge test.** Measure whether challenges improve source classification accuracy rather than merely increasing agreement with the narrator.
-6. **Plain-language usability check.** Small development test for comprehension, completion friction and whether progressive disclosure preserves research-state visibility.
+6. **Plain-language/design usability check.** Small development test for comprehension, completion friction and whether progressive disclosure preserves research-state visibility.
 
 ## Research status
 
