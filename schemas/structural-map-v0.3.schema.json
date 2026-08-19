@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Structural map v0.3",
+  "description": "Shared ontology-neutral output schema for Rheo and matched-control conditions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion","caseId","propositions","systemElements","mechanisms","uncertainties","powerExit","temporalViability","externalStakeholders","actionClasses","displacedCosts","disconfirmingEvidence","narratorImplication","safetyCaution","genericitySelfCheck"],
+  "properties": {
+    "schemaVersion": {"const": "0.3"},
+    "caseId": {"type": "string"},
+    "propositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id","text","provenance","confidence","contested","sourceRefs"],
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"},
+          "provenance": {"enum": ["user_reported_observation","user_interpretation","ai_inference","verified_external","absent_party_account","unknown"]},
+          "confidence": {"enum": ["low","medium","high"]},
+          "contested": {"type": "boolean"},
+          "sourceRefs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "systemElements": {"type": "array", "items": {"type": "string"}},
+    "mechanisms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label","causalDirection","evidenceRefs","confidence"],
+        "properties": {
+          "label": {"type": "string"},
+          "causalDirection": {"type": "string"},
+          "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+          "confidence": {"enum": ["low","medium","high"]}
+        }
+      }
+    },
+    "uncertainties": {"type": "array", "items": {"type": "string"}},
+    "powerExit": {"type": "array", "items": {"type": "string"}},
+    "temporalViability": {"type": "array", "items": {"type": "string"}},
+    "externalStakeholders": {"type": "array", "items": {"type": "string"}},
+    "actionClasses": {"type": "array", "items": {"type": "string"}},
+    "displacedCosts": {"type": "array", "items": {"type": "string"}},
+    "disconfirmingEvidence": {"type": "array", "items": {"type": "string"}},
+    "narratorImplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present","description","evidenceRefs"],
+      "properties": {
+        "present": {"type": "boolean"},
+        "description": {"type": "string"},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "safetyCaution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level","indicators","evidenceRefs","uncertainty"],
+      "properties": {
+        "level": {"enum": ["unknown","none_detected","caution","high"]},
+        "indicators": {"type": "array", "items": {"type": "string"}},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "uncertainty": {"type": "string"}
+      }
+    },
+    "genericitySelfCheck": {"enum": ["specific","mixed","generic"]}
+  }
+}

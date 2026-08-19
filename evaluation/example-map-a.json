@@ -1,13 +1,24 @@
 {
-  "caseId":"a",
-  "relevantDomains":["Society / Support","Infrastructure / Affordance"],
-  "restrictionHypotheses":[{"label":"meaningful influence is constrained","causalDirection":"power asymmetry -> weak dialogue","evidenceRefs":["e1"],"confidence":"medium"}],
-  "uncertainties":["absent party account"],
-  "powerExit":["unequal decision authority"],
-  "temporalViability":["short deadline vs long trust recovery"],
-  "externalStakeholders":["future participants"],
-  "actionClasses":["independent fact finding","reversible process pause"],
-  "displacedCosts":["delay cost"],
-  "disconfirmingEvidence":["evidence that affected party had effective veto"],
-  "genericitySelfCheck":"specific"
+  "schemaVersion": "0.3",
+  "caseId": "example-sym-01",
+  "propositions": [
+    {"id":"p1","text":"One party has final approval authority.","provenance":"user_reported_observation","confidence":"medium","contested":false,"sourceRefs":["account-a"]},
+    {"id":"p2","text":"Consultation occurred before the decision.","provenance":"user_reported_observation","confidence":"medium","contested":false,"sourceRefs":["account-a"]},
+    {"id":"p3","text":"The consultation may not have provided meaningful influence over the final decision.","provenance":"ai_inference","confidence":"medium","contested":true,"sourceRefs":["p1","p2"]}
+  ],
+  "systemElements": ["decision authority","consultation process","implementation deadline"],
+  "mechanisms": [
+    {"label":"meaningful influence constrained by unequal decision authority","causalDirection":"final approval authority -> limited practical influence","evidenceRefs":["p1","p3"],"confidence":"medium"},
+    {"label":"short deadline compresses deliberation","causalDirection":"deadline pressure -> reduced time for revision","evidenceRefs":["p2"],"confidence":"low"}
+  ],
+  "uncertainties": ["whether consultation could materially alter the decision","absent account from the approval holder"],
+  "powerExit": ["one party has final approval authority"],
+  "temporalViability": ["short decision window may be shorter than trust-recovery time"],
+  "externalStakeholders": ["future participants affected by the decision"],
+  "actionClasses": ["independent fact finding","reversible process pause"],
+  "displacedCosts": ["delay cost"],
+  "disconfirmingEvidence": ["evidence that consulted participants held an effective veto or revision right"],
+  "narratorImplication": {"present":false,"description":"No narrator-specific causal contribution is established in this example map.","evidenceRefs":[]},
+  "safetyCaution": {"level":"unknown","indicators":[],"evidenceRefs":[],"uncertainty":"The example concerns decision power, not enough evidence for a personal-safety inference."},
+  "genericitySelfCheck": "specific"
 }

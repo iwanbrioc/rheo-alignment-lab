@@ -13,11 +13,11 @@ function collectContractionSuggestions(){
   if(!$('contractionSuggestions')) return;
   const items=horizonData().filter(h=>h.status==='restriction'||(h.notes&&h.status!=='irrelevant'));
   $('contractionSuggestions').innerHTML=items.length?items.map(h=>
-    `<button class="chip" type="button" data-h="${h.id}">${h.title}: possible restriction</button>`
-  ).join(''):'<span class="muted">Mark restrictions or add horizon observations to generate prompts.</span>';
+    `<button class="chip" type="button" data-h="${h.id}">${h.title}: reuse my marked signal</button>`
+  ).join(''):'<span class="muted">Mark restrictions or add horizon observations to surface your own signals here.</span>';
   document.querySelectorAll('.chip[data-h]').forEach(btn=>btn.onclick=()=>{
     const h=horizonData().find(x=>x.id===btn.dataset.h);
-    const addition=`A possible restriction appears in ${h.title}${h.notes?`: ${h.notes}`:''}. This is a working hypothesis; its causal origin may lie elsewhere in the cycle.`;
+    const addition=`Narrator-marked signal in ${h.title}${h.notes?`: ${h.notes}`:''}. This is user-supplied material, not an AI-derived causal finding. The causal origin remains open to testing.`;
     $('primaryContraction').value=[$('primaryContraction').value.trim(),addition].filter(Boolean).join('\n\n');
   });
 }
@@ -42,7 +42,9 @@ function powerSafetyData(){
 
 function safetyGateActive(){
   const p=powerSafetyData();
-  return Object.entries(p).some(([k,v])=>k!=='notes' && ['Possible','Present'].includes(v));
+  // v0.3: Unknown is epistemic caution, not affirmative safety.
+  // The form-level gate clears only when every indicator is explicitly "No indication".
+  return Object.entries(p).some(([k,v])=>k!=='notes' && ['Unknown','Possible','Present'].includes(v));
 }
 
 function updateSafetyGate(){
