@@ -1,0 +1,23 @@
+{
+ "schemaVersion": "historical-brief-v1.1",
+ "caseId": "hist-01-acquisition",
+ "createdAt": "2026-08-19T09:00:00.000Z",
+ "context": {
+  "situation": "I chair a listed mid-sized bank in northern Europe. We are in a contested bid for a structured-credit lender, funded largely from wholesale markets rather than a rights issue. Our rival has withdrawn, citing price. The board is split. Our retail deposit base is stable and our capital ratio meets the regulatory minimum with a small margin. The target's loan book is complex and we have had five weeks of access to it. I believe the acquisition makes us the market leader for a generation, and that a withdrawal now would be read as weakness and cost me the chairmanship.",
+  "whatMatters": "Becoming the market leader; not being seen to lose the bid.",
+  "stakeholders": "Board, shareholders, the target's management, our wholesale lenders.",
+  "uncertainties": "The target's loan book quality; how long wholesale funding stays cheap.",
+  "decisionHorizon": "Eleven days to the bid deadline.",
+  "recoveryHorizon": "Not considered.",
+  "urgency": "High — the deadline is externally fixed."
+ },
+ "evidence": [
+  {"text":"Our rival withdrew from the bidding on price grounds.","provenance":"user_reported_observation","about":"system","confidence":"medium","id":"e1"},
+  {"text":"Due diligence access to the target's loan book was five weeks, shorter than we would normally require.","provenance":"user_reported_observation","about":"system","confidence":"high","id":"e2"},
+  {"text":"Wholesale funding has been available cheaply and continuously for six years.","provenance":"user_reported_observation","about":"system","confidence":"high","id":"e3"},
+  {"text":"Two board members have asked for a delay; I read this as caution rather than substance.","provenance":"user_interpretation","about":"other_party","confidence":"low","id":"e4"},
+  {"text":"Our capital ratio is above the regulatory minimum.","provenance":"verified_external","about":"system","confidence":"high","id":"e5"},
+  {"text":"Interbank lending spreads have widened modestly over the last quarter.","provenance":"verified_external","about":"environment","confidence":"medium","id":"e6"},
+  {"text":"The target's management say the complex book is well hedged.","provenance":"absent_party_account","about":"other_party","confidence":"low","id":"e7"}
+ ]
+}
