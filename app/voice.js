@@ -1,13 +1,13 @@
 // Rheo v0.3.1 voice interface.
-// Progressive enhancement only: the research case representation is unchanged.
+// OpenAI Realtime WebRTC is the preferred transcription transport.
+// Browser speech recognition remains a visible fallback only.
 (() => {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognitionSupported = Boolean(Recognition);
+  const NativeRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const nativeRecognitionSupported = Boolean(NativeRecognition);
+  const realtimeSupported = Boolean(window.RTCPeerConnection && navigator.mediaDevices?.getUserMedia);
   const synthesisSupported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 
-  let activeRecognition = null;
-  let activeField = null;
-  let activeButton = null;
+  let active = null;
   let voiceGuideEnabled = false;
   let lastSpokenKey = '';
 
@@ -23,7 +23,7 @@
       .voiceGuideButton{display:inline-flex;align-items:center;gap:7px;padding:7px 9px;font-size:11px;white-space:nowrap}
       .voiceGuideButton.active{border-color:color-mix(in srgb,var(--brand) 50%,var(--line));background:color-mix(in srgb,var(--brand) 10%,var(--secondary));color:var(--brand)}
       .voiceGuideButton svg,.voiceIconButton svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-      .voiceStatus{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10px var(--font-mono);color:var(--muted)}
+      .voiceStatus{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10px var(--font-mono);color:var(--muted)}
       .voiceStatus[data-tone="listening"]{color:var(--brand)}.voiceStatus[data-tone="error"]{color:var(--ctos-rose)}
       .voiceFieldTools{display:flex;justify-content:flex-end;gap:4px;margin:-2px 0 5px;min-height:28px}
       .voiceIconButton{width:29px;height:29px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--radius-button);background:var(--secondary);color:var(--muted);box-shadow:none}
@@ -40,8 +40,16 @@
   }
 
   function log(type, detail = {}) {
-    if (typeof window.logEvent === 'function') window.logEvent(type, detail);
-    else if (typeof logEvent === 'function') logEvent(type, detail);
+    try {
+      if (typeof logEvent === 'function') logEvent(type, detail);
+    } catch {}
+  }
+
+  function setStatus(message, tone = 'idle') {
+    const el = document.getElementById('voiceStatus');
+    if (!el) return;
+    el.textContent = message;
+    el.dataset.tone = tone;
   }
 
   function fieldLabel(field) {
@@ -54,8 +62,12 @@
     const local = parent?.querySelector(':scope > label');
     if (local) return local.textContent.trim();
     const item = field.closest('.evidenceItem,.move,.horizon,.card');
-    const preceding = [...(item?.querySelectorAll('label') || [])].find(l => l.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING);
-    return preceding?.textContent.trim() || field.getAttribute('aria-label') || field.placeholder || 'Your answer';
+    if (item) {
+      const labels = [...item.querySelectorAll('label')];
+      const preceding = labels.filter(l => l.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING).at(-1);
+      if (preceding) return preceding.textContent.trim();
+    }
+    return field.getAttribute('aria-label') || field.placeholder || 'Your answer';
   }
 
   function spokenQuestion(field) {
@@ -94,129 +106,233 @@
   function visibleContextSpeech() {
     const home = document.getElementById('homeView');
     if (home && !home.classList.contains('hidden')) {
-      const h = home.querySelector('h1')?.textContent.trim();
-      const lead = home.querySelector('.lead')?.textContent.trim();
-      const first = home.querySelector('label')?.textContent.trim();
-      return [h, lead, first].filter(Boolean).join('. ');
+      return [home.querySelector('h1')?.textContent.trim(), home.querySelector('.lead')?.textContent.trim(), home.querySelector('label')?.textContent.trim()].filter(Boolean).join('. ');
     }
     const panel = [...document.querySelectorAll('[data-step-panel]')].find(p => !p.classList.contains('hidden'));
     if (!panel) return '';
-    const heading = panel.querySelector('h2')?.textContent.trim();
-    const intro = panel.querySelector(':scope > p, .card > p')?.textContent.trim();
-    return [heading, intro].filter(Boolean).join('. ');
+    return [panel.querySelector('h2')?.textContent.trim(), panel.querySelector(':scope > p, .card > p')?.textContent.trim()].filter(Boolean).join('. ');
   }
 
-  function setStatus(message, tone = 'idle') {
-    const el = document.getElementById('voiceStatus');
-    if (!el) return;
-    el.textContent = message;
-    el.dataset.tone = tone;
+  function setButtonListening(button, listening) {
+    if (!button) return;
+    button.classList.toggle('listening', listening);
+    button.setAttribute('aria-pressed', String(listening));
+    button.innerHTML = listening ? stopIcon : micIcon;
+    button.title = listening ? 'Stop listening' : 'Answer by voice';
   }
 
-  function stopListening(reason = 'manual') {
-    const fieldName = activeField?.id || activeField?.className || 'unnamed';
-    const charCount = activeField?.value?.length || 0;
-    if (activeRecognition) {
-      try { activeRecognition.stop(); } catch {}
-    }
-    if (activeButton) {
-      activeButton.classList.remove('listening');
-      activeButton.setAttribute('aria-pressed', 'false');
-      activeButton.innerHTML = micIcon;
-      activeButton.title = 'Answer by voice';
-    }
-    if (activeField) activeField.classList.remove('voiceListeningField');
-    if (reason === 'manual') {
-      setStatus('Voice input stopped. You can edit the text normally.', 'idle');
-      log('voice_transcription_ended', { field: fieldName, characters: charCount, reason: 'manual' });
-    }
-    activeRecognition = null;
-    activeField = null;
-    activeButton = null;
+  function renderRealtimeField(session) {
+    const live = [...session.itemDeltas.values()].join(' ').trim();
+    const committed = session.committed.join(' ').trim();
+    const spoken = [committed, live].filter(Boolean).join(' ').trim();
+    session.field.value = [session.original, spoken].filter(Boolean).join(session.original && spoken ? ' ' : '');
+    session.field.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  function startListening(field, button) {
-    if (!recognitionSupported) {
-      setStatus('Live speech-to-text is not available in this browser.', 'error');
+  function closeRealtime(session, reason = 'closed') {
+    if (!session || session.closed) return;
+    session.closed = true;
+    clearTimeout(session.closeTimer);
+    try { session.stream?.getTracks().forEach(t => t.stop()); } catch {}
+    try { session.dc?.close(); } catch {}
+    try { session.pc?.close(); } catch {}
+    session.field?.classList.remove('voiceListeningField');
+    setButtonListening(session.button, false);
+    if (active === session) active = null;
+    log('voice_transcription_ended', {
+      field: session.field?.id || session.field?.className || 'unnamed',
+      characters: session.field?.value?.length || 0,
+      transport: 'openai_realtime_webrtc',
+      reason
+    });
+  }
+
+  function finishRealtime(session, reason = 'manual') {
+    if (!session || session.closed || session.finishing) return;
+    session.finishing = true;
+    try { session.stream?.getTracks().forEach(t => t.stop()); } catch {}
+    if (session.dc?.readyState === 'open') {
+      try { session.dc.send(JSON.stringify({ type: 'input_audio_buffer.commit' })); } catch {}
+    }
+    setStatus('Finishing the transcription…', 'listening');
+    session.closeTimer = setTimeout(() => {
+      setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
+      closeRealtime(session, reason);
+    }, 1800);
+  }
+
+  async function waitForIce(pc, timeoutMs = 1800) {
+    if (pc.iceGatheringState === 'complete') return;
+    await new Promise(resolve => {
+      const timer = setTimeout(done, timeoutMs);
+      function done() {
+        clearTimeout(timer);
+        pc.removeEventListener('icegatheringstatechange', onChange);
+        resolve();
+      }
+      function onChange() { if (pc.iceGatheringState === 'complete') done(); }
+      pc.addEventListener('icegatheringstatechange', onChange);
+    });
+  }
+
+  function handleRealtimeEvent(session, event) {
+    const type = event?.type || '';
+    if (type === 'conversation.item.input_audio_transcription.delta') {
+      const key = event.item_id || 'current';
+      session.itemDeltas.set(key, `${session.itemDeltas.get(key) || ''}${event.delta || ''}`);
+      renderRealtimeField(session);
+      setStatus(`Listening… ${event.delta || ''}`.trim(), 'listening');
       return;
     }
-    if (activeField === field && activeRecognition) {
-      stopListening('manual');
+    if (type === 'conversation.item.input_audio_transcription.completed') {
+      const key = event.item_id || 'current';
+      const finalText = String(event.transcript || session.itemDeltas.get(key) || '').trim();
+      session.itemDeltas.delete(key);
+      if (finalText) session.committed.push(finalText);
+      renderRealtimeField(session);
+      log('voice_transcription_segment_completed', { characters: finalText.length, transport:'openai_realtime_webrtc' });
+      if (session.finishing) {
+        clearTimeout(session.closeTimer);
+        session.closeTimer = setTimeout(() => {
+          setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
+          closeRealtime(session, 'completed');
+        }, 300);
+      } else {
+        setStatus('Listening…', 'listening');
+      }
       return;
     }
-    stopListening('switch');
+    if (type === 'input_audio_buffer.speech_started') setStatus('Listening…', 'listening');
+    if (type === 'input_audio_buffer.speech_stopped') setStatus('Transcribing…', 'listening');
+    if (type === 'error') {
+      const message = event.error?.message || 'OpenAI Realtime reported an error.';
+      setStatus(message, 'error');
+      log('voice_transcription_error', { code:event.error?.code || 'realtime_event_error', transport:'openai_realtime_webrtc' });
+    }
+  }
+
+  async function startRealtime(field, button) {
+    if (!realtimeSupported) throw new Error('WebRTC microphone input is not supported in this browser.');
+    if (active) {
+      if (active.field === field) {
+        if (active.kind === 'realtime') finishRealtime(active, 'manual');
+        else stopNative(active, 'manual');
+        return;
+      }
+      if (active.kind === 'realtime') closeRealtime(active, 'switch');
+      else stopNative(active, 'switch');
+    }
     if (synthesisSupported) speechSynthesis.cancel();
 
-    const recognition = new Recognition();
+    setStatus('Connecting secure voice input…', 'listening');
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }, video:false
+    });
+    const pc = new RTCPeerConnection();
+    const dc = pc.createDataChannel('oai-events');
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+    const session = {
+      kind:'realtime', field, button, stream, pc, dc,
+      original:field.value.trim(), committed:[], itemDeltas:new Map(),
+      finishing:false, closed:false, closeTimer:null
+    };
+    active = session;
+    setButtonListening(button, true);
+    field.classList.add('voiceListeningField');
+    field.focus();
+
+    dc.onopen = () => {
+      setStatus('Listening… your words will appear here.', 'listening');
+      log('voice_transcription_started', { field:field.id || field.className || 'unnamed', transport:'openai_realtime_webrtc' });
+    };
+    dc.onmessage = message => {
+      try { handleRealtimeEvent(session, JSON.parse(message.data)); } catch {}
+    };
+    dc.onerror = () => setStatus('The realtime voice connection hit an error.', 'error');
+    pc.onconnectionstatechange = () => {
+      if (['failed','disconnected'].includes(pc.connectionState) && !session.finishing) {
+        setStatus('The realtime voice connection was interrupted.', 'error');
+        closeRealtime(session, pc.connectionState);
+      }
+    };
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await waitForIce(pc);
+    const sdp = pc.localDescription?.sdp;
+    const response = await fetch('/api/realtime/call', {
+      method:'POST',
+      headers:{ 'content-type':'application/json' },
+      body:JSON.stringify({ sdp })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Could not create the OpenAI Realtime voice connection.');
+    await pc.setRemoteDescription({ type:'answer', sdp:result.sdp });
+    log('voice_realtime_connected', {
+      transcriptionModel:result.transcriptionModel || 'unknown',
+      realtimeModel:result.realtimeModel || 'unknown'
+    });
+  }
+
+  function stopNative(session, reason = 'manual') {
+    if (!session) return;
+    try { session.recognition.stop(); } catch {}
+    session.field.classList.remove('voiceListeningField');
+    setButtonListening(session.button, false);
+    if (active === session) active = null;
+    if (reason === 'manual') setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
+  }
+
+  function startNative(field, button, fallbackReason = '') {
+    if (!nativeRecognitionSupported) throw new Error(fallbackReason || 'No speech-recognition fallback is available in this browser.');
+    const recognition = new NativeRecognition();
     recognition.lang = 'en-GB';
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
-
-    const original = field.value.trim();
-    let finalText = '';
-
-    activeRecognition = recognition;
-    activeField = field;
-    activeButton = button;
-    button.classList.add('listening');
-    button.setAttribute('aria-pressed', 'true');
-    button.innerHTML = stopIcon;
-    button.title = 'Stop listening';
+    const session = { kind:'native', recognition, field, button, original:field.value.trim(), finalText:'' };
+    active = session;
+    setButtonListening(button, true);
     field.classList.add('voiceListeningField');
-    field.focus();
-
     recognition.onstart = () => {
-      setStatus('Listening… your words will appear as you speak.', 'listening');
-      log('voice_transcription_started', { field: field.id || field.className || 'unnamed' });
+      setStatus('OpenAI Realtime was unavailable; using this browser’s speech service.', 'listening');
+      log('voice_transcription_started', { field:field.id || field.className || 'unnamed', transport:'browser_fallback' });
     };
-
     recognition.onresult = event => {
       let interim = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const text = event.results[i][0]?.transcript || '';
-        if (event.results[i].isFinal) finalText += `${text.trim()} `;
+        if (event.results[i].isFinal) session.finalText += `${text.trim()} `;
         else interim += text;
       }
-      const spoken = `${finalText}${interim}`.trim();
-      field.value = [original, spoken].filter(Boolean).join(original && spoken ? ' ' : '');
-      field.dispatchEvent(new Event('input', { bubbles: true }));
-      setStatus(interim ? `Listening… ${interim.trim()}` : 'Listening…', 'listening');
+      const spoken = `${session.finalText}${interim}`.trim();
+      field.value = [session.original, spoken].filter(Boolean).join(session.original && spoken ? ' ' : '');
+      field.dispatchEvent(new Event('input', { bubbles:true }));
     };
-
     recognition.onerror = event => {
-      const map = {
-        'not-allowed':'Microphone permission is blocked. Allow microphone access and try again.',
-        'service-not-allowed':'Speech recognition is not available on this device or browser.',
-        'audio-capture':'No microphone was found.',
-        'no-speech':'I did not hear any speech. Tap the microphone and try again.',
-        'network':'The browser speech service could not be reached.'
-      };
-      setStatus(map[event.error] || `Voice input stopped: ${event.error}.`, 'error');
-      log('voice_transcription_error', { code: event.error || 'unknown' });
+      setStatus(`Voice input stopped: ${event.error || 'unknown error'}.`, 'error');
+      log('voice_transcription_error', { code:event.error || 'unknown', transport:'browser_fallback' });
     };
+    recognition.onend = () => stopNative(session, 'ended');
+    recognition.start();
+  }
 
-    recognition.onend = () => {
-      const fieldName = field.id || field.className || 'unnamed';
-      if (activeRecognition === recognition) {
-        activeRecognition = null;
-        activeField = null;
-        if (activeButton === button) activeButton = null;
-        button.classList.remove('listening');
-        button.setAttribute('aria-pressed', 'false');
-        button.innerHTML = micIcon;
-        button.title = 'Answer by voice';
-        field.classList.remove('voiceListeningField');
-        setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
-        log('voice_transcription_ended', { field: fieldName, characters: field.value.length, reason: 'recognition_end' });
-      }
-    };
-
+  async function startListening(field, button) {
+    if (active?.field === field) {
+      if (active.kind === 'realtime') finishRealtime(active, 'manual');
+      else stopNative(active, 'manual');
+      return;
+    }
     try {
-      recognition.start();
+      await startRealtime(field, button);
     } catch (err) {
+      if (active?.kind === 'realtime') closeRealtime(active, 'connect_failed');
+      log('voice_transcription_error', { code:'realtime_connect_failed', transport:'openai_realtime_webrtc' });
+      if (nativeRecognitionSupported) {
+        try { startNative(field, button, err.message); return; } catch {}
+      }
       setStatus(`Could not start voice input: ${err.message}`, 'error');
-      stopListening('error');
     }
   }
 
@@ -229,7 +345,7 @@
       b.title = 'Answer by voice';
       b.setAttribute('aria-label', `Answer “${fieldLabel(field)}” by voice`);
       b.setAttribute('aria-pressed', 'false');
-      b.disabled = !recognitionSupported;
+      b.disabled = !realtimeSupported && !nativeRecognitionSupported;
       b.onclick = () => startListening(field, b);
     } else {
       b.innerHTML = volumeIcon;
@@ -246,14 +362,12 @@
     if (field.type && ['checkbox','radio','button','submit','file','hidden'].includes(field.type)) return;
     if (field.closest('.voiceControls')) return;
     field.dataset.voiceEnhanced = 'true';
-
     const tools = document.createElement('div');
     tools.className = 'voiceFieldTools';
     tools.append(makeIconButton('speak', field), makeIconButton('mic', field));
     field.insertAdjacentElement('beforebegin', tools);
-
     field.addEventListener('focus', () => {
-      if (!voiceGuideEnabled || !synthesisSupported || activeField === field) return;
+      if (!voiceGuideEnabled || !synthesisSupported || active?.field === field) return;
       speak(spokenQuestion(field), `focus:${field.id || field.className}:${spokenQuestion(field)}`);
     });
   }
@@ -269,11 +383,9 @@
     controls.className = 'voiceControls';
     controls.innerHTML = `
       <button type="button" class="ghost voiceGuideButton" id="voiceGuideBtn" aria-pressed="false">${volumeIcon}<span>Voice guide</span></button>
-      <span id="voiceStatus" class="voiceStatus" role="status" aria-live="polite">${recognitionSupported ? 'Voice input ready' : 'Voice input unavailable in this browser'}</span>`;
+      <span id="voiceStatus" class="voiceStatus" role="status" aria-live="polite">${realtimeSupported ? 'OpenAI voice input ready' : nativeRecognitionSupported ? 'Browser voice fallback ready' : 'Voice input unavailable'}</span>`;
     const saved = document.getElementById('savedBtn');
-    if (saved) topbar.insertBefore(controls, saved);
-    else topbar.appendChild(controls);
-
+    if (saved) topbar.insertBefore(controls, saved); else topbar.appendChild(controls);
     const btn = document.getElementById('voiceGuideBtn');
     btn.disabled = !synthesisSupported;
     btn.onclick = () => {
@@ -282,13 +394,13 @@
       btn.classList.toggle('active', voiceGuideEnabled);
       btn.querySelector('span').textContent = voiceGuideEnabled ? 'Voice guide on' : 'Voice guide';
       if (voiceGuideEnabled) {
-        speak(visibleContextSpeech(), `context:${step || 'home'}`);
+        speak(visibleContextSpeech(), `context:${typeof step === 'number' ? step : 'home'}`);
         setStatus('Voice guide is on. Focus a question to hear it aloud.', 'idle');
       } else {
         if (synthesisSupported) speechSynthesis.cancel();
-        setStatus(recognitionSupported ? 'Voice input ready' : 'Voice input unavailable in this browser', 'idle');
+        setStatus(realtimeSupported ? 'OpenAI voice input ready' : nativeRecognitionSupported ? 'Browser voice fallback ready' : 'Voice input unavailable', 'idle');
       }
-      log('voice_guide_toggled', { enabled: voiceGuideEnabled });
+      log('voice_guide_toggled', { enabled:voiceGuideEnabled });
     };
   }
 
@@ -298,21 +410,19 @@
     const note = document.createElement('details');
     note.className = 'researchDetails voicePrivacyNote';
     note.id = 'voicePrivacyNote';
-    note.innerHTML = `<summary>About voice input</summary><p class="muted">Voice input is optional. Live transcription uses the speech-recognition service provided by your browser or device, so audio handling and availability can vary by browser. Rheo stores the resulting text in the same way as text you type; this feature does not add audio recordings to the case record.</p>`;
+    note.innerHTML = `<summary>About voice input</summary><p class="muted">Voice input is optional. When OpenAI Realtime is available, your microphone audio is sent over an encrypted WebRTC connection for live transcription. Rheo’s permanent API key stays on the server and is not sent to your browser. The case record stores the resulting text, not an audio recording. If Realtime is unavailable, some browsers can fall back to their own speech-recognition service and Rheo will say so.</p>`;
     home.appendChild(note);
   }
 
   function watchDynamicFields() {
     const observer = new MutationObserver(mutations => {
-      for (const m of mutations) {
-        for (const node of m.addedNodes) {
-          if (!(node instanceof Element)) continue;
-          if (node.matches?.('textarea,input[type="text"],input:not([type])')) enhanceField(node);
-          enhanceAll(node);
-        }
+      for (const m of mutations) for (const node of m.addedNodes) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches?.('textarea,input[type="text"],input:not([type])')) enhanceField(node);
+        enhanceAll(node);
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList:true, subtree:true });
   }
 
   function watchSteps() {
@@ -324,7 +434,7 @@
       const key = `step:${visible?.dataset.stepPanel || 'home'}:${text}`;
       if (text) speak(text, key);
     });
-    panels.forEach(p => observer.observe(p, { attributes: true, attributeFilter: ['class'] }));
+    panels.forEach(p => observer.observe(p, { attributes:true, attributeFilter:['class'] }));
   }
 
   addStyles();
@@ -333,5 +443,8 @@
   enhanceAll();
   watchDynamicFields();
   watchSteps();
-  window.addEventListener('pagehide', () => stopListening('exit'));
+  window.addEventListener('pagehide', () => {
+    if (active?.kind === 'realtime') closeRealtime(active, 'pagehide');
+    else if (active) stopNative(active, 'pagehide');
+  });
 })();
