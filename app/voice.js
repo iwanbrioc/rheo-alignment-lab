@@ -15,6 +15,30 @@
   const volumeIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
   const stopIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>`;
 
+  function addStyles() {
+    const style = document.createElement('style');
+    style.id = 'rheoVoiceStyles';
+    style.textContent = `
+      .voiceControls{display:flex;align-items:center;gap:7px;margin-left:auto;margin-right:8px}
+      .voiceGuideButton{display:inline-flex;align-items:center;gap:7px;padding:7px 9px;font-size:11px;white-space:nowrap}
+      .voiceGuideButton.active{border-color:color-mix(in srgb,var(--brand) 50%,var(--line));background:color-mix(in srgb,var(--brand) 10%,var(--secondary));color:var(--brand)}
+      .voiceGuideButton svg,.voiceIconButton svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+      .voiceStatus{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10px var(--font-mono);color:var(--muted)}
+      .voiceStatus[data-tone="listening"]{color:var(--brand)}.voiceStatus[data-tone="error"]{color:var(--ctos-rose)}
+      .voiceFieldTools{display:flex;justify-content:flex-end;gap:4px;margin:-2px 0 5px;min-height:28px}
+      .voiceIconButton{width:29px;height:29px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--radius-button);background:var(--secondary);color:var(--muted);box-shadow:none}
+      .voiceIconButton:hover:not(:disabled){color:var(--ink);border-color:color-mix(in srgb,var(--brand) 35%,var(--line));background:color-mix(in srgb,var(--brand) 6%,var(--secondary))}
+      .voiceIconButton.listening{color:#fff;background:var(--brand);border-color:var(--brand);animation:voicePulse 1.25s ease-in-out infinite}
+      .voiceListeningField{border-color:var(--brand)!important;box-shadow:0 0 0 2px rgba(102,126,234,.18)!important}
+      .voicePrivacyNote{margin-top:10px!important}
+      .hero .voiceIconButton{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.26);color:#fff}.hero .voiceIconButton:hover:not(:disabled){background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.44);color:#fff}.hero .voiceIconButton.listening{background:#fff;color:#5868c9;border-color:#fff}
+      @keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(102,126,234,.22)}50%{box-shadow:0 0 0 5px rgba(102,126,234,0)}}
+      @media(max-width:820px){.voiceStatus{display:none}.voiceControls{margin-right:5px}.voiceGuideButton span{display:none}.voiceGuideButton{width:34px;height:34px;padding:0;justify-content:center}.topbar #savedBtn{font-size:11px;padding:7px 9px}}
+      @media(prefers-reduced-motion:reduce){.voiceIconButton.listening{animation:none}}
+    `;
+    document.head.appendChild(style);
+  }
+
   function log(type, detail = {}) {
     if (typeof window.logEvent === 'function') window.logEvent(type, detail);
     else if (typeof logEvent === 'function') logEvent(type, detail);
@@ -90,6 +114,8 @@
   }
 
   function stopListening(reason = 'manual') {
+    const fieldName = activeField?.id || activeField?.className || 'unnamed';
+    const charCount = activeField?.value?.length || 0;
     if (activeRecognition) {
       try { activeRecognition.stop(); } catch {}
     }
@@ -100,7 +126,10 @@
       activeButton.title = 'Answer by voice';
     }
     if (activeField) activeField.classList.remove('voiceListeningField');
-    if (reason === 'manual') setStatus('Voice input stopped. You can edit the text normally.', 'idle');
+    if (reason === 'manual') {
+      setStatus('Voice input stopped. You can edit the text normally.', 'idle');
+      log('voice_transcription_ended', { field: fieldName, characters: charCount, reason: 'manual' });
+    }
     activeRecognition = null;
     activeField = null;
     activeButton = null;
@@ -126,7 +155,6 @@
 
     const original = field.value.trim();
     let finalText = '';
-    let manuallyStopped = false;
 
     activeRecognition = recognition;
     activeField = field;
@@ -179,8 +207,8 @@
         button.innerHTML = micIcon;
         button.title = 'Answer by voice';
         field.classList.remove('voiceListeningField');
-        if (!manuallyStopped) setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
-        log('voice_transcription_ended', { field: fieldName, characters: field.value.length });
+        setStatus('Voice input finished. You can edit the transcription before continuing.', 'idle');
+        log('voice_transcription_ended', { field: fieldName, characters: field.value.length, reason: 'recognition_end' });
       }
     };
 
@@ -190,8 +218,6 @@
       setStatus(`Could not start voice input: ${err.message}`, 'error');
       stopListening('error');
     }
-
-    button.addEventListener('click', () => { manuallyStopped = true; }, { once: true });
   }
 
   function makeIconButton(kind, field) {
@@ -301,6 +327,7 @@
     panels.forEach(p => observer.observe(p, { attributes: true, attributeFilter: ['class'] }));
   }
 
+  addStyles();
   makeGlobalControls();
   addPrivacyNote();
   enhanceAll();
