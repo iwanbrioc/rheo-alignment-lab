@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRealtimeWebRTCCall } from './realtime.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP_DIR = path.join(HERE, 'app');
@@ -15,6 +16,8 @@ const PORT = Number(process.env.PORT || 8080);
 const MODEL_PROVIDER = process.env.RHEO_MODEL_PROVIDER || 'openai';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_REALTIME_MODEL = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime';
+const OPENAI_TRANSCRIPTION_MODEL = process.env.OPENAI_TRANSCRIPTION_MODEL || 'gpt-4o-mini-transcribe';
 const MAX_BODY = 1_000_000;
 const GRANULARITY_LIMITS = {
   coarse: { systemElements: 3, mechanisms: 3, propositions: 8 },
@@ -317,9 +320,33 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'GET' && url.pathname === '/api/health') {
-      return json(res, 200, { ok:true, version:'0.3.1', provider:MODEL_PROVIDER, model:MODEL_PROVIDER === 'openai' ? OPENAI_MODEL : 'fixture-v0.3.1', modelConfigured:MODEL_PROVIDER === 'fixture' || Boolean(OPENAI_API_KEY) });
+      return json(res, 200, {
+        ok:true,
+        version:'0.3.1',
+        provider:MODEL_PROVIDER,
+        model:MODEL_PROVIDER === 'openai' ? OPENAI_MODEL : 'fixture-v0.3.1',
+        modelConfigured:MODEL_PROVIDER === 'fixture' || Boolean(OPENAI_API_KEY),
+        realtimeConfigured:Boolean(OPENAI_API_KEY),
+        realtimeModel:OPENAI_REALTIME_MODEL,
+        transcriptionModel:OPENAI_TRANSCRIPTION_MODEL
+      });
     }
     if (req.method === 'GET' && url.pathname === '/api/schema') return json(res, 200, schema);
+    if (req.method === 'POST' && url.pathname === '/api/realtime/call') {
+      const body = await readJsonBody(req);
+      const result = await createRealtimeWebRTCCall({
+        sdp:body.sdp,
+        apiKey:OPENAI_API_KEY,
+        realtimeModel:OPENAI_REALTIME_MODEL,
+        transcriptionModel:OPENAI_TRANSCRIPTION_MODEL
+      });
+      return json(res, 201, {
+        sdp:result.answerSdp,
+        callId:result.callId,
+        realtimeModel:result.realtimeModel,
+        transcriptionModel:result.transcriptionModel
+      });
+    }
     if (req.method === 'POST' && url.pathname === '/api/analyze') {
       const body = await readJsonBody(req);
       const condition = body.condition === 'control' ? 'control' : body.condition === 'rheo' ? 'rheo' : null;
