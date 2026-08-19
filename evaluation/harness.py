@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Rheo v0.3 development evaluation harness.
+"""Rheo v0.3.1 development evaluation harness.
 
-Machine similarity is a debugging instrument, not confirmatory evidence.
-It deliberately keeps similarity, coverage, and granularity separate so
-mutual omission cannot masquerade as structural agreement.
+The exact-string Jaccard screen is a LEXICAL OVERLAP diagnostic only. It is not
+structural similarity and must not be used as confirmatory evidence. The v0.3
+external review demonstrated that same-structure paraphrases can score zero.
+
+Primary structural comparison therefore remains blind human scoring until a
+semantic machine metric is separately calibrated against labelled
+same-structure/different-wording and different-structure/similar-wording pairs.
 """
 from __future__ import annotations
 
@@ -24,6 +28,8 @@ LIST_FIELDS = [
     "disconfirmingEvidence",
 ]
 TOTAL_DIMENSIONS = len(LIST_FIELDS) + 1  # + mechanisms
+MIN_SCORED_DIMENSIONS = 7
+MIN_COVERAGE = MIN_SCORED_DIMENSIONS / TOTAL_DIMENSIONS
 
 
 def norm(x: str) -> str:
@@ -31,10 +37,7 @@ def norm(x: str) -> str:
 
 
 def jaccard(a, b):
-    """Return None when both sides omit a dimension.
-
-    Empty/empty is missing evidence about agreement, not perfect agreement.
-    """
+    """Exact normalized-string set overlap; None when both sides omit a field."""
     A = {norm(x) for x in (a or []) if str(x).strip()}
     B = {norm(x) for x in (b or []) if str(x).strip()}
     if not A and not B:
@@ -58,13 +61,35 @@ def validate_map(m):
     if missing:
         raise ValueError(f"Map missing v0.3 fields: {sorted(missing)}")
     if m.get("schemaVersion") != "0.3":
-        raise ValueError("Expected schemaVersion 0.3")
+        raise ValueError("Expected structural-map schemaVersion 0.3")
     for field in LIST_FIELDS:
         if not isinstance(m.get(field), list):
             raise ValueError(f"{field} must be a list")
     if not isinstance(m.get("mechanisms"), list) or not isinstance(m.get("propositions"), list):
         raise ValueError("mechanisms and propositions must be lists")
     return m
+
+
+def validate_export_envelope(payload):
+    required = {
+        "exportVersion","exportedAt","caseId","condition","granularity","provider",
+        "model","responseId","researchUsable","map"
+    }
+    missing = required - set(payload)
+    if missing:
+        raise ValueError(f"Export envelope missing fields: {sorted(missing)}")
+    if payload.get("exportVersion") != "0.3.1":
+        raise ValueError("Expected exportVersion 0.3.1")
+    if payload.get("condition") not in {"rheo","control"}:
+        raise ValueError("Export condition must be rheo or control")
+    if payload.get("granularity") not in {"coarse","standard","fine"}:
+        raise ValueError("Export granularity invalid")
+    if payload.get("caseId") != payload.get("map", {}).get("caseId"):
+        raise ValueError("Envelope caseId does not match map.caseId")
+    if not isinstance(payload.get("researchUsable"), bool):
+        raise ValueError("researchUsable must be boolean")
+    validate_map(payload["map"])
+    return payload
 
 
 def granularity(m):
@@ -77,24 +102,52 @@ def granularity(m):
     }
 
 
-def structural_similarity(a, b):
+def lexical_overlap(a, b):
+    """Development-only lexical screen; never call this structural similarity."""
     validate_map(a); validate_map(b)
     parts = {field: jaccard(a.get(field, []), b.get(field, [])) for field in LIST_FIELDS}
     parts["mechanisms"] = jaccard(mechanism_labels(a), mechanism_labels(b))
     scored = [v for v in parts.values() if v is not None]
+    scored_dimensions = len(scored)
+    coverage = scored_dimensions / TOTAL_DIMENSIONS
+    interpretable = scored_dimensions >= MIN_SCORED_DIMENSIONS
     return {
-        "mean": mean(scored) if scored else None,
-        "coverage": len(scored) / TOTAL_DIMENSIONS,
-        "scored_dimensions": len(scored),
+        "mean_lexical_overlap": mean(scored) if scored else None,
+        "coverage": coverage,
+        "scored_dimensions": scored_dimensions,
         "total_dimensions": TOTAL_DIMENSIONS,
+        "interpretable": interpretable,
         "dimensions": parts,
         "granularity_a": granularity(a),
         "granularity_b": granularity(b),
     }
 
 
+def structural_similarity(a, b):
+    """Backward-compatible alias. Result is lexical overlap, not structure."""
+    return lexical_overlap(a, b)
+
+
+def load_payload(path):
+    payload = json.loads(Path(path).read_text())
+    if isinstance(payload, dict) and "map" in payload and "exportVersion" in payload:
+        validate_export_envelope(payload)
+        return payload["map"], {
+            "exportVersion": payload["exportVersion"],
+            "condition": payload["condition"],
+            "granularity": payload["granularity"],
+            "provider": payload["provider"],
+            "model": payload["model"],
+            "responseId": payload["responseId"],
+            "researchUsable": payload["researchUsable"],
+            "exportedAt": payload["exportedAt"],
+        }
+    return validate_map(payload), {"legacyRawMap": True}
+
+
 def load_json(path):
-    return validate_map(json.loads(Path(path).read_text()))
+    """Backward-compatible map loader."""
+    return load_payload(path)[0]
 
 
 def fmt(v):
@@ -106,28 +159,38 @@ def screen_pairs(manifest_path):
     manifest = json.loads(manifest_path.read_text())
     rows = []
     for item in manifest["pairs"]:
-        a = load_json(manifest_path.parent / item["a"])
-        b = load_json(manifest_path.parent / item["b"])
-        sim = structural_similarity(a, b)
+        a, meta_a = load_payload(manifest_path.parent / item["a"])
+        b, meta_b = load_payload(manifest_path.parent / item["b"])
+        sim = lexical_overlap(a, b)
         rows.append({
             "pair_id": item["pair_id"], "family": item["family"],
-            "similarity": sim["mean"], "coverage": sim["coverage"],
+            "lexical_overlap": sim["mean_lexical_overlap"], "coverage": sim["coverage"],
+            "interpretable": sim["interpretable"],
             "granularity_a": sim["granularity_a"]["total_item_count"],
             "granularity_b": sim["granularity_b"]["total_item_count"],
+            "condition_a": meta_a.get("condition"), "condition_b": meta_b.get("condition"),
+            "provider_a": meta_a.get("provider"), "provider_b": meta_b.get("provider"),
+            "research_usable_a": meta_a.get("researchUsable"), "research_usable_b": meta_b.get("researchUsable"),
             **sim["dimensions"]
         })
-    print("PAIR SCREEN (debugging only; not confirmatory evidence)")
+    print("PAIR LEXICAL SCREEN (debugging only; NOT structural similarity or confirmatory evidence)")
+    print(f"Interpretation floor: at least {MIN_SCORED_DIMENSIONS}/{TOTAL_DIMENSIONS} dimensions (coverage >= {MIN_COVERAGE:.3f})")
     by_family = {}
     for r in rows:
         by_family.setdefault(r["family"], []).append(r)
     for fam, family_rows in sorted(by_family.items()):
-        sims = [r["similarity"] for r in family_rows if r["similarity"] is not None]
+        usable = [r for r in family_rows if r["interpretable"] and r["lexical_overlap"] is not None]
         covs = [r["coverage"] for r in family_rows]
         ga = [r["granularity_a"] for r in family_rows]
         gb = [r["granularity_b"] for r in family_rows]
-        sim_text = fmt(mean(sims)) if sims else "NA"
-        print(f"{fam:16s} n={len(family_rows):3d} mean_similarity={sim_text} mean_coverage={mean(covs):.3f} granularity_a={mean(ga):.1f} granularity_b={mean(gb):.1f}")
+        lexical_text = fmt(mean(r["lexical_overlap"] for r in usable)) if usable else "NA"
+        print(f"{fam:16s} n={len(family_rows):3d} interpretable_n={len(usable):3d} mean_lexical_overlap={lexical_text} mean_coverage={mean(covs):.3f} granularity_a={mean(ga):.1f} granularity_b={mean(gb):.1f}")
     return rows
+
+
+def inspect_export(path):
+    m, meta = load_payload(path)
+    print(json.dumps({"caseId": m.get("caseId"), **meta}, indent=2, sort_keys=True))
 
 
 def cohen_kappa(labels1, labels2):
@@ -200,15 +263,15 @@ def empty_map(case_id='empty'):
 
 def self_test():
     e1,e2 = empty_map('e1'), empty_map('e2')
-    s = structural_similarity(e1,e2)
-    assert s["mean"] is None and s["coverage"] == 0.0, s
+    s = lexical_overlap(e1,e2)
+    assert s["mean_lexical_overlap"] is None and s["coverage"] == 0.0 and not s["interpretable"], s
     p = empty_map('p'); p["systemElements"]=["resource access"]; p["mechanisms"]=[{"label":"access bottleneck","causalDirection":"rule -> access","evidenceRefs":["p1"],"confidence":"medium"}]
-    same = structural_similarity(p,p)
-    assert same["mean"] == 1.0 and 0 < same["coverage"] < 1.0, same
+    same = lexical_overlap(p,p)
+    assert same["mean_lexical_overlap"] == 1.0 and 0 < same["coverage"] < MIN_COVERAGE and not same["interpretable"], same
     q = empty_map('q'); q["systemElements"]=["decision authority"]; q["mechanisms"]=[{"label":"authority concentration","causalDirection":"role -> veto","evidenceRefs":["p1"],"confidence":"medium"}]
-    diff = structural_similarity(p,q)
-    assert diff["mean"] == 0.0 and diff["coverage"] == same["coverage"], diff
-    print("v0.3 evaluator self-test passed: empty/empty is unscored; coverage and granularity are separate from similarity.")
+    diff = lexical_overlap(p,q)
+    assert diff["mean_lexical_overlap"] == 0.0 and diff["coverage"] == same["coverage"] and not diff["interpretable"], diff
+    print("v0.3.1 evaluator self-test passed: Jaccard is labelled lexical-only; empty/empty is unscored; low coverage is uninterpretable.")
 
 
 def main():
@@ -216,10 +279,12 @@ def main():
     sub = p.add_subparsers(dest='cmd', required=True)
     s = sub.add_parser('screen-pairs'); s.add_argument('manifest')
     r = sub.add_parser('rater-summary'); r.add_argument('csv')
+    i = sub.add_parser('inspect-export'); i.add_argument('json_file')
     sub.add_parser('self-test')
     args = p.parse_args()
     if args.cmd == 'screen-pairs': screen_pairs(args.manifest)
     elif args.cmd == 'rater-summary': rater_summary(args.csv)
+    elif args.cmd == 'inspect-export': inspect_export(args.json_file)
     else: self_test()
 
 if __name__ == '__main__':

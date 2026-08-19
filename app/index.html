@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f3efe6" />
-  <meta name="description" content="Rheo — an experimental Reciprocal Wellbeing mapping guide." />
-  <title>Rheo — Reciprocal Wellbeing Guide</title>
+  <meta name="description" content="Rheo — a guide for seeing the bigger picture before you act." />
+  <title>Rheo — See the bigger picture</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -13,44 +13,45 @@
   <header class="topbar">
     <div>
       <div class="brand">Rheo</div>
-      <div class="tagline">Experimental Reciprocal Wellbeing decision guide</div>
+      <div class="tagline">See the bigger picture. Find a next step.</div>
     </div>
     <button class="ghost" id="savedBtn" type="button">Saved cases</button>
   </header>
 
   <main class="shell">
     <section class="card hero" id="homeView">
-      <div class="eyebrow">Research prototype v0.2 · Reciprocal Wellbeing · Rheocracy</div>
-      <h1>What is happening?</h1>
-      <p class="lead">Describe a real situation. Rheo helps separate observation from interpretation, map relevant restrictions in reciprocal flow, surface missing perspectives and displaced costs, and turn the working map into an actionable SMEAC.</p>
-      <label for="openingContext">Your situation</label>
-      <textarea id="openingContext" rows="8" placeholder="Describe what has happened, what decision you face, and why it matters."></textarea>
+      <div class="eyebrow">Working research prototype · v0.3.1</div>
+      <h1>Tell Rheo what’s going on</h1>
+      <p class="lead">Describe a real situation you are trying to make sense of. Rheo will help you separate what you know from what you are assuming, look at the wider picture, notice what may be getting stuck, and find a next step you can revise.</p>
+      <label for="openingContext">What’s happening?</label>
+      <textarea id="openingContext" rows="8" placeholder="Describe what has happened, what decision you face, and why it matters to you."></textarea>
       <div class="row">
-        <button class="primary" id="startBtn" type="button">Start mapping</button>
-        <button class="secondary" id="exampleBtn" type="button">Load example</button>
+        <button class="primary" id="startBtn" type="button">Start</button>
+        <button class="secondary" id="exampleBtn" type="button">Show me an example</button>
       </div>
       <div class="notice">
-        <strong>This is not an authority or assessment.</strong> Rheo begins from one narrator's account unless other evidence is supplied. It does not calculate a Reciprocal Wellbeing score, diagnose people, or replace professional, emergency, medical, legal, safeguarding or financial advice.
+        <strong>Rheo is a thinking tool, not an authority.</strong> It starts from what you tell it and can get things wrong. It does not diagnose people or replace professional, emergency, medical, legal, safeguarding or financial advice.
       </div>
+      <details class="researchDetails"><summary>About the research version</summary><p class="muted">Rheo is being developed as a Reciprocal Wellbeing decision guide and AI-alignment research instrument. It does not calculate a wellbeing score. Research settings and technical labels are kept out of the main path where possible.</p></details>
     </section>
 
     <section id="wizardView" class="hidden">
       <nav class="progress" aria-label="Progress">
-        <button data-step="1">1 Context</button>
-        <button data-step="2">2 Evidence</button>
-        <button data-step="3">3 Horizons</button>
-        <button data-step="4">4 Contractions</button>
-        <button data-step="5">5 Time & viability</button>
-        <button data-step="6">6 Moves</button>
-        <button data-step="7">7 SMEAC</button>
+        <button data-step="1">1 What’s going on?</button>
+        <button data-step="2">2 What do we know?</button>
+        <button data-step="3">3 Bigger picture</button>
+        <button data-step="4">4 What’s stuck?</button>
+        <button data-step="5">5 What’s hard to undo?</button>
+        <button data-step="6">6 What could you try?</button>
+        <button data-step="7">7 Make a plan</button>
       </nav>
 
       <section class="card step" data-step-panel="1">
-        <div class="eyebrow">Step 1 · Context</div>
-        <h2>Start with the situation, not a verdict</h2>
+        <div class="eyebrow">Step 1 · What’s going on?</div>
+        <h2>Start with the situation, not the verdict</h2>
         <div class="grid two">
           <div>
-            <label>Situation as you currently see it</label>
+            <label>How do you see the situation right now?</label>
             <textarea id="context" rows="7"></textarea>
           </div>
           <div>
@@ -58,116 +59,120 @@
             <textarea id="whatMatters" rows="7" placeholder="What are you trying to protect, change, or make possible?"></textarea>
           </div>
           <div>
-            <label>Who is affected or absent from this account?</label>
-            <textarea id="stakeholders" rows="5" placeholder="People in the room, people not in the room, future participants, communities, living systems..."></textarea>
+            <label>Who else is affected?</label>
+            <textarea id="stakeholders" rows="5" placeholder="People involved, people not in the room, future participants, communities, the environment..."></textarea>
           </div>
           <div>
-            <label>What is missing or disputed?</label>
-            <textarea id="uncertainties" rows="5" placeholder="Missing records, unheard accounts, unknown motives, causal uncertainty..."></textarea>
+            <label>What is missing, unclear or disputed?</label>
+            <textarea id="uncertainties" rows="5" placeholder="Missing records, unheard accounts, things you do not know yet..."></textarea>
           </div>
         </div>
         <div class="grid three">
-          <div><label>Decision horizon</label><input id="decisionHorizon" placeholder="e.g. 2 weeks" /></div>
-          <div><label>Consequence / recovery horizon</label><input id="recoveryHorizon" placeholder="e.g. trust may take 12 months to rebuild" /></div>
-          <div><label>Urgency</label><select id="urgency"><option>Low</option><option selected>Medium</option><option>High</option><option>Immediate</option></select></div>
+          <div><label>How soon do you need to decide?</label><input id="decisionHorizon" placeholder="e.g. 2 weeks" /></div>
+          <div><label>How long could the effects last?</label><input id="recoveryHorizon" placeholder="e.g. trust could take a year to rebuild" /></div>
+          <div><label>How urgent is it?</label><select id="urgency"><option>Low</option><option selected>Medium</option><option>High</option><option>Immediate</option></select></div>
         </div>
-        <div class="promptbox"><strong>Temporal check:</strong> A short decision deadline does not shorten the recovery time of the system affected by the decision.</div>
+        <div class="promptbox"><strong>Keep in mind:</strong> having to decide quickly does not mean the consequences will pass quickly.</div>
       </section>
 
       <section class="card step hidden" data-step-panel="2">
-        <div class="eyebrow">Step 2 · Epistemic provenance</div>
-        <h2>What kind of claim is each important statement?</h2>
-        <p>Fluent summaries can quietly turn interpretation into fact. Keep consequential propositions attached to their source.</p>
+        <div class="eyebrow">Step 2 · What do we actually know?</div>
+        <h2>Separate what happened from what we think it means</h2>
+        <p>Important claims can quietly turn from “this is how I see it” into “this is what happened”. For each important statement, say where it comes from and how sure you are.</p>
         <div id="evidenceLedger"></div>
-        <button class="secondary" id="addEvidenceBtn" type="button">Add statement</button>
-        <div class="promptbox" id="singleNarratorNotice"><strong>Single-narrator warning:</strong> At present this map is built only from the account entered here. That does not make it false, but it limits what can safely be concluded about absent people's motives or disputed events.</div>
+        <button class="secondary" id="addEvidenceBtn" type="button">Add another statement</button>
+        <div class="promptbox" id="singleNarratorNotice"><strong>Only one side so far:</strong> this map currently comes mainly from the account entered here. That does not make it wrong, but it limits what we can safely say about other people’s motives or disputed events.</div>
       </section>
 
       <section class="step hidden" data-step-panel="3">
         <div class="card">
-          <div class="eyebrow">Step 3 · The seven horizons</div>
-          <h2>Where does restriction appear?</h2>
-          <p>These are lenses, not scores. Mark only what is relevant. A restriction can appear in one horizon while being generated elsewhere.</p>
+          <div class="eyebrow">Step 3 · Look at the bigger picture</div>
+          <h2>What looks blocked, and what seems to be working?</h2>
+          <p>You do not need to fill in everything. Use only the lenses that help you see something you had not noticed before.</p>
+          <details class="researchDetails"><summary>About the seven RWB lenses</summary><p class="muted">Internally, Rheo uses seven Reciprocal Wellbeing horizons. They are lenses, not scores, and a problem seen in one place may be caused somewhere else.</p></details>
         </div>
         <div id="horizonCards"></div>
       </section>
 
       <section class="card step hidden" data-step-panel="4">
-        <div class="eyebrow">Step 4 · Working contraction & power</div>
-        <h2>Form a hypothesis that can be wrong</h2>
+        <div class="eyebrow">Step 4 · What might be getting stuck?</div>
+        <h2>Make a working guess that can change</h2>
+        <p>Try to name the pattern without pretending you already know the cause.</p>
         <div id="contractionSuggestions" class="suggestions"></div>
-        <label>Working contraction hypothesis</label>
-        <textarea id="primaryContraction" rows="5" placeholder="The restriction appears in… and may be maintained by… Evidence is currently limited by…"></textarea>
-        <label>What observation would make this interpretation wrong?</label>
-        <textarea id="disconfirmingEvidence" rows="4"></textarea>
-        <label>Whose account or local knowledge could materially change the map?</label>
-        <textarea id="missingPerspective" rows="4"></textarea>
+        <label>What do you think may be getting stuck?</label>
+        <textarea id="primaryContraction" rows="5" placeholder="For example: people can speak but do not seem to have real influence; we may be mistaking consultation for participation."></textarea>
+        <label>What would make you change your mind?</label>
+        <textarea id="disconfirmingEvidence" rows="4" placeholder="What could you learn or observe that would show this explanation is wrong?"></textarea>
+        <label>Whose view could change the picture?</label>
+        <textarea id="missingPerspective" rows="4" placeholder="Who knows something important that is not represented here?"></textarea>
 
         <div class="selfImplication">
-          <label><input type="checkbox" id="narratorImplicated" /> The working map materially implicates my own actions, assumptions, incentives, or omissions.</label>
-          <small>This event is logged separately in the research prototype so later attrition is not mistaken for evidence that agreeable advice works better.</small>
+          <label><input type="checkbox" id="narratorImplicated" /> My own actions, assumptions or omissions may be part of what is happening.</label>
+          <small>This is optional. The AI review separately checks whether it can see a specific contribution from the narrator.</small>
         </div>
 
         <hr />
-        <h3>Power / safety gate</h3>
-        <p class="muted">These are uncertainty flags, not diagnoses. If safety, coercion or constrained exit may be involved, dialogue and relationship preservation are not default goals.</p>
+        <h3>Power and safety check</h3>
+        <p class="muted">These questions do not diagnose anyone. They help distinguish an ordinary disagreement from a situation where somebody may not be free or safe to disagree, leave, or say no.</p>
         <div class="grid three" id="powerGrid">
-          <div><label>Fear / retaliation</label><select id="fearRetaliation"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Constrained exit</label><select id="constrainedExit"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Surveillance / controlling behaviour</label><select id="surveillanceControl"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Material dependency</label><select id="materialDependence"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Major power asymmetry</label><select id="powerAsymmetry"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Safety uncertainty notes</label><textarea id="safetyNotes" rows="3"></textarea></div>
+          <div><label>Fear of consequences for disagreeing</label><select id="fearRetaliation"><option value="Unknown">Not sure</option><option value="No indication">No sign of this</option><option value="Possible">Maybe</option><option value="Present">Yes</option></select></div>
+          <div><label>Someone cannot freely leave or say no</label><select id="constrainedExit"><option value="Unknown">Not sure</option><option value="No indication">No sign of this</option><option value="Possible">Maybe</option><option value="Present">Yes</option></select></div>
+          <div><label>Monitoring or controlling behaviour</label><select id="surveillanceControl"><option value="Unknown">Not sure</option><option value="No indication">No sign of this</option><option value="Possible">Maybe</option><option value="Present">Yes</option></select></div>
+          <div><label>Money, housing, work or care creates dependency</label><select id="materialDependence"><option value="Unknown">Not sure</option><option value="No indication">No sign of this</option><option value="Possible">Maybe</option><option value="Present">Yes</option></select></div>
+          <div><label>One side has much more power</label><select id="powerAsymmetry"><option value="Unknown">Not sure</option><option value="No indication">No sign of this</option><option value="Possible">Maybe</option><option value="Present">Yes</option></select></div>
+          <div><label>Anything else about safety or power?</label><textarea id="safetyNotes" rows="3"></textarea></div>
         </div>
-        <div class="notice hidden" id="safetyGateNotice"><strong>Safety gate active:</strong> Do not use relationship recovery time as an argument for continued exposure to danger or coercion. Increased dialogue, disclosure, mediation or confrontation should not be assumed safe.</div>
+        <div class="promptbox" id="safetyUnknownNotice"><strong>Not enough information yet:</strong> unanswered safety questions are not proof that everything is safe. You can continue, but keep the uncertainty visible.</div>
+        <div class="notice hidden" id="safetyGateNotice"><strong>Take extra care here:</strong> do not assume that more dialogue, disclosure, mediation or confrontation is safe when someone may fear retaliation or may not be free to leave or refuse.</div>
       </section>
 
       <section class="card step hidden" data-step-panel="5">
-        <div class="eyebrow">Step 5 · Time, regeneration and viability</div>
-        <h2>Constrain irreversibility, not emergence</h2>
+        <div class="eyebrow">Step 5 · What could be hard to undo?</div>
+        <h2>Protect the possibility of changing course later</h2>
         <div class="grid two">
-          <div><label>What could be permanently or disproportionately foreclosed?</label><textarea id="foreclose" rows="6" placeholder="Safety, habitat, trust, legitimacy, health, relationship, future options..."></textarea></div>
-          <div><label>What needs time or conditions to regenerate?</label><textarea id="regenerate" rows="6" placeholder="Attention, trust, energy, biodiversity, expertise, goodwill..."></textarea></div>
-          <div><label>Possible viability floor</label><textarea id="viabilityFloor" rows="5" placeholder="A threshold that should not be crossed because feedback may arrive too late or recovery may become impossible."></textarea></div>
-          <div><label>Full-trajectory concern</label><textarea id="trajectoryConcern" rows="5" placeholder="Could a plan cause severe early damage that later improvement would disguise? What drawdown or threshold crossing matters?"></textarea></div>
+          <div><label>What could be seriously or permanently lost?</label><textarea id="foreclose" rows="6" placeholder="Safety, habitat, trust, health, legitimacy, a relationship, future choices..."></textarea></div>
+          <div><label>What needs time and the right conditions to recover?</label><textarea id="regenerate" rows="6" placeholder="Energy, trust, biodiversity, attention, expertise, goodwill..."></textarea></div>
+          <div><label>Is there a line we should not cross?</label><textarea id="viabilityFloor" rows="5" placeholder="A point beyond which the damage may be too hard to reverse, or feedback may arrive too late."></textarea></div>
+          <div><label>Could a good ending hide serious damage along the way?</label><textarea id="trajectoryConcern" rows="5" placeholder="What could be badly damaged early even if things look better later?"></textarea></div>
         </div>
-        <div class="promptbox"><strong>Temporal direction:</strong> Does a proposed constraint preserve future possibility, or merely preserve the existing order?</div>
+        <div class="promptbox"><strong>Ask:</strong> does this limit preserve future choices, or only preserve the way things are now?</div>
       </section>
 
       <section class="card step hidden" data-step-panel="6">
-        <div class="eyebrow">Step 6 · Possible moves</div>
-        <h2>Increase affordance before imposing behaviour</h2>
-        <p>Generate several possible moves. A locally successful move can still fail if somebody outside the immediate frame pays the cost.</p>
+        <div class="eyebrow">Step 6 · What could you try?</div>
+        <h2>Open up options before forcing an answer</h2>
+        <p>Think of several possible moves. A move can solve your immediate problem and still create a cost for someone else, the environment, or the future.</p>
         <div id="moves"></div>
-        <button class="secondary" id="addMoveBtn" type="button">Add another move</button>
+        <button class="secondary" id="addMoveBtn" type="button">Add another option</button>
         <hr />
         <div class="grid two">
-          <div><label>Administration / logistics</label><textarea id="admin" rows="5" placeholder="People, time, money, permissions, information, dependencies, practical support..."></textarea></div>
-          <div><label>Command / signal</label><textarea id="commandSignal" rows="5" placeholder="Who decides? Who must be consulted? What must be monitored? When will the map be reviewed?"></textarea></div>
+          <div><label>What would you need to make this happen?</label><textarea id="admin" rows="5" placeholder="People, time, money, permission, information, practical help..."></textarea></div>
+          <div><label>Who decides, who needs a voice, and when will you review it?</label><textarea id="commandSignal" rows="5" placeholder="Who decides? Who should be consulted? What will you watch? When will you look again?"></textarea></div>
         </div>
       </section>
 
       <section class="card step hidden" data-step-panel="7">
-        <div class="eyebrow">Step 7 · Actionable report</div>
-        <h2>Rheocratic SMEAC</h2>
-        <p class="muted">A working map, not a verdict. Act, observe, revise.</p>
+        <div class="eyebrow">Step 7 · Make a plan</div>
+        <h2>Your working plan</h2>
+        <p class="muted">This is a map you can act on and revise, not a final answer.</p>
+        <details class="researchDetails"><summary>About the plan structure</summary><p class="muted">The report uses SMEAC — Situation, Mission, Execution, Administration and Command/Signal — as a practical way to turn the map into action.</p></details>
         <div id="smeacOutput" class="report"></div>
         <div class="row">
-          <button class="primary" id="saveBtn" type="button">Save case</button>
-          <button class="secondary" id="exportMdBtn" type="button">Export Markdown</button>
-          <button class="secondary" id="exportJsonBtn" type="button">Export JSON</button>
-          <button class="ghost" id="exportResearchBtn" type="button">Export research log</button>
+          <button class="primary" id="saveBtn" type="button">Save this case</button>
+          <button class="secondary" id="exportMdBtn" type="button">Download the plan</button>
+          <button class="secondary" id="exportJsonBtn" type="button">Download case data</button>
+          <button class="ghost" id="exportResearchBtn" type="button">Download research log</button>
         </div>
         <hr />
         <div class="followup">
-          <h3>Outcome review</h3>
-          <p>Outcome data are stored separately from the live guide. Do not turn these observations into a single hidden "Rheo success" reward.</p>
-          <label>What actually happened?</label><textarea id="actualOutcome" rows="5"></textarea>
+          <h3>Come back later: what actually happened?</h3>
+          <p>This is kept separately from the live guide. It helps us learn what the original map missed without turning everything into one hidden “success” score.</p>
+          <label>What happened?</label><textarea id="actualOutcome" rows="5"></textarea>
           <label>What did the original map miss?</label><textarea id="mapMissed" rows="4"></textarea>
-          <label>What new affordance appeared or disappeared?</label><textarea id="newAffordance" rows="4"></textarea>
-          <label>What changed in resources, dialogue, creativity, curiosity, participation or capacity?</label><textarea id="systemChanges" rows="4"></textarea>
-          <label>Who, if anyone, paid a cost that the original plan did not account for?</label><textarea id="thirdPartyCost" rows="4"></textarea>
-          <button class="secondary" id="saveOutcomeBtn" type="button">Save outcome review separately</button>
+          <label>What new option appeared or disappeared?</label><textarea id="newAffordance" rows="4"></textarea>
+          <label>What changed in resources, relationships, options, skills, participation or wellbeing?</label><textarea id="systemChanges" rows="4"></textarea>
+          <label>Did anyone or anything pay a cost the original plan missed?</label><textarea id="thirdPartyCost" rows="4"></textarea>
+          <button class="secondary" id="saveOutcomeBtn" type="button">Save this outcome separately</button>
         </div>
       </section>
 
@@ -179,15 +184,15 @@
 
     <section id="savedView" class="card hidden">
       <div class="row spread">
-        <div><div class="eyebrow">Casebook</div><h2>Saved cases</h2></div>
+        <div><div class="eyebrow">Your casebook</div><h2>Saved cases</h2></div>
         <button class="ghost" id="closeSavedBtn" type="button">Close</button>
       </div>
       <div id="savedCases"></div>
-      <div class="notice">Prototype storage is local to this browser only. No data are uploaded anywhere.</div>
+      <div class="notice">Saved cases stay in this browser. They are not uploaded by this feature.</div>
     </section>
   </main>
 
-  <footer>Rheo v0.2 research prototype · No aggregate RWB score · provenance-aware</footer>
+  <footer>Rheo v0.3.1 research prototype · no aggregate RWB score</footer>
   <script src="app.js"></script>
   <script>if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
 </body>

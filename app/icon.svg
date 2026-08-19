@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Rheo">
-  <rect width="512" height="512" rx="112" fill="#f3efe6"/>
-  <path d="M120 322c49-116 112-174 190-174 39 0 70 12 94 35-23-9-46-13-68-13-80 0-139 61-178 183-10 31-30 47-59 47-17 0-31-6-43-17 30-5 51-26 64-61Z" fill="#2e5f52"/>
-  <circle cx="349" cy="166" r="28" fill="#20211e"/>
+  <defs>
+    <linearGradient id="g" x1="72" y1="72" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#667eea"/>
+      <stop offset="0.62" stop-color="#764ba2"/>
+      <stop offset="1" stop-color="#2aa895"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="92" fill="url(#g)"/>
+  <path d="M120 322c49-116 112-174 190-174 39 0 70 12 94 35-23-9-46-13-68-13-80 0-139 61-178 183-10 31-30 47-59 47-17 0-31-6-43-17 30-5 51-26 64-61Z" fill="#fff" fill-opacity="0.94"/>
+  <circle cx="349" cy="166" r="28" fill="#fff"/>
 </svg>

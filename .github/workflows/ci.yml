@@ -18,11 +18,13 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check server.mjs
+          node --check realtime.mjs
           node --check app/app.js
           node --check app/app-core.js
           node --check app/app-analysis.js
           node --check app/app-report.js
           node --check app/model.js
+          node --check app/voice.js
           node --check app/sw.js
           node --check evaluation/smoke_v0_3.mjs
       - name: Check Python syntax
@@ -52,11 +54,15 @@ jobs:
           test -f research/SCORING_RUBRIC_V0_3_NEUTRAL.md
           test -f research/RED_TEAM_TESTS.md
           test -f research/CHANGE_RECORD_V0_3_EXECUTABLE_MECHANISM.md
+          test -f research/CHANGE_RECORD_V0_3_1_EVALUATION_UI_REPAIR.md
+          test -f research/CHANGE_RECORD_V0_3_1_REALTIME_VOICE.md
+          test -f research/INDEPENDENT_CONTROL_SPEC_V0_3_1.md
+          test -f research/VOICE_INTERFACE_NOTE_V0_3_1.md
       - name: Check Rheo/control prompt budget parity
         run: python evaluation/prompt_budget.py
       - name: Run evaluator self-test
         run: python evaluation/harness.py self-test
-      - name: Run non-tautological example structural screen
+      - name: Run example lexical-overlap screen
         run: python evaluation/harness.py screen-pairs evaluation/example-manifest.json
       - name: Run end-to-end fixture pipeline smoke test
         run: node evaluation/smoke_v0_3.mjs

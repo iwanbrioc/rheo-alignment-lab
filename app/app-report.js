@@ -7,54 +7,55 @@ function renderSMEAC(){
   const relevant=d.horizons.filter(h=>h.status!=='irrelevant'&&(h.notes||h.status==='restriction'));
   const singleNarrator=!d.evidence.some(x=>['verified_external','absent_party_account'].includes(x.provenance));
   const mission=d.context.whatMatters
-    ? `Protect what matters while creating a viable, revisable next step: ${d.context.whatMatters}`
-    : 'Create a viable, revisable next step that preserves future possibility without treating continuity as the objective.';
-  const evidenceRows=d.evidence.length?d.evidence.map(e=>`<tr><td>${esc(e.text)}</td><td><span class="badge">${esc(provenanceLabel(e.provenance))}</span></td><td>${esc(pretty(e.about))}</td><td>${esc(pretty(e.confidence))}</td></tr>`).join(''):'<tr><td colspan="4">No evidence statements entered.</td></tr>';
-  const movesHtml=d.moves.length?d.moves.map(m=>`<li><strong>Move ${m.number}: ${esc(m.action||'Unnamed action')}</strong><ul>
-    <li>Restriction addressed: ${esc(m.restriction||'Not yet specified')}</li>
-    <li>Evidence: ${esc(m.evidence||'Not yet specified')}</li>
-    <li>Affordance created: ${esc(m.affordance||'Not yet specified')}</li>
-    <li>Displaced cost: ${esc(m.displacedCost||'Unknown / not yet tested')}</li>
-    <li>Could foreclose: ${esc(m.foreclose||'Unknown / not yet tested')}</li>
+    ? `Protect what matters while finding a next step you can revise: ${d.context.whatMatters}`
+    : 'Find a workable next step that keeps future choices open.';
+  const evidenceRows=d.evidence.length?d.evidence.map(e=>`<tr><td>${esc(e.text)}</td><td><span class="badge">${esc(provenanceLabel(e.provenance))}</span></td><td>${esc(pretty(e.about))}</td><td>${esc(pretty(e.confidence))}</td></tr>`).join(''):'<tr><td colspan="4">No statements entered.</td></tr>';
+  const movesHtml=d.moves.length?d.moves.map(m=>`<li><strong>Option ${m.number}: ${esc(m.action||'Unnamed option')}</strong><ul>
+    <li>What it might help: ${esc(m.restriction||'Not yet specified')}</li>
+    <li>Why it may be worth trying: ${esc(m.evidence||'Not yet specified')}</li>
+    <li>New option it could open: ${esc(m.affordance||'Not yet specified')}</li>
+    <li>Who or what might pay a price: ${esc(m.displacedCost||'Unknown / not yet tested')}</li>
+    <li>Future option it could close: ${esc(m.foreclose||'Unknown / not yet tested')}</li>
     <li>Small reversible test: ${esc(m.reversibleTest||'Not yet specified')}</li>
     <li>Voice / support needed: ${esc(m.dialogue||'Not yet specified')}</li>
-    <li>Stop / revision signal: ${esc(m.stopSignal||'Not yet specified')}</li>
-  </ul></li>`).join(''):'<li>No moves entered yet.</li>';
+    <li>What would tell us to stop or change course: ${esc(m.stopSignal||'Not yet specified')}</li>
+  </ul></li>`).join(''):'<li>No options entered yet.</li>';
   const p=d.powerSafety;
-  const powerSummary=`Fear/retaliation: ${p.fearRetaliation}; constrained exit: ${p.constrainedExit}; surveillance/control: ${p.surveillanceControl}; material dependency: ${p.materialDependence}; major power asymmetry: ${p.powerAsymmetry}.`;
+  const powerSummary=`Fear of consequences for disagreeing: ${p.fearRetaliation}; unable to freely leave or refuse: ${p.constrainedExit}; monitoring/control: ${p.surveillanceControl}; material dependency: ${p.materialDependence}; major power difference: ${p.powerAsymmetry}.`;
 
   $('smeacOutput').innerHTML=`
-    <h3>S — Situation</h3>
-    <p><strong>Current situation:</strong> ${esc(d.context.situation)||'Not specified.'}</p>
-    <p><strong>Affected / absent parties:</strong></p><ul>${lines(d.context.stakeholders)}</ul>
-    <p><strong>Missing / disputed:</strong></p><ul>${lines(d.context.uncertainties)}</ul>
-    ${singleNarrator?'<p class="question"><strong>Epistemic limitation:</strong> this remains predominantly a single-narrator map.</p>':''}
-    <p><strong>Evidence ledger:</strong></p>
-    <div style="overflow:auto"><table class="provenanceTable"><thead><tr><th>Statement</th><th>Provenance</th><th>About</th><th>Confidence</th></tr></thead><tbody>${evidenceRows}</tbody></table></div>
-    <p><strong>Relevant horizon signals:</strong></p><ul>${relevant.length?relevant.map(h=>`<li><strong>${esc(h.triplet)}</strong> — ${esc(h.status)}${h.notes?`: ${esc(h.notes)}`:''}</li>`).join(''):'<li>No horizon signal marked.</li>'}</ul>
-    <p><strong>Working contraction:</strong> ${esc(d.contractions.primary)||'Not yet specified.'}</p>
-    <p><strong>Power / exit uncertainty:</strong> ${esc(powerSummary)}</p>
-    ${d.safetyGateActive?'<p class="notice"><strong>Safety gate:</strong> relationship preservation, confrontation, mediation, disclosure or increased dialogue must not be assumed safe. Future autonomy and safety take priority over preserving exposure to danger or coercion.</p>':''}
-    <p class="question"><strong>Disconfirming test:</strong> ${esc(d.contractions.disconfirmingEvidence)||'What would make this map wrong?'}</p>
+    <h3>1. What’s going on? <span class="modelMeta">Situation</span></h3>
+    <p><strong>How you see it now:</strong> ${esc(d.context.situation)||'Not specified.'}</p>
+    <p><strong>Who else is affected:</strong></p><ul>${lines(d.context.stakeholders)}</ul>
+    <p><strong>What is missing, unclear or disputed:</strong></p><ul>${lines(d.context.uncertainties)}</ul>
+    ${singleNarrator?'<p class="question"><strong>Only one side represented:</strong> this map still comes mainly from the account entered here.</p>':''}
+    <p><strong>Important statements and where they came from:</strong></p>
+    <div style="overflow:auto"><table class="provenanceTable"><thead><tr><th>Statement</th><th>Where it comes from</th><th>About</th><th>How sure?</th></tr></thead><tbody>${evidenceRows}</tbody></table></div>
+    <p><strong>What stood out in the bigger-picture check:</strong></p><ul>${relevant.length?relevant.map(h=>`<li><strong>${esc(displayHorizonTitle(h.id))}</strong> — ${esc(h.status)}${h.notes?`: ${esc(h.notes)}`:''}</li>`).join(''):'<li>Nothing marked yet.</li>'}</ul>
+    <p><strong>What may be getting stuck:</strong> ${esc(d.contractions.primary)||'Not yet specified.'}</p>
+    <p><strong>Power and safety:</strong> ${esc(powerSummary)}</p>
+    ${d.safetyGateActive?'<p class="notice"><strong>Take extra care:</strong> do not assume that confrontation, mediation, disclosure or more dialogue is safe when someone may fear consequences or may not be free to leave or refuse.</p>':''}
+    ${!d.safetyGateActive&&d.safetyUnresolved?'<p class="question"><strong>Safety is still uncertain:</strong> there is not enough information here to rule concerns in or out.</p>':''}
+    <p class="question"><strong>What would change our mind?</strong> ${esc(d.contractions.disconfirmingEvidence)||'What would show that this explanation is wrong?'}</p>
 
-    <h3>M — Mission</h3>
+    <h3>2. What are we trying to make possible? <span class="modelMeta">Mission</span></h3>
     <p>${esc(mission)}</p>
-    <p><strong>Decision horizon:</strong> ${esc(d.context.decisionHorizon)||'unknown'} · <strong>Consequence/recovery horizon:</strong> ${esc(d.context.recoveryHorizon)||'unknown'}.</p>
-    <p><strong>Viability floor:</strong> ${esc(d.viability.viabilityFloor)||'Not yet identified.'}</p>
+    <p><strong>Time to decide:</strong> ${esc(d.context.decisionHorizon)||'unknown'} · <strong>How long effects could last:</strong> ${esc(d.context.recoveryHorizon)||'unknown'}.</p>
+    <p><strong>A line we should not cross:</strong> ${esc(d.viability.viabilityFloor)||'Not yet identified.'}</p>
 
-    <h3>E — Execution</h3>
+    <h3>3. What could we try? <span class="modelMeta">Execution</span></h3>
     <ul>${movesHtml}</ul>
-    <p><strong>Regenerative capacity to protect:</strong> ${esc(d.viability.regenerate)||'Not yet identified.'}</p>
-    <p><strong>Full-trajectory concern:</strong> ${esc(d.viability.trajectoryConcern)||'Not yet identified.'}</p>
-    <p><strong>What could be permanently foreclosed:</strong> ${esc(d.viability.foreclose)||'Not yet identified.'}</p>
+    <p><strong>What needs time and the right conditions to recover:</strong> ${esc(d.viability.regenerate)||'Not yet identified.'}</p>
+    <p><strong>Damage a good ending could hide:</strong> ${esc(d.viability.trajectoryConcern)||'Not yet identified.'}</p>
+    <p><strong>What could be seriously or permanently lost:</strong> ${esc(d.viability.foreclose)||'Not yet identified.'}</p>
 
-    <h3>A — Administration / Logistics</h3>
+    <h3>4. What do we need to make it happen? <span class="modelMeta">Administration / logistics</span></h3>
     <p>${esc(d.admin)||'Not yet specified.'}</p>
 
-    <h3>C — Command / Signal</h3>
+    <h3>5. Who decides, who needs a voice, and what will we watch? <span class="modelMeta">Command / signal</span></h3>
     <p>${esc(d.commandSignal)||'Not yet specified.'}</p>
-    <p><strong>Missing perspective / local knowledge to seek:</strong> ${esc(d.contractions.missingPerspective)||'Not yet specified.'}</p>
-    <p class="question"><strong>Review question:</strong> What should we watch for that would tell us this map is wrong — including harm displaced outside the user's immediate system?</p>`;
+    <p><strong>Whose view could change the picture:</strong> ${esc(d.contractions.missingPerspective)||'Not yet specified.'}</p>
+    <p class="question"><strong>When you review this:</strong> what would tell you the map is wrong, including a cost that has landed on someone or something outside your immediate view?</p>`;
 }
 
 function bullets(s){return s?s.split(/\n+/).filter(Boolean).map(x=>`- ${x}`).join('\n'):'- Not specified.';}
@@ -62,10 +63,10 @@ function bullets(s){return s?s.split(/\n+/).filter(Boolean).map(x=>`- ${x}`).joi
 function toMarkdown(d){
   const relevant=d.horizons.filter(h=>h.status!=='irrelevant'&&(h.notes||h.status==='restriction'));
   const singleNarrator=!d.evidence.some(x=>['verified_external','absent_party_account'].includes(x.provenance));
-  const mission=d.context.whatMatters?`Protect what matters while creating a viable, revisable next step: ${d.context.whatMatters}`:'Create a viable, revisable next step that preserves future possibility without treating continuity as the objective.';
+  const mission=d.context.whatMatters?`Protect what matters while finding a next step you can revise: ${d.context.whatMatters}`:'Find a workable next step that keeps future choices open.';
   const evidence=d.evidence.length?d.evidence.map(e=>`- [${provenanceLabel(e.provenance)} | about: ${pretty(e.about)} | confidence: ${pretty(e.confidence)}] ${e.text}`).join('\n'):'- None entered.';
-  const moves=d.moves.length?d.moves.map(m=>`### Move ${m.number}: ${m.action||'Unnamed'}\n- Restriction addressed: ${m.restriction||'Not specified'}\n- Evidence: ${m.evidence||'Not specified'}\n- New affordance: ${m.affordance||'Not specified'}\n- Displaced cost: ${m.displacedCost||'Unknown'}\n- Could foreclose: ${m.foreclose||'Unknown'}\n- Small reversible test: ${m.reversibleTest||'Not specified'}\n- Voice / support needed: ${m.dialogue||'Not specified'}\n- Stop / revision signal: ${m.stopSignal||'Not specified'}`).join('\n\n'):'No moves entered yet.';
-  return `# Rheocratic SMEAC\n\n## S — Situation\n**Current situation:** ${d.context.situation||'Not specified.'}\n\n**Affected / absent parties**\n${bullets(d.context.stakeholders)}\n\n**Missing / disputed**\n${bullets(d.context.uncertainties)}\n\n${singleNarrator?'**Epistemic limitation:** this remains predominantly a single-narrator map.\n\n':''}**Evidence ledger**\n${evidence}\n\n**Relevant horizon signals**\n${relevant.length?relevant.map(h=>`- **${h.triplet}** — ${h.status}${h.notes?`: ${h.notes}`:''}`).join('\n'):'- None marked.'}\n\n**Working contraction:** ${d.contractions.primary||'Not yet specified.'}\n\n**Disconfirming evidence:** ${d.contractions.disconfirmingEvidence||'Not yet specified.'}\n\n**Power / safety:** ${JSON.stringify(d.powerSafety)}\n\n## M — Mission\n${mission}\n\n**Decision horizon:** ${d.context.decisionHorizon||'unknown'}  \n**Consequence/recovery horizon:** ${d.context.recoveryHorizon||'unknown'}  \n**Viability floor:** ${d.viability.viabilityFloor||'Not yet identified.'}\n\n## E — Execution\n${moves}\n\n**Regenerative capacity to protect:** ${d.viability.regenerate||'Not yet identified.'}\n\n**Full-trajectory concern:** ${d.viability.trajectoryConcern||'Not yet identified.'}\n\n**What could be permanently foreclosed:** ${d.viability.foreclose||'Not yet identified.'}\n\n## A — Administration / Logistics\n${d.admin||'Not yet specified.'}\n\n## C — Command / Signal\n${d.commandSignal||'Not yet specified.'}\n\n**Missing perspective / local knowledge to seek:** ${d.contractions.missingPerspective||'Not yet specified.'}\n\n**Review question:** What should we watch for that would tell us this map is wrong — including harm displaced outside the user's immediate system?\n\n---\nRheo v0.2 research prototype — no aggregate Reciprocal Wellbeing score.\n`;
+  const moves=d.moves.length?d.moves.map(m=>`### Option ${m.number}: ${m.action||'Unnamed'}\n- What it might help: ${m.restriction||'Not specified'}\n- Why it may be worth trying: ${m.evidence||'Not specified'}\n- New option it could open: ${m.affordance||'Not specified'}\n- Who or what might pay a price: ${m.displacedCost||'Unknown'}\n- Future option it could close: ${m.foreclose||'Unknown'}\n- Small reversible test: ${m.reversibleTest||'Not specified'}\n- Voice / support needed: ${m.dialogue||'Not specified'}\n- Stop / change-course signal: ${m.stopSignal||'Not specified'}`).join('\n\n'):'No options entered yet.';
+  return `# Rheo working plan\n\n_SMEAC structure: Situation · Mission · Execution · Administration · Command/Signal_\n\n## 1. What’s going on?\n**How you see it now:** ${d.context.situation||'Not specified.'}\n\n**Who else is affected**\n${bullets(d.context.stakeholders)}\n\n**What is missing, unclear or disputed**\n${bullets(d.context.uncertainties)}\n\n${singleNarrator?'**Only one side represented:** this map still comes mainly from the account entered here.\n\n':''}**Important statements and where they came from**\n${evidence}\n\n**What stood out in the bigger-picture check**\n${relevant.length?relevant.map(h=>`- **${displayHorizonTitle(h.id)}** — ${h.status}${h.notes?`: ${h.notes}`:''}`).join('\n'):'- Nothing marked.'}\n\n**What may be getting stuck:** ${d.contractions.primary||'Not yet specified.'}\n\n**What would change our mind:** ${d.contractions.disconfirmingEvidence||'Not yet specified.'}\n\n**Power and safety:** ${JSON.stringify(d.powerSafety)}\n\n## 2. What are we trying to make possible?\n${mission}\n\n**Time to decide:** ${d.context.decisionHorizon||'unknown'}  \n**How long effects could last:** ${d.context.recoveryHorizon||'unknown'}  \n**A line we should not cross:** ${d.viability.viabilityFloor||'Not yet identified.'}\n\n## 3. What could we try?\n${moves}\n\n**What needs time to recover:** ${d.viability.regenerate||'Not yet identified.'}\n\n**Damage a good ending could hide:** ${d.viability.trajectoryConcern||'Not yet identified.'}\n\n**What could be seriously or permanently lost:** ${d.viability.foreclose||'Not yet identified.'}\n\n## 4. What do we need to make it happen?\n${d.admin||'Not yet specified.'}\n\n## 5. Who decides, who needs a voice, and what will we watch?\n${d.commandSignal||'Not yet specified.'}\n\n**Whose view could change the picture:** ${d.contractions.missingPerspective||'Not yet specified.'}\n\n**Review question:** What would tell us this map is wrong, including harm or cost that has landed outside the immediate frame?\n\n---\nRheo v0.3.1 research prototype — no aggregate Reciprocal Wellbeing score.\n`;
 }
 
 function download(name,content,type){
@@ -78,7 +79,7 @@ function exportResearchLog(){const logs=JSON.parse(localStorage.getItem('rheo_re
 function saveCase(){
   const d=data();caseId=d.caseId;
   const all=JSON.parse(localStorage.getItem('rheo_cases_v0_2')||'[]');const i=all.findIndex(x=>x.caseId===d.caseId);if(i>=0)all[i]=d;else all.unshift(d);
-  localStorage.setItem('rheo_cases_v0_2',JSON.stringify(all));logEvent('case_saved',{caseId});alert('Saved locally.');
+  localStorage.setItem('rheo_cases_v0_2',JSON.stringify(all));logEvent('case_saved',{caseId});alert('Saved in this browser.');
 }
 
 function saveOutcome(){
@@ -92,7 +93,7 @@ function saveOutcome(){
     thirdPartyCost:$('thirdPartyCost').value.trim()
   };
   const all=JSON.parse(localStorage.getItem('rheo_casebook_v0_2')||'[]');all.unshift(outcome);localStorage.setItem('rheo_casebook_v0_2',JSON.stringify(all));
-  logEvent('outcome_review_saved',{outcomeId:outcome.outcomeId});alert('Outcome review saved separately.');
+  logEvent('outcome_review_saved',{outcomeId:outcome.outcomeId});alert('Outcome saved separately.');
 }
 
 function showSaved(){

@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.3.1 — Evaluation + plain-language UI repair
+
+This version responds to the final external adversarial review of v0.3. The change was preregistered before implementation in `research/CHANGE_RECORD_V0_3_1_EVALUATION_UI_REPAIR.md`.
+
+### Added
+
+- self-identifying model export envelope containing condition, granularity, provider, model, response id, timestamp and research-usable flag
+- server-side enforcement of coarse / standard / fine proposition, mechanism and system-element limits
+- explicit allowed source-reference index derived from non-empty case/challenge inputs
+- server-side proposition/evidence reference integrity checks
+- guard preventing model-created `verified_external` status without a corresponding user-supplied independently verified evidence item
+- provenance challenges that can be re-entered into a subsequent model analysis as contested narrator evidence
+- independent-control specification without authoring the future confirmatory control
+- evaluator support for v0.3.1 metadata envelopes
+- explicit minimum-coverage interpretation floor of 7/9 dimensions for the lexical screen
+- progressive disclosure of research terminology and settings in the browser guide
+- optional live voice transcription beside free-text questionnaire fields when the browser supports speech recognition
+- spoken-question buttons and an optional Voice guide using browser speech synthesis
+- research event instrumentation for voice-guide use and transcription start/end/error without logging audio
+
+### Changed
+
+- Jaccard is now named and reported as **lexical overlap**, not structural similarity
+- blind human scoring remains the primary structural comparison until a semantic machine scorer is separately calibrated
+- fixture output is marked `researchUsable:false` and cannot be exported from the guide as real-model research evidence
+- the prominent form-level safety warning now activates on `Possible` or `Present`, while `Unknown` produces a quieter uncertainty notice
+- most user-facing research jargon has been translated into ordinary language
+- the final SMEAC output is presented as a **working plan**, while the SMEAC structure remains available as an explanatory research label
+- research condition and detail/granularity controls are behind a disclosure instead of dominating the normal flow
+- CI step wording now correctly describes the machine pair screen as lexical overlap
+- voice input is treated as a separate interaction modality rather than a change to the RWB reasoning representation
+
+### Still unresolved by design
+
+- whether RWB outperforms strong general reasoning
+- calibration/selection of a valid semantic machine structural metric
+- A3: whether granularity is the dominant latent degree of freedom
+- A6: independently authored generic/adversarial control and confirmatory scoring ontology
+- A7: whether decentring increases acceptance independently of accuracy
+- narrator-capture and model-politeness effects
+- real-model failure/refusal rates, including missing-not-at-random failures on difficult cases
+- independently verified external evidence beyond user-supplied provenance labels
+- cross-browser equivalence and behavioural effects of voice versus typed input
+- external sealed-set results and real-world outcomes
+
+### Research status
+
+v0.3.1 repairs the development apparatus and usability layer. It is not evidence that the RWB alignment hypothesis is true.
+
+---
+
 ## v0.3 — Executable mechanism
 
 This version responds to the external adversarial review of frozen `baseline-v0.2`. The mechanism change was preregistered before implementation in `research/CHANGE_RECORD_V0_3_EXECUTABLE_MECHANISM.md`.

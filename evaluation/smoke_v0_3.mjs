@@ -26,29 +26,49 @@ async function analyze(condition, caseRecord){
   return body;
 }
 
+function envelope(result){
+  return {
+    exportVersion:'0.3.1',
+    exportedAt:new Date().toISOString(),
+    caseId:result.map.caseId,
+    condition:result.condition,
+    granularity:result.granularity,
+    provider:result.provider,
+    model:result.model,
+    responseId:result.responseId,
+    researchUsable:result.researchUsable,
+    map:result.map
+  };
+}
+
 let dir;
 try{
   const health=await waitForHealth();
   assert.equal(health.provider,'fixture');
-  const caseRecord={schemaVersion:'0.2',caseId:'smoke-case',context:{situation:'A decision is being made from one supplied account.'},evidence:[],horizons:[],contractions:{},powerSafety:{},viability:{},moves:[]};
+  assert.equal(health.version,'0.3.1');
+  const caseRecord={schemaVersion:'0.2',guideVersion:'0.3.1',caseId:'smoke-case',context:{situation:'A decision is being made from one supplied account.'},evidence:[],horizons:[],contractions:{},powerSafety:{},viability:{},moves:[]};
   const rheo=await analyze('rheo',caseRecord);
   const control=await analyze('control',caseRecord);
   assert.equal(rheo.map.schemaVersion,'0.3');
   assert.equal(control.map.schemaVersion,'0.3');
   assert.equal(rheo.map.caseId,'smoke-case');
+  assert.equal(rheo.provider,'fixture');
+  assert.equal(rheo.researchUsable,false,'fixture must never be marked research-usable');
+  assert.equal(control.researchUsable,false,'fixture must never be marked research-usable');
   assert.deepEqual(Object.keys(rheo.map).sort(),Object.keys(control.map).sort(),'conditions must have identical output field opportunities');
   assert.equal(rheo.map.safetyCaution.level,'unknown','fixture must demonstrate that missing safety evidence is not affirmative safety');
 
-  dir=await mkdtemp(path.join(tmpdir(),'rheo-v03-'));
-  await writeFile(path.join(dir,'a.json'),JSON.stringify(rheo.map,null,2));
-  await writeFile(path.join(dir,'b.json'),JSON.stringify(control.map,null,2));
+  dir=await mkdtemp(path.join(tmpdir(),'rheo-v031-'));
+  await writeFile(path.join(dir,'a.json'),JSON.stringify(envelope(rheo),null,2));
+  await writeFile(path.join(dir,'b.json'),JSON.stringify(envelope(control),null,2));
   await writeFile(path.join(dir,'manifest.json'),JSON.stringify({pairs:[{pair_id:'smoke',family:'pipeline',a:'a.json',b:'b.json'}]},null,2));
   const py=spawn('python3',['evaluation/harness.py','screen-pairs',path.join(dir,'manifest.json')],{stdio:['ignore','pipe','pipe']});
   let out='',err='';py.stdout.on('data',d=>out+=d);py.stderr.on('data',d=>err+=d);
   const code=await new Promise(resolve=>py.on('close',resolve));
   assert.equal(code,0,err);
   assert.match(out,/mean_coverage=/);
-  console.log('v0.3 smoke passed: both conditions -> same schema -> live API output -> evaluator.');
+  assert.match(out,/mean_lexical_overlap=/);
+  console.log('v0.3.1 smoke passed: both conditions -> same schema -> fixture API output -> metadata envelope -> evaluator.');
   console.log(out.trim());
 } finally {
   server.kill('SIGTERM');
