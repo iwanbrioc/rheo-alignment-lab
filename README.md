@@ -48,6 +48,19 @@ The default user path now avoids requiring research vocabulary. Examples:
 
 Internal ids, provenance enum values and the structural-map schema remain stable.
 
+### Optional voice interface
+
+The questionnaire now has progressive voice controls:
+
+- a microphone button beside free-text fields writes interim/final speech recognition into the field as the user speaks when the browser supports live recognition;
+- a speaker button reads each question aloud;
+- an optional **Voice guide** reads the current section and reads a question when its field receives focus;
+- spoken text remains editable before the user continues;
+- audio is not added to the Rheo case record or research event log;
+- unsupported browsers keep the normal typed interface.
+
+This is an interaction-modality change, not an RWB reasoning change. Its research boundary is recorded in `research/VOICE_INTERFACE_NOTE_V0_3_1.md`.
+
 ## Safety handling
 
 At the model layer, `unknown` remains different from `none_detected`: missing information is not proof of safety.
@@ -98,7 +111,7 @@ For a real model call:
 
 ```bash
 export OPENAI_API_KEY="..."
-export OPENAI_MODEL="gpt-5"   # optional override
+export OPENAI_MODEL="gpt-5.6"   # optional override
 npm start
 ```
 
@@ -125,6 +138,7 @@ python3 evaluation/prompt_budget.py
 python3 evaluation/harness.py self-test
 python3 evaluation/harness.py screen-pairs evaluation/example-manifest.json
 node evaluation/smoke_v0_3.mjs
+node --check app/voice.js
 ```
 
 The pair screen reports **lexical overlap only**. It is not a structural metric.
@@ -141,6 +155,10 @@ Mechanism changes were preregistered before implementation in:
 The independence boundary for a future generic/adversarial control is in:
 
 - `research/INDEPENDENT_CONTROL_SPEC_V0_3_1.md`
+
+The optional voice-interface modality boundary is in:
+
+- `research/VOICE_INTERFACE_NOTE_V0_3_1.md`
 
 A substantive RWB claim still requires independently frozen controls/rubrics, reliable blind raters, pre-specified granularity analysis, frozen development/benchmark sets, an externally held sealed set, and appropriate real-world outcome evidence.
 
