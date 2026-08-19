@@ -6,3 +6,8 @@ __pycache__/
 .env.*
 node_modules/
 coverage/
+
+# Historical Corpus v2 private material. This repository is public.
+private-unseen-cases/
+evaluation/historical-corpus-v2/private-unseen-cases/
+evaluation/historical-corpus-v2/private-runs/
