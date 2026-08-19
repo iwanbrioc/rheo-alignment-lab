@@ -16,6 +16,8 @@ This version responds to the final external adversarial review of v0.3. The chan
 - evaluator support for v0.3.1 metadata envelopes
 - explicit minimum-coverage interpretation floor of 7/9 dimensions for the lexical screen
 - progressive disclosure of research terminology and settings in the browser guide
+- Render deployment blueprint and custom-domain deployment notes
+- CTOS design-system integration record at `research/CHANGE_RECORD_V0_3_1_CTOS_DESIGN_SYSTEM.md`
 
 ### Changed
 
@@ -27,6 +29,9 @@ This version responds to the final external adversarial review of v0.3. The chan
 - the final SMEAC output is presented as a **working plan**, while the SMEAC structure remains available as an explanatory research label
 - research condition and detail/granularity controls are behind a disclosure instead of dominating the normal flow
 - CI step wording now correctly describes the machine pair screen as lexical overlap
+- Rheo now uses the production CTOS visual language: Geist UI type, Plus Jakarta Sans display type, Geist Mono metadata, the `#667eea → #764ba2 → #2aa895` signature hero gradient, monochromatic working surfaces, 1px-border depth, sharper radii, restrained shadows, CTOS signal colours, crisp motion and dark-mode parity
+- RWB horizon cards use restrained colour signals rather than large decorative fills
+- PWA theme colours, icon palette and service-worker cache version now match the CTOS family
 
 ### Still unresolved by design
 
@@ -39,6 +44,7 @@ This version responds to the final external adversarial review of v0.3. The chan
 - real-model failure/refusal rates, including missing-not-at-random failures on difficult cases
 - independently verified external evidence beyond user-supplied provenance labels
 - external sealed-set results and real-world outcomes
+- whether the visual redesign improves usability, trust, completion or retention
 
 ### Research status
 
