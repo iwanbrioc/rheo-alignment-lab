@@ -29,6 +29,7 @@ jobs:
           node --check evaluation/smoke_v0_3.mjs
           node --check evaluation/historical-corpus-v1.1/run_corpus.mjs
           node --check evaluation/historical-corpus-v1.2/screen_recognition.mjs
+          node --check evaluation/historical-corpus-v2/run_unseen_case.mjs
       - name: Check Python syntax
         run: |
           python -m py_compile evaluation/harness.py
@@ -36,6 +37,8 @@ jobs:
           python -m py_compile evaluation/historical-corpus-v1.1/make_rating_sheet.py
           python -m py_compile evaluation/historical-corpus-v1.1/validate_corpus.py
           python -m py_compile evaluation/historical-corpus-v1.2/validate_candidates.py
+          python -m py_compile evaluation/historical-corpus-v2/validate_private_case.py
+          python -m py_compile evaluation/historical-corpus-v2/freeze_case.py
       - name: Parse JSON files
         run: |
           python - <<'PY'
@@ -63,10 +66,18 @@ jobs:
           test -f research/CHANGE_RECORD_V0_3_1_REALTIME_VOICE.md
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V1_1.md
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V1_2_OBSCURE_SCREEN.md
+          test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V2_UNSEEN.md
           test -f research/INDEPENDENT_CONTROL_SPEC_V0_3_1.md
           test -f research/VOICE_INTERFACE_NOTE_V0_3_1.md
           test -f evaluation/historical-corpus-v1.2/CANDIDATES.json
           test -f evaluation/historical-corpus-v1.2/SOURCES.md
+          test -f evaluation/historical-corpus-v2/PROTOCOL.md
+          test -f evaluation/historical-corpus-v2/ELIGIBILITY_CHECKLIST.md
+          test -f evaluation/historical-corpus-v2/CONTRIBUTOR_GUIDE.md
+          test -f evaluation/historical-corpus-v2/templates/T0.template.json
+          test -f evaluation/historical-corpus-v2/templates/T1.template.json
+          test -f evaluation/historical-corpus-v2/templates/T2.template.json
+          test -f evaluation/historical-corpus-v2/templates/consent.template.json
       - name: Validate historical corpus v1.1
         run: python evaluation/historical-corpus-v1.1/validate_corpus.py
       - name: Validate historical corpus v1.2 candidates

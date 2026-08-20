@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "unseen-case-t1-v2",
+  "caseId": "unseen-001",
+  "actualAction": "What was actually decided or done.",
+  "actionRationaleAtTime": "Documented rationale used at the time, without importing later hindsight.",
+  "sourceRefs": ["private-source-id-1"]
+}

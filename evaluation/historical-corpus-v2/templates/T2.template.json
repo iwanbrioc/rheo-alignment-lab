@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "unseen-case-t2-v2",
+  "caseId": "unseen-001",
+  "outcomeSummary": "What subsequently happened, stated before inspecting model outputs.",
+  "materialisedConsequences": ["A consequence that actually materialised."],
+  "historicallySupportedMechanisms": ["A causal mechanism supported by the later record."],
+  "irreversibleThresholds": ["A hard-to-reverse threshold that became material, if any."],
+  "affectedStakeholders": ["A party or system that carried material consequence."],
+  "timeHorizonEffects": ["A later effect the T0 decision horizon could obscure."],
+  "narratorContribution": ["A supported contribution from the decision-maker's own assumptions/actions, if any."],
+  "availableActionsAtT0": [
+    {
+      "action": "An alternative demonstrably available before the decision.",
+      "basisRefs": ["private-source-id-2"]
+    }
+  ],
+  "plausibleUnrealisedRisks": ["A reasonable ex-ante risk that did not materialise; report separately."],
+  "irrelevantDistractors": ["A possibility that was not materially supported or decision-relevant."],
+  "sourceRefs": ["private-source-id-3"]
+}

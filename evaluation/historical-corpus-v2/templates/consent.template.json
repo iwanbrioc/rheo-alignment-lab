@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "unseen-case-consent-v2",
+  "caseId": "unseen-001",
+  "contributorAuthorityConfirmed": false,
+  "researchUseConfirmed": false,
+  "personalDataReviewed": false,
+  "t0MayBeSentToModelProvider": false,
+  "publicHashRecordAllowed": false,
+  "notes": "Private notes about permissions or restrictions. Do not commit this file to public Git."
+}
