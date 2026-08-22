@@ -22,4 +22,7 @@
       previous();
     };
   }
+
+  const footer=document.querySelector('footer');
+  if(footer)footer.textContent='Rheo v0.5 adaptive-interview research prototype · testimony first · no aggregate RWB score';
 })();
