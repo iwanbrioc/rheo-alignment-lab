@@ -1,5 +1,5 @@
-const CACHE='rheo-v0.5-adaptive-interview2';
-const ASSETS=['./','./index.html','./styles.css','./flow.css','./interview.css','./app.js','./app-core.js','./flow-ui.js','./app-analysis.js','./app-report.js','./model.js','./interview-ui.js','./interview-compat.js','./voice.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='rheo-v0.6-action-outcome1';
+const ASSETS=['./','./index.html','./styles.css','./flow.css','./interview.css','./action-outcome.css','./app.js','./app-core.js','./flow-ui.js','./app-analysis.js','./app-report.js','./model.js','./interview-ui.js','./interview-compat.js','./action-outcome-ui.js','./voice.js','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',e=>{
   self.skipWaiting();
