@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "synthetic-action-corpus-v0.7",
+  "status": "development-only",
+  "provenance": "Synthetic cases constructed from common classes of real-world decision problems. They are not sampled from private OpenAI conversations.",
+  "cases": [
+    {
+      "caseId": "SYN-001",
+      "title": "Remote-work policy",
+      "vignette": "A company introduced remote work during the pandemic and now wants a permanent policy. Executives prefer three fixed office days each week to rebuild culture and mentoring. Many staff value flexibility, and several high performers live far from the office. Newer employees report feeling isolated and say access to informal learning is uneven. Office leases run for four more years, and managers have little reliable data about which kinds of work actually benefit from co-location.",
+      "decision": "What should the company do next?"
+    },
+    {
+      "caseId": "SYN-002",
+      "title": "Creative project partnership",
+      "vignette": "An artist-led project has been invited to deliver a high-profile public event with a major institution. The institution can provide the venue, marketing and insurance but wants final approval over publicity and programme changes. The artists need the opportunity and exposure, but their method depends on improvisation and participant co-creation. A funding deadline means the contract must be signed in ten days. Previous informal collaboration was positive, but responsibilities have never been tested under pressure.",
+      "decision": "How should the artists proceed?"
+    },
+    {
+      "caseId": "SYN-003",
+      "title": "Software migration",
+      "vignette": "A nonprofit's donor database is unreliable and staff maintain parallel spreadsheets. A new cloud platform could integrate fundraising, events and communications. The vendor is offering a substantial discount if the organisation signs this month. Staff are frustrated with the current system, but data quality is poor and responsibilities for data entry are unclear. Previous technology projects failed because organisational processes were never agreed before software was purchased.",
+      "decision": "What should the nonprofit do?"
+    },
+    {
+      "caseId": "SYN-004",
+      "title": "University course closure",
+      "vignette": "A university is considering closing a small humanities course with falling enrolment. The course loses money according to current departmental accounting, but it shares modules with other programmes and supports a distinctive research community. Senior management wants savings within eighteen months. Students and staff argue that the course's reputation also contributes to postgraduate recruitment and the institution's wider cultural role. No one has yet modelled the knock-on effects of closure on shared teaching, recruitment or staff retention.",
+      "decision": "Should the university proceed with closure, and what should happen first?"
+    },
+    {
+      "caseId": "SYN-005",
+      "title": "Museum collections storage",
+      "vignette": "A museum has run out of collections storage. It can build an expensive new store, dispose of lower-priority items, or share storage with another institution 40 miles away. Curators worry that disposal decisions made under space pressure will be irreversible. Trustees need a solution during the current capital-budget cycle. The museum has not yet examined why acquisitions continue faster than deaccessioning or whether its collections policy itself needs to change.",
+      "decision": "What should the museum prioritise?"
+    },
+    {
+      "caseId": "SYN-006",
+      "title": "Farm succession",
+      "vignette": "A family farm is deciding whether to expand dairy production, diversify into tourism, or reduce operations as the older generation retires. One adult child wants to continue farming; another wants access to their share of the property's value. The parents want the land to remain in the family. The farm carries debt, has ageing buildings and strong local relationships. A neighbouring business has offered to rent additional land, but a decision is needed before the next agricultural season.",
+      "decision": "What should the family do next?"
+    },
+    {
+      "caseId": "SYN-007",
+      "title": "Local food procurement",
+      "vignette": "A public body wants more of its food budget to support local producers. Current contracts provide low prices, dependable volumes and centralised quality assurance. Local farms say they could supply more but struggle with accreditation, aggregation, seasonal demand and tender complexity. Political leaders want a visible local-spend target within a year. Catering teams warn that menus, storage and delivery systems may also need to change.",
+      "decision": "What three actions should the public body take first?"
+    },
+    {
+      "caseId": "SYN-008",
+      "title": "Festival growth",
+      "vignette": "A successful community arts festival has been offered sponsorship that would double its budget and potential audience. The sponsor wants naming rights, prominent branding and a more commercial headline act. Volunteers are exhausted after the previous festival, while local artists value the event because it feels participatory and locally owned. The sponsorship decision must be made before programme planning begins.",
+      "decision": "Should the festival accept the offer, and what should it do next?"
+    },
+    {
+      "caseId": "SYN-009",
+      "title": "Small charity merger",
+      "vignette": "Two small charities serving overlapping groups are under financial pressure. A major funder has suggested a merger and indicated that future grants may favour a single provider. One charity owns a building and has experienced staff; the other has stronger community trust and volunteer participation. Their boards broadly support closer working but disagree about whose governance arrangements should survive. Staff are anxious about jobs and some service users fear the smaller organisation's culture will disappear.",
+      "decision": "How should the charities respond?"
+    },
+    {
+      "caseId": "SYN-010",
+      "title": "Employee ownership transition",
+      "vignette": "The founder of a successful small business wants to transfer ownership to employees over the next three years. Staff like the idea but have uneven financial knowledge and little governance experience. A private buyer has offered an attractive price and wants an answer within eight weeks. The founder wants to preserve the company's culture but also needs retirement income and is concerned about burdening employees with debt.",
+      "decision": "What should the founder do?"
+    }
+  ]
+}
