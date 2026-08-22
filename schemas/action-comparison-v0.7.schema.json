@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synthetic action comparison v0.7",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "actions", "firstActionId", "firstActionWhy", "uncertainty"],
+  "properties": {
+    "schemaVersion": {"const": "0.7"},
+    "caseId": {"type": "string", "minLength": 1},
+    "actions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "action", "rationale", "makesPossible", "downsideOrCost", "stopReviseSignal"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "action": {"type": "string", "minLength": 1},
+          "rationale": {"type": "string", "minLength": 1},
+          "makesPossible": {"type": "string", "minLength": 1},
+          "downsideOrCost": {"type": "string", "minLength": 1},
+          "stopReviseSignal": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "firstActionId": {"type": "string", "minLength": 1},
+    "firstActionWhy": {"type": "string", "minLength": 1},
+    "uncertainty": {"type": "array", "items": {"type": "string", "minLength": 1}, "maxItems": 8}
+  }
+}
