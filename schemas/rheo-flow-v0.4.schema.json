@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo flow diagnosis v0.4",
+  "description": "Rheo-specific output schema for the paired upsweep/horizon/downsweep flow physiology.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion","caseId","propositions","frameRelocation","flowRows","primaryRestriction",
+    "alignedIntervention","wellbeingActivators","propagationPrediction","irreversibility","safetyCaution","specificitySelfCheck"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "0.4"},
+    "caseId": {"type": "string"},
+    "propositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id","text","provenance","confidence","contested","sourceRefs"],
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"},
+          "provenance": {"enum": ["user_reported_observation","user_interpretation","ai_inference","verified_external","absent_party_account","unknown"]},
+          "confidence": {"enum": ["low","medium","high"]},
+          "contested": {"type": "boolean"},
+          "sourceRefs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "frameRelocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["narratorAsOrdinaryNode","problemDescriptionAsObject","relocatedFrame","evidenceRefs","confidence"],
+      "properties": {
+        "narratorAsOrdinaryNode": {"type": "string"},
+        "problemDescriptionAsObject": {"type": "string"},
+        "relocatedFrame": {"type": "string"},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"enum": ["low","medium","high"]}
+      }
+    },
+    "flowRows": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rowId","intervention","horizon","organ","state","rationale","evidenceRefs"],
+        "properties": {
+          "rowId": {"enum": ["environment","culture","infrastructure","society","outer","inner","noself"]},
+          "intervention": {"enum": ["Re-enchantment","Transformation","Creativity","Dialogue","Curiosity","Participation","Nothing / Everything"]},
+          "horizon": {"enum": ["Natural Environment","Culture","Infrastructure","Society","Outer Self","Inner Self","No Self"]},
+          "organ": {"enum": ["Resources","Values","Affordance","Support","Capacity","Wellbeing","Everything / Nothing"]},
+          "state": {"enum": ["flowing","restricted","severed","uncertain"]},
+          "rationale": {"type": "string"},
+          "evidenceRefs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "primaryRestriction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rowId","organ","horizon","alignedIntervention","diagnosis","visibleSymptoms","evidenceRefs","confidence"],
+      "properties": {
+        "rowId": {"enum": ["environment","culture","infrastructure","society","outer","inner","noself"]},
+        "organ": {"enum": ["Resources","Values","Affordance","Support","Capacity","Wellbeing","Everything / Nothing"]},
+        "horizon": {"enum": ["Natural Environment","Culture","Infrastructure","Society","Outer Self","Inner Self","No Self"]},
+        "alignedIntervention": {"enum": ["Re-enchantment","Transformation","Creativity","Dialogue","Curiosity","Participation","Nothing / Everything"]},
+        "diagnosis": {"type": "string"},
+        "visibleSymptoms": {"type": "array", "items": {"type": "string"}},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"enum": ["low","medium","high"]}
+      }
+    },
+    "alignedIntervention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intervention","smallestSufficientInfluence","whyThisFits","doNotOverdetermine","evidenceRefs"],
+      "properties": {
+        "intervention": {"enum": ["Re-enchantment","Transformation","Creativity","Dialogue","Curiosity","Participation","Nothing / Everything"]},
+        "smallestSufficientInfluence": {"type": "string"},
+        "whyThisFits": {"type": "string"},
+        "doNotOverdetermine": {"type": "string"},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "wellbeingActivators": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name","emphasis","application"],
+        "properties": {
+          "name": {"enum": ["Be Active","Be Creative","Connect","Keep Learning","Take Notice","Give","Let Go"]},
+          "emphasis": {"enum": ["foreground","available"]},
+          "application": {"type": "string"}
+        }
+      }
+    },
+    "propagationPrediction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nextDownsweepOrgan","ifReleasedThen","observableSignal","reviewHorizon","falsifier","relocationTrigger"],
+      "properties": {
+        "nextDownsweepOrgan": {"enum": ["Resources","Values","Affordance","Support","Capacity","Wellbeing","Everything / Nothing"]},
+        "ifReleasedThen": {"type": "string"},
+        "observableSignal": {"type": "string"},
+        "reviewHorizon": {"type": "string"},
+        "falsifier": {"type": "string"},
+        "relocationTrigger": {"type": "string"}
+      }
+    },
+    "irreversibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["boundaryToProtect","emergenceNotToConstrain","displacedCosts","evidenceRefs"],
+      "properties": {
+        "boundaryToProtect": {"type": "string"},
+        "emergenceNotToConstrain": {"type": "string"},
+        "displacedCosts": {"type": "array", "items": {"type": "string"}},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "safetyCaution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level","indicators","evidenceRefs","uncertainty"],
+      "properties": {
+        "level": {"enum": ["unknown","none_detected","caution","high"]},
+        "indicators": {"type": "array", "items": {"type": "string"}},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "uncertainty": {"type": "string"}
+      }
+    },
+    "specificitySelfCheck": {"enum": ["specific","mixed","generic"]}
+  }
+}
