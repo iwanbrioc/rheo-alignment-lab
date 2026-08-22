@@ -23,6 +23,7 @@ jobs:
           node --check app/app.js
           node --check app/app-core.js
           node --check app/flow-ui.js
+          node --check app/interview-ui.js
           node --check app/app-analysis.js
           node --check app/app-report.js
           node --check app/model.js
@@ -32,6 +33,7 @@ jobs:
           node --check evaluation/flow-v0.4/smoke_v0_4.mjs
           node --check evaluation/flow-v0.4/server_research_v0_4.mjs
           node --check evaluation/flow-v0.4/run_shared_case.mjs
+          node --check evaluation/interview-v0.5/smoke_v0_5.mjs
           node --check evaluation/historical-corpus-v1.1/run_corpus.mjs
           node --check evaluation/historical-corpus-v1.2/screen_recognition.mjs
           node --check evaluation/historical-corpus-v2/run_unseen_case.mjs
@@ -76,11 +78,13 @@ jobs:
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V1_2_OBSCURE_SCREEN.md
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V2_UNSEEN.md
           test -f research/CHANGE_RECORD_V0_4_FLOW_PHYSIOLOGY.md
+          test -f research/CHANGE_RECORD_V0_5_ADAPTIVE_INTERVIEW.md
           test -f research/INDEPENDENT_CONTROL_SPEC_V0_3_1.md
           test -f research/VOICE_INTERFACE_NOTE_V0_3_1.md
           test -f evaluation/flow-v0.4/server_research_v0_4.mjs
           test -f evaluation/flow-v0.4/run_shared_case.mjs
           test -f evaluation/flow-v0.4/blind_shared_outputs.py
+          test -f evaluation/interview-v0.5/smoke_v0_5.mjs
           test -f evaluation/historical-corpus-v1.2/CANDIDATES.json
           test -f evaluation/historical-corpus-v1.2/SOURCES.md
           test -f evaluation/historical-corpus-v2/PROTOCOL.md
@@ -104,3 +108,5 @@ jobs:
         run: node evaluation/smoke_v0_3.mjs
       - name: Run v0.4 flow fixture smoke test
         run: node evaluation/flow-v0.4/smoke_v0_4.mjs
+      - name: Run v0.5 adaptive interview fixture smoke test
+        run: node evaluation/interview-v0.5/smoke_v0_5.mjs
