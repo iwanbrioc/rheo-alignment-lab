@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo Action Set v0.6",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion","caseId","diagnosisSnapshot","actions","noneIsValid","researchNote"],
+  "properties": {
+    "schemaVersion": {"const":"0.6"},
+    "caseId": {"type":"string"},
+    "diagnosisSnapshot": {
+      "type":"object",
+      "additionalProperties": false,
+      "required":["rowId","organ","horizon","alignedIntervention","confidence"],
+      "properties": {
+        "rowId":{"type":"string"},
+        "organ":{"type":"string"},
+        "horizon":{"type":"string"},
+        "alignedIntervention":{"type":"string"},
+        "confidence":{"enum":["low","medium","high"]}
+      }
+    },
+    "actions": {
+      "type":"array",
+      "minItems":3,
+      "maxItems":3,
+      "items": {
+        "type":"object",
+        "additionalProperties": false,
+        "required":["id","kind","title","action","whyThisAction","alignedIntervention","activators","prediction","stopOrChangeSignal","displacedCosts","irreversibilityCaution","assumptions"],
+        "properties": {
+          "id":{"type":"string"},
+          "kind":{"enum":["smallest_release","learning_action","generative_action"]},
+          "title":{"type":"string"},
+          "action":{"type":"string"},
+          "whyThisAction":{"type":"string"},
+          "alignedIntervention":{"type":"string"},
+          "activators":{"type":"array","items":{"enum":["Be Active","Be Creative","Connect","Keep Learning","Take Notice","Give","Let Go"]},"uniqueItems":true},
+          "prediction": {
+            "type":"object",
+            "additionalProperties": false,
+            "required":["nextOrgan","whatShouldBecomeMorePossible","observableSignal","reviewHorizon"],
+            "properties": {
+              "nextOrgan":{"type":"string"},
+              "whatShouldBecomeMorePossible":{"type":"string"},
+              "observableSignal":{"type":"string"},
+              "reviewHorizon":{"type":"string"}
+            }
+          },
+          "stopOrChangeSignal":{"type":"string"},
+          "displacedCosts":{"type":"array","items":{"type":"string"}},
+          "irreversibilityCaution":{"type":"string"},
+          "assumptions":{"type":"array","items":{"type":"string"}}
+        }
+      }
+    },
+    "noneIsValid":{"const":true},
+    "researchNote":{"type":"string"}
+  }
+}

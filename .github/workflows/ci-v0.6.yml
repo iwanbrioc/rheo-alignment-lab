@@ -1,0 +1,30 @@
+name: CI v0.6 action outcome
+
+on:
+  push:
+    branches: [v0.6-action-outcome-loop]
+  pull_request:
+    branches: [v0.5-adaptive-interview]
+
+jobs:
+  validate-v06:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check v0.6 JavaScript syntax
+        run: |
+          node --check server_v0_6.mjs
+          node --check app/action-outcome-ui.js
+          node --check evaluation/action-outcome-v0.6/smoke_v0_6.mjs
+      - name: Parse v0.6 schema
+        run: node -e "JSON.parse(require('fs').readFileSync('schemas/rheo-actions-v0.6.schema.json','utf8')); console.log('schema ok')"
+      - name: Check preregistration and prompt
+        run: |
+          test -f research/CHANGE_RECORD_V0_6_ACTION_OUTCOME_LOOP.md
+          test -f prompts/rheo-actions-v0.6-system-prompt.md
+          test -f app/action-outcome.css
+      - name: Run v0.6 fixture smoke
+        run: node evaluation/action-outcome-v0.6/smoke_v0_6.mjs
