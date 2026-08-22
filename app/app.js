@@ -1,4 +1,4 @@
-// Rheo v0.3.1 loader. Implementation remains split for auditability.
+// Rheo v0.4 loader. Implementation remains split for auditability.
 (function loadSequentially(files){
   const [src, ...rest] = files;
   if (!src) return;
@@ -7,4 +7,4 @@
   script.onload = () => loadSequentially(rest);
   script.onerror = () => console.error(`Failed to load ${src}`);
   document.body.appendChild(script);
-})(['app-core.js','app-analysis.js','app-report.js','model.js','voice.js']);
+})(['app-core.js','flow-ui.js','app-analysis.js','app-report.js','model.js','voice.js']);
