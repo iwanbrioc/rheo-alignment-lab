@@ -1,40 +1,84 @@
 const horizons = [
-  {id:'environment',triplet:'Re-enchantment ↔ Natural Environment ↔ Resources',title:'Natural Environment / Resources',plainTitle:'Environment & resources',questions:[
-    'What living or material resources does this situation depend on?',
-    'What needs time and the right conditions to recover?',
-    'Are any resources being used in a way that cannot keep going?'
-  ]},
-  {id:'culture',triplet:'Transformation ↔ Culture ↔ Values',title:'Culture / Values',plainTitle:'Culture & values',questions:[
-    'What story, habit or value makes the present situation seem inevitable?',
-    'What is being kept simply because it is familiar?',
-    'What change in values would open up different possibilities?'
-  ]},
-  {id:'infrastructure',triplet:'Creativity ↔ Infrastructure ↔ Affordance',title:'Infrastructure / Affordance',plainTitle:'Structures & options',questions:[
-    'What can people actually do within the present setup?',
-    'What useful option is blocked because the structure does not allow it?',
-    'What small practical change could open up a new option?'
-  ]},
-  {id:'society',triplet:'Dialogue ↔ Society ↔ Support',title:'Society / Support',plainTitle:'Relationships & support',questions:[
-    'Who is actually in conversation, and who is being spoken about rather than spoken with?',
-    'Does each person have real influence, or only a chance to speak?',
-    'Is support helping people take part, or making them more dependent?'
-  ]},
-  {id:'outer',triplet:'Curiosity ↔ Outer Self ↔ Capacity',title:'Outer Self / Capacity',plainTitle:'Skills & capacity',questions:[
-    'Where might certainty be stopping useful questions?',
-    'What ability or resource is already there but not being used?',
-    'What skill, relationship or question could widen the options?'
-  ]},
-  {id:'inner',triplet:'Participation ↔ Inner Self ↔ Well-being',title:'Inner Self / Well-being',plainTitle:'Experience & wellbeing',questions:[
-    'What is this situation actually like for the people living it?',
-    'Who is becoming more able, or less able, to take part meaningfully?',
-    'What is changing in people’s energy, confidence or wellbeing?'
-  ]},
-  {id:'noself',triplet:'Nothing / Everything ↔ No Self ↔ Everything / Nothing',title:'Context orientation / No Self',plainTitle:'Step back & widen the frame',noScore:true,questions:[
-    'What if the way the problem is being described is part of what keeps it stuck?',
-    'Whose point of view is being treated as the centre?',
-    'What new information would force us to rethink the explanation?',
-    'What becomes visible if we look at the setting around the dispute, not only the dispute itself?'
-  ]}
+  {
+    id:'environment', intervention:'Re-enchantment', horizon:'Natural Environment', organ:'Resources',
+    triplet:'Re-enchantment ← Natural Environment → Resources',
+    title:'Natural Environment / Resources', plainTitle:'Resources',
+    questions:[
+      'What living, material or ecological resources does this situation depend on?',
+      'Are those resources renewing, being depleted, or becoming inaccessible?',
+      'What would help people encounter the resource as something alive and worth caring for, rather than merely something to consume?'
+    ]
+  },
+  {
+    id:'culture', intervention:'Transformation', horizon:'Culture', organ:'Values',
+    triplet:'Transformation ← Culture → Values',
+    title:'Culture / Values', plainTitle:'Values',
+    questions:[
+      'What values, stories or habits are actually organising behaviour here?',
+      'Are stated values becoming lived values, or has flow stalled between the two?',
+      'What transformation would allow different values to become possible or credible?'
+    ]
+  },
+  {
+    id:'infrastructure', intervention:'Creativity', horizon:'Infrastructure', organ:'Affordance',
+    triplet:'Creativity ← Infrastructure → Affordance',
+    title:'Infrastructure / Affordance', plainTitle:'Affordance',
+    questions:[
+      'What can people actually do within the present structures, not merely in theory?',
+      'Which useful possibility is nominally available but practically blocked?',
+      'What creative change in the structure could make a new option genuinely usable?'
+    ]
+  },
+  {
+    id:'society', intervention:'Dialogue', horizon:'Society', organ:'Support',
+    triplet:'Dialogue ← Society → Support',
+    title:'Society / Support', plainTitle:'Support',
+    questions:[
+      'Where is support genuinely circulating, and where has it become one-way, brittle or dependent?',
+      'Who is in real dialogue, and who is only being spoken about?',
+      'What dialogue could change the conditions in which support becomes possible?'
+    ]
+  },
+  {
+    id:'outer', intervention:'Curiosity', horizon:'Outer Self', organ:'Capacity',
+    triplet:'Curiosity ← Outer Self → Capacity',
+    title:'Outer Self / Capacity', plainTitle:'Capacity',
+    questions:[
+      'What capability exists but is not currently usable?',
+      'Where might certainty, habit or role be preventing learning?',
+      'What curiosity could reveal, develop or reconnect the capacity that is missing?'
+    ]
+  },
+  {
+    id:'inner', intervention:'Participation', horizon:'Inner Self', organ:'Wellbeing',
+    triplet:'Participation ← Inner Self → Wellbeing',
+    title:'Inner Self / Wellbeing', plainTitle:'Wellbeing',
+    questions:[
+      'What is this situation actually like for the people living it?',
+      'Who is becoming more or less able to participate meaningfully?',
+      'What form of participation could restore agency rather than prescribe an outcome for them?'
+    ]
+  },
+  {
+    id:'noself', intervention:'Nothing / Everything', horizon:'No Self', organ:'Everything / Nothing',
+    triplet:'Nothing / Everything ← No Self → Everything / Nothing',
+    title:'No Self / Everything–Nothing', plainTitle:'Everything / Nothing',
+    questions:[
+      'Whose point of view is being treated as the centre of the system?',
+      'What if the present description of the problem is itself one of the things happening?',
+      'What becomes visible if the narrator, their organisation and their preferred solution are treated as ordinary nodes in the wider context?'
+    ]
+  }
+];
+
+const wellbeingActivators = [
+  ['be_active','Be Active','Bring the intervention into contact with reality through appropriate action.'],
+  ['be_creative','Be Creative','Keep making and testing possibilities rather than fixing one answer too early.'],
+  ['connect','Connect','Strengthen relationships and circulation without assuming connection is always safe.'],
+  ['keep_learning','Keep Learning','Let new evidence alter both the intervention and the diagnosis.'],
+  ['take_notice','Take Notice','Attend closely to what is actually happening, including weak or inconvenient signals.'],
+  ['give','Give','Contribute what the wider flow needs without making the intervention about control or possession.'],
+  ['let_go','Let Go','Release strategies, identities or solutions that are blocking fresh flow.']
 ];
 
 const provenanceTypes = [
@@ -68,19 +112,23 @@ function logEvent(type, detail={}){
   localStorage.setItem('rheo_research_log_v0_2', JSON.stringify(logs));
 }
 
+function flowPair(id){ return horizons.find(x=>x.id===id) || horizons[0]; }
 function displayHorizonTitle(id){
-  const h=horizons.find(x=>x.id===id);
-  return h?.plainTitle || h?.title || id;
+  const h=flowPair(id);
+  return `${h.organ} — ${h.horizon}`;
 }
 
 function init(){
   renderHorizons();
+  renderPrimaryRestrictionControl();
+  renderActivators();
   addEvidence({text:'',provenance:'user_reported_observation',about:'system'});
   addEvidence({text:'',provenance:'user_interpretation',about:'other_party'});
   addMove(); addMove();
   bind();
+  updateAlignedIntervention();
   updateSafetyGate();
-  logEvent('app_open');
+  logEvent('app_open',{guideVersion:'0.4.0'});
 }
 
 function bind(){
@@ -99,6 +147,10 @@ function bind(){
   $('savedBtn').onclick=showSaved;
   $('closeSavedBtn').onclick=()=>{ $('savedView').classList.add('hidden'); $('homeView').classList.remove('hidden'); };
   $('narratorImplicated').addEventListener('change', onNarratorImplication);
+  $('primaryFlowRow')?.addEventListener('change',()=>{
+    updateAlignedIntervention();
+    logEvent('primary_flow_row_selected',{rowId:$('primaryFlowRow').value});
+  });
   ['fearRetaliation','constrainedExit','surveillanceControl','materialDependence','powerAsymmetry'].forEach(id=>{
     $(id).addEventListener('change', updateSafetyGate);
   });
@@ -120,24 +172,58 @@ function start(){
 }
 
 function loadExample(){
-  $('openingContext').value='Our community project has to make a funding decision within two weeks. A partner relationship has become strained, staff are tired, and one option would solve the immediate budget problem but may damage trust that took years to build. I need to know what to protect, what can change, and what a proportionate next move looks like.';
+  $('openingContext').value='Our community project has to make a funding decision within two weeks. A partner relationship has become strained, staff are tired, and one option would solve the immediate budget problem but may damage trust that took years to build. I need to know where the flow is actually blocked, what intervention belongs there, and what a proportionate next move looks like.';
 }
 
 function renderHorizons(){
   const host=$('horizonCards');host.innerHTML='';
-  horizons.forEach(h=>{
-    const el=document.createElement('section');el.className='card horizon';
-    const statuses=h.noScore?'<span class="muted">No rating needed</span>':`<div class="statuses">
-      <label><input type="radio" name="${h.id}Status" value="restriction"> Seems blocked</label>
-      <label><input type="radio" name="${h.id}Status" value="uncertain" checked> Not sure</label>
-      <label><input type="radio" name="${h.id}Status" value="open"> Seems to be working</label>
-      <label><input type="radio" name="${h.id}Status" value="irrelevant"> Not relevant</label>
+  horizons.forEach((h,i)=>{
+    const el=document.createElement('section');el.className='card horizon flowHorizon';
+    const statuses=`<div class="statuses flowStatuses">
+      <label><input type="radio" name="${h.id}Status" value="restricted"> Restricted</label>
+      <label><input type="radio" name="${h.id}Status" value="severed"> Severed</label>
+      <label><input type="radio" name="${h.id}Status" value="uncertain" checked> Uncertain</label>
+      <label><input type="radio" name="${h.id}Status" value="flowing"> Flowing</label>
     </div>`;
-    el.innerHTML=`<div class="horizonTop"><div><h3>${h.plainTitle}</h3><details class="researchDetails"><summary>RWB lens</summary><div class="horizonTriplet">${h.triplet}</div></details></div>${statuses}</div>
+    el.innerHTML=`
+      <div class="flowPair" aria-label="${h.triplet}">
+        <div class="flowSide interventionSide"><span class="flowDirection">↑ intervention</span><strong>${h.intervention}</strong></div>
+        <div class="flowHorizonCentre"><span>Horizon ${i+1}</span><strong>${h.horizon}</strong></div>
+        <div class="flowSide organSide"><span class="flowDirection">↓ organ</span><strong>${h.organ}</strong></div>
+      </div>
+      <div class="horizonTop"><div><h3>${h.organ}: is flow moving?</h3><p class="muted">If ${h.organ} is the primary restriction, the aligned intervention is <strong>${h.intervention}</strong> through the ${h.horizon} horizon.</p></div>${statuses}</div>
       <ul class="questions">${h.questions.map(q=>`<li>${q}</li>`).join('')}</ul>
-      <label>What do you notice?</label><textarea id="${h.id}Notes" rows="4"></textarea>`;
+      <label>What do you notice about flow here?</label><textarea id="${h.id}Notes" rows="4"></textarea>`;
     host.appendChild(el);
   });
+}
+
+function renderPrimaryRestrictionControl(){
+  const select=$('primaryFlowRow');
+  if(!select)return;
+  select.innerHTML='<option value="">Not yet sure</option>'+horizons.map(h=>`<option value="${h.id}">${h.organ} — ${h.horizon}</option>`).join('');
+}
+
+function updateAlignedIntervention(){
+  const out=$('alignedInterventionNotice');
+  if(!out)return;
+  const id=$('primaryFlowRow')?.value;
+  if(!id){
+    out.innerHTML='<strong>No primary restriction selected yet.</strong> Keep the diagnosis open until one organ looks more load-bearing than the others.';
+    return;
+  }
+  const h=flowPair(id);
+  out.innerHTML=`<strong>Aligned intervention:</strong> ${h.intervention} <span class="muted">through ${h.horizon}, responding to a restriction in ${h.organ}.</span>`;
+}
+
+function renderActivators(){
+  const host=$('activatorGrid');
+  if(!host)return;
+  host.innerHTML=wellbeingActivators.map(([id,name,desc])=>`
+    <label class="activatorCard">
+      <input type="checkbox" id="activator_${id}" />
+      <span><strong>${name}</strong><small>${desc}</small></span>
+    </label>`).join('');
 }
 
 function addEvidence(seed={}){
@@ -195,6 +281,7 @@ function go(n){
   $('nextBtn').textContent=step===7?'Review plan':'Next';
   if(step===7)renderSMEAC();
   if(step===2)updateSingleNarratorNotice();
+  if(step===4)updateAlignedIntervention();
   logEvent('step_view',{step});
   window.scrollTo({top:0,behavior:'smooth'});
 }
