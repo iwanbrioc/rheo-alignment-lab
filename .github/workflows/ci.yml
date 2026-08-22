@@ -18,15 +18,20 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check server.mjs
+          node --check server_v0_4.mjs
           node --check realtime.mjs
           node --check app/app.js
           node --check app/app-core.js
+          node --check app/flow-ui.js
           node --check app/app-analysis.js
           node --check app/app-report.js
           node --check app/model.js
           node --check app/voice.js
           node --check app/sw.js
           node --check evaluation/smoke_v0_3.mjs
+          node --check evaluation/flow-v0.4/smoke_v0_4.mjs
+          node --check evaluation/flow-v0.4/server_research_v0_4.mjs
+          node --check evaluation/flow-v0.4/run_shared_case.mjs
           node --check evaluation/historical-corpus-v1.1/run_corpus.mjs
           node --check evaluation/historical-corpus-v1.2/screen_recognition.mjs
           node --check evaluation/historical-corpus-v2/run_unseen_case.mjs
@@ -34,6 +39,7 @@ jobs:
         run: |
           python -m py_compile evaluation/harness.py
           python -m py_compile evaluation/prompt_budget.py
+          python -m py_compile evaluation/flow-v0.4/blind_shared_outputs.py
           python -m py_compile evaluation/historical-corpus-v1.1/make_rating_sheet.py
           python -m py_compile evaluation/historical-corpus-v1.1/validate_corpus.py
           python -m py_compile evaluation/historical-corpus-v1.2/validate_candidates.py
@@ -54,7 +60,9 @@ jobs:
           test -f prompts/sham-control-prompt.md
           test -f prompts/rheo-v0.3-system-prompt.md
           test -f prompts/control-v0.3-system-prompt.md
+          test -f prompts/rheo-v0.4-flow-system-prompt.md
           test -f schemas/structural-map-v0.3.schema.json
+          test -f schemas/rheo-flow-v0.4.schema.json
           test -f research/EVALUATION_PROTOCOL.md
           test -f research/FROZEN_CLAIMS.md
           test -f research/MECHANISM_CHANGE_PROTOCOL.md
@@ -67,8 +75,12 @@ jobs:
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V1_1.md
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V1_2_OBSCURE_SCREEN.md
           test -f research/CHANGE_RECORD_HISTORICAL_CORPUS_V2_UNSEEN.md
+          test -f research/CHANGE_RECORD_V0_4_FLOW_PHYSIOLOGY.md
           test -f research/INDEPENDENT_CONTROL_SPEC_V0_3_1.md
           test -f research/VOICE_INTERFACE_NOTE_V0_3_1.md
+          test -f evaluation/flow-v0.4/server_research_v0_4.mjs
+          test -f evaluation/flow-v0.4/run_shared_case.mjs
+          test -f evaluation/flow-v0.4/blind_shared_outputs.py
           test -f evaluation/historical-corpus-v1.2/CANDIDATES.json
           test -f evaluation/historical-corpus-v1.2/SOURCES.md
           test -f evaluation/historical-corpus-v2/PROTOCOL.md
@@ -88,5 +100,7 @@ jobs:
         run: python evaluation/harness.py self-test
       - name: Run example lexical-overlap screen
         run: python evaluation/harness.py screen-pairs evaluation/example-manifest.json
-      - name: Run end-to-end fixture pipeline smoke test
+      - name: Run v0.3.1 fixture pipeline smoke test
         run: node evaluation/smoke_v0_3.mjs
+      - name: Run v0.4 flow fixture smoke test
+        run: node evaluation/flow-v0.4/smoke_v0_4.mjs

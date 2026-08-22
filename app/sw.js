@@ -1,5 +1,5 @@
-const CACHE='rheo-v0.3.1-realtime-voice1';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./app-core.js','./app-analysis.js','./app-report.js','./model.js','./voice.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='rheo-v0.4-flow-physiology1';
+const ASSETS=['./','./index.html','./styles.css','./flow.css','./app.js','./app-core.js','./flow-ui.js','./app-analysis.js','./app-report.js','./model.js','./voice.js','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',e=>{
   self.skipWaiting();
@@ -17,8 +17,6 @@ self.addEventListener('fetch',e=>{
   const url=new URL(e.request.url);
   if(url.pathname.startsWith('/api/')) return;
 
-  // Prefer the live server copy so UI revisions do not remain behind an old cache.
-  // Fall back to the current cache when offline.
   if(e.request.mode==='navigate' || ['document','script','style'].includes(e.request.destination)){
     e.respondWith(fetch(e.request).then(response=>{
       const copy=response.clone();
