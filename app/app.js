@@ -7,4 +7,4 @@
   script.onload = () => loadSequentially(rest);
   script.onerror = () => console.error(`Failed to load ${src}`);
   document.body.appendChild(script);
-})(['app-core.js','flow-ui.js','app-analysis.js','app-report.js','model.js','interview-ui.js','interview-compat.js','action-outcome-ui.js','voice.js']);
+})(['app-core.js','flow-ui.js','app-analysis.js','app-report.js','model.js','interview-ui.js','interview-compat.js','action-outcome-ui.js','v06-shell.js','voice.js']);
