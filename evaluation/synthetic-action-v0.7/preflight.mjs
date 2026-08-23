@@ -23,7 +23,10 @@ async function fail(message){
 async function post(url,body){
   const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
   const text=await r.text();let parsed;try{parsed=JSON.parse(text);}catch{parsed={raw:text};}
-  if(!r.ok)await fail(`${url} returned ${r.status}: ${parsed?.error||text}`);
+  if(!r.ok){
+    const details=Array.isArray(parsed?.details)&&parsed.details.length?` | details: ${parsed.details.join(' ; ')}`:'';
+    await fail(`${url} returned ${r.status}: ${parsed?.error||text}${details}`);
+  }
   return parsed;
 }
 
