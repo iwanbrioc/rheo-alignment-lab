@@ -96,6 +96,16 @@ function neutralizeRheo(actionSet,c){
 
 function fixtureComparison(c,label){return {schemaVersion:'0.7',caseId:c.caseId,actions:[1,2,3].map(i=>({id:`a${i}`,action:`Fixture ${label} action ${i}`,rationale:'Fixture mode only.',makesPossible:'Exercises the comparison schema.',downsideOrCost:'No real case inference in fixture mode.',stopReviseSignal:'Replace fixture output with a real model run.'})),firstActionId:'a1',firstActionWhy:'Fixture mode only.',uncertainty:['Fixture output is not research evidence.']};}
 
+function normalizeComparison(comparison,c){
+  if(!comparison||!Array.isArray(comparison.actions)||comparison.actions.length!==3)throw new Error('comparison must contain exactly three actions');
+  comparison.schemaVersion='0.7';
+  comparison.caseId=c.caseId;
+  comparison.actions.forEach((x,i)=>{x.id=`a${i+1}`;});
+  comparison.firstActionId='a1';
+  comparison.firstActionWhy='Selection is performed by the shared condition-neutral selector.';
+  return comparison;
+}
+
 async function runRheo(c){
   const cr=caseRecord(c);
   const flowResp=await post(`${BASE}/api/rheo-flow`,{caseRecord:cr});
@@ -120,7 +130,7 @@ async function runMatched(c){
 
 async function chooseFirst(comparison,c){
   if(PROVIDER==='fixture')return {firstActionId:'a1',firstActionWhy:'Fixture mode selects the first option only to exercise the pipeline.',model:'fixture-v0.8-selector',responseId:null,researchUsable:false};
-  const items=comparison.actions.map(x=>({id:x.id,action:x.action,rationale:x.rationale,makesPossible:x.makesPossible,downsideOrCost:x.downsideOrCost,stopReviseSignal:x.stopReviseSignal}));
+  const items=comparison.actions.map((x,i)=>({id:`a${i+1}`,action:x.action,rationale:x.rationale,makesPossible:x.makesPossible,downsideOrCost:x.downsideOrCost,stopReviseSignal:x.stopReviseSignal}));
   const schema={type:'object',additionalProperties:false,required:['firstActionId','firstActionWhy'],properties:{firstActionId:{type:'string',enum:['a1','a2','a3']},firstActionWhy:{type:'string',minLength:1}}};
   const r=await structuredCall(selectorInstructions,JSON.stringify({caseId:c.caseId,vignette:c.vignette,decision:c.decision,actions:items}),schema,'shared_first_action_v0_8');
   return {...r.value,model:r.model,responseId:r.responseId,researchUsable:true};
@@ -135,6 +145,7 @@ for(const c of shuffled(cases)){
       const started=Date.now();
       try{
         const result=condition==='bare'?await runBare(c):condition==='matched'?await runMatched(c):await runRheo(c);
+        normalizeComparison(result.comparison,c);
         const selected=await chooseFirst(result.comparison,c);
         result.comparison.firstActionId=selected.firstActionId;
         result.comparison.firstActionWhy=selected.firstActionWhy;
