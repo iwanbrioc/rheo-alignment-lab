@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "synthetic-action-corpus-v0.8",
+  "status": "development-only-unseen",
+  "provenance": "Synthetic cases constructed prospectively for v0.8 from common classes of practical decision problems. They are not sampled from private OpenAI conversations and were not used in v0.7.",
+  "cases": [
+    {
+      "caseId": "SYN-101",
+      "title": "Library evening hours",
+      "vignette": "A city library must reduce staffing costs by 8% next year. Managers propose closing two evenings each week because evening footfall is lower than daytime use. Those evenings are disproportionately used by shift workers, an English-language conversation group and teenagers who have little quiet study space at home. Staff say overtime costs have risen partly because the current rota makes evening cover difficult to swap. The budget proposal is due in three weeks, and the council expects a visible saving rather than an open-ended consultation.",
+      "decision": "What should the library do next?"
+    },
+    {
+      "caseId": "SYN-102",
+      "title": "Warehouse automation",
+      "vignette": "A regional distribution business is considering a £900,000 warehouse automation system after a year of persistent vacancies and late orders. The vendor is offering a discount if the contract is signed within six weeks. Exit interviews suggest that unpredictable shifts, pay compression and weak supervision contribute to turnover, but managers also report genuine difficulty recruiting for repetitive picking work. The system would require layout changes and several months of dual running. The owners can finance the purchase but cannot comfortably absorb a failed implementation.",
+      "decision": "How should the business decide whether to automate?"
+    },
+    {
+      "caseId": "SYN-103",
+      "title": "Community battery investment",
+      "vignette": "A community energy cooperative has been offered a grant covering 45% of a large battery installation. The battery could increase use of locally generated solar power and reduce peak imports, but the financial model depends on uncertain grid tariffs and export constraints. Some members worry that households able to shift consumption will benefit more than others while all members share the debt risk. The grant must be accepted within five weeks, and a smaller battery or staged installation may be possible but has not been priced.",
+      "decision": "What should the cooperative do before accepting or rejecting the grant?"
+    },
+    {
+      "caseId": "SYN-104",
+      "title": "School phone policy",
+      "vignette": "A secondary school is considering requiring all pupils to hand in mobile phones at the start of the day after complaints about classroom distraction, filming and cyberbullying. Teachers want a simple rule they can enforce consistently. Some pupils use phones to coordinate caring responsibilities or travel, and a small number rely on approved health-related apps. Behaviour records show repeated problems but the school has not analysed whether incidents are concentrated in particular lessons, spaces or times. A policy must be announced before the new term begins in one month.",
+      "decision": "What policy process and first move should the school adopt?"
+    },
+    {
+      "caseId": "SYN-105",
+      "title": "Town flood defence",
+      "vignette": "A local authority has capital funding available for a flood wall protecting a frequently flooded town-centre street. Engineers believe the wall would reduce risk locally, but modelling of downstream effects is incomplete and residents in two nearby villages fear water could be displaced toward them. Upstream land-management measures may reduce peak flows across the catchment but would require agreements with several landowners and may take years to mature. The capital grant has a spending deadline eighteen months away and could be lost if the council delays too long.",
+      "decision": "What should the council do next?"
+    },
+    {
+      "caseId": "SYN-106",
+      "title": "Theatre residency contract",
+      "vignette": "A small theatre company has been offered a one-year residency by a major venue. The deal would provide rehearsal space, a guaranteed fee and marketing support, but the venue wants first refusal on new work, exclusive presentation rights within the region and broad permission to use audience data gathered through joint events. The company values artistic independence and works with freelancers who are not party to the contract. The residency would stabilise finances after a difficult year, and the venue wants a signed agreement within twelve days.",
+      "decision": "How should the company respond to the offer?"
+    },
+    {
+      "caseId": "SYN-107",
+      "title": "Rural evening bus",
+      "vignette": "A rural bus operator plans to withdraw its last two evening journeys because average passenger numbers are low and subsidy per passenger is high. The service is used by hospital, hospitality and care workers returning from late shifts, and losing it would remove the only public transport connection after 8pm. Timetable data suggest the evening route often misses incoming rail connections by ten to fifteen minutes. The operator must publish the next timetable in six weeks and the transport authority has limited subsidy available.",
+      "decision": "What should the operator and transport authority do before cutting the service?"
+    },
+    {
+      "caseId": "SYN-108",
+      "title": "Startup enterprise customer",
+      "vignette": "A software startup with five months of runway can sign its first major enterprise customer, which would extend runway by nearly a year. The customer requires several bespoke workflow features, an accelerated security programme and priority support. The founders believe some requested features could later benefit other customers, but the engineering team fears the company will effectively become a custom development shop. The prospective customer wants commercial terms agreed within three weeks and will not commit without a credible delivery plan.",
+      "decision": "How should the startup decide whether and how to take the deal?"
+    },
+    {
+      "caseId": "SYN-109",
+      "title": "Care cooperative block contract",
+      "vignette": "A worker-owned home-care cooperative has been offered a local-authority block contract that would almost double the number of weekly care hours it delivers. The contract would provide predictable revenue and allow more permanent jobs, but current worker-members already report fatigue and unpaid travel time between dispersed visits. The authority sets tight visit windows and a fixed hourly rate. Management believes growth could fund coordinators and better scheduling, while some members fear the cooperative will reproduce the working conditions it was created to escape. A decision is required within thirty days.",
+      "decision": "What should the cooperative do next?"
+    },
+    {
+      "caseId": "SYN-110",
+      "title": "Wetland visitor centre",
+      "vignette": "A conservation trust can apply for a grant covering most of the cost of a new visitor centre beside a restored wetland. Trustees hope it will increase income, education activity and public support. Ecologists worry that concentrating visitors at the site could disturb breeding areas, and volunteers already struggle to staff existing events. Visitor demand estimates are based mainly on comparable attractions rather than tests at this site. The grant window closes in seven weeks, but the trust could also apply for a smaller programme of temporary facilities and mobile interpretation.",
+      "decision": "What should the trust prioritise before the grant deadline?"
+    }
+  ]
+}
