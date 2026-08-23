@@ -25,19 +25,38 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+
           cases=json.loads(Path('evaluation/synthetic-action-v0.7/CASES.json').read_text())
           assert cases['schemaVersion']=='synthetic-action-corpus-v0.7'
           assert len(cases['cases'])==10
           ids=[x['caseId'] for x in cases['cases']]
           assert len(ids)==len(set(ids))==10
-          schema=json.loads(Path('schemas/action-comparison-v0.7.schema.json').read_text())
-          assert schema['properties']['actions']['minItems']==3
-          assert schema['properties']['actions']['maxItems']==3
-          print('v0.7 corpus/schema checks passed')
+
+          def walk(node, path='$'):
+              if isinstance(node, dict):
+                  assert 'const' not in node, f'const-only schema keyword is not allowed in strict output schema at {path}'
+                  if 'enum' in node:
+                      assert 'type' in node, f'enum requires explicit type at {path}'
+                  for k,v in node.items():
+                      walk(v, f'{path}.{k}')
+              elif isinstance(node, list):
+                  for i,v in enumerate(node):
+                      walk(v, f'{path}[{i}]')
+
+          comparison=json.loads(Path('schemas/action-comparison-v0.7.schema.json').read_text())
+          actions=json.loads(Path('schemas/rheo-actions-v0.6.schema.json').read_text())
+          assert comparison['properties']['actions']['minItems']==3
+          assert comparison['properties']['actions']['maxItems']==3
+          assert actions['properties']['actions']['minItems']==3
+          assert actions['properties']['actions']['maxItems']==3
+          walk(comparison)
+          walk(actions)
+          print('v0.7 corpus/strict-schema checks passed')
           PY
       - name: Required files
         run: |
           test -f research/CHANGE_RECORD_V0_7_SYNTHETIC_ACTION_BENCHMARK.md
+          test -f research/AMENDMENT_V0_7A_STRUCTURED_OUTPUT_SCHEMA_COMPATIBILITY.md
           test -f prompts/bare-action-v0.7-system-prompt.md
           test -f schemas/action-comparison-v0.7.schema.json
           test -f evaluation/synthetic-action-v0.7/CASES.json
