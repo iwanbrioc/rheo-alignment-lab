@@ -19,6 +19,7 @@ jobs:
           python-version: '3.12'
       - name: Syntax and corpus checks
         run: |
+          node --check evaluation/synthetic-action-v0.7/preflight.mjs
           node --check evaluation/synthetic-action-v0.7/run_benchmark.mjs
           python -m py_compile evaluation/synthetic-action-v0.7/blind_outputs.py
           python - <<'PY'
@@ -40,6 +41,7 @@ jobs:
           test -f prompts/bare-action-v0.7-system-prompt.md
           test -f schemas/action-comparison-v0.7.schema.json
           test -f evaluation/synthetic-action-v0.7/CASES.json
+          test -f evaluation/synthetic-action-v0.7/preflight.mjs
           test -f evaluation/synthetic-action-v0.7/run_benchmark.mjs
           test -f evaluation/synthetic-action-v0.7/blind_outputs.py
       - name: Fixture benchmark smoke
@@ -54,6 +56,7 @@ jobs:
             if curl -fsS http://127.0.0.1:8080/api/health >/dev/null; then break; fi
             sleep 0.25
           done
+          node evaluation/synthetic-action-v0.7/preflight.mjs
           node evaluation/synthetic-action-v0.7/run_benchmark.mjs --samples 1 --case SYN-001
           test $(find evaluation/synthetic-action-v0.7/model-runs -name 'SYN-001.*.json' | wc -l) -eq 2
           echo 'v0.7 fixture benchmark smoke passed'
