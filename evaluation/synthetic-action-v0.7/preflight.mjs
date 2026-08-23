@@ -14,6 +14,13 @@ async function fail(message){
   process.exit(2);
 }
 
+async function post(url,body){
+  const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  const text=await r.text();let parsed;try{parsed=JSON.parse(text);}catch{parsed={raw:text};}
+  if(!r.ok)await fail(`${url} returned ${r.status}: ${parsed?.error||text}`);
+  return parsed;
+}
+
 let health;
 try{
   const r=await fetch(`${BASE}/api/health`);
@@ -41,6 +48,18 @@ if(PROVIDER==='openai'){
   }catch(e){
     await fail(`could not validate the benchmark-shell API key: ${e.message}`);
   }
+
+  const probeText='Preflight only: identify whether there is enough information to locate a flow restriction. Do not treat this as benchmark evidence.';
+  const caseRecord={
+    schemaVersion:'0.2',guideVersion:'0.7.0-preflight',caseId:'PREFLIGHT-ONLY',createdAt:new Date().toISOString(),
+    context:{situation:probeText,whatMatters:'',stakeholders:'',uncertainties:'',decisionHorizon:'',recoveryHorizon:'',urgency:'Low'},
+    evidence:[{id:'t1',text:probeText,provenance:'unknown',about:'system',confidence:'low'}],
+    horizons:[],contractions:{primary:'',disconfirmingEvidence:'',missingPerspective:'',narratorImplicated:false},
+    powerSafety:{fearRetaliation:'Unknown',constrainedExit:'Unknown',surveillanceControl:'Unknown',materialDependence:'Unknown',powerAsymmetry:'Unknown',notes:''},
+    safetyGateActive:false,safetyUnresolved:true,
+    viability:{foreclose:'',regenerate:'',viabilityFloor:'',trajectoryConcern:''},moves:[],admin:'',commandSignal:''
+  };
+  await post(`${BASE}/api/rheo-flow`,{caseRecord});
 }
 
 console.log(`v0.7 preflight ok | server=${health.version||'unknown'} | provider=${PROVIDER} | model=${health.model||process.env.OPENAI_MODEL||'unknown'}`);
