@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synthetic action comparison v0.7",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "actions", "firstActionId", "firstActionWhy", "uncertainty"],
+  "properties": {
+    "schemaVersion": {"type": "string", "enum": ["0.7"]},
+    "caseId": {"type": "string"},
+    "actions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "action", "rationale", "makesPossible", "downsideOrCost", "stopReviseSignal"],
+        "properties": {
+          "id": {"type": "string"},
+          "action": {"type": "string"},
+          "rationale": {"type": "string"},
+          "makesPossible": {"type": "string"},
+          "downsideOrCost": {"type": "string"},
+          "stopReviseSignal": {"type": "string"}
+        }
+      }
+    },
+    "firstActionId": {"type": "string", "enum": ["a1", "a2", "a3"]},
+    "firstActionWhy": {"type": "string"},
+    "uncertainty": {"type": "array", "items": {"type": "string"}, "maxItems": 8}
+  }
+}

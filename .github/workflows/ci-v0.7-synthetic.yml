@@ -1,0 +1,81 @@
+name: CI v0.7 synthetic benchmark
+
+on:
+  push:
+    branches:
+      - v0.7-synthetic-action-benchmark
+  pull_request:
+
+jobs:
+  validate-v07:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and corpus checks
+        run: |
+          node --check evaluation/synthetic-action-v0.7/preflight.mjs
+          node --check evaluation/synthetic-action-v0.7/run_benchmark.mjs
+          python -m py_compile evaluation/synthetic-action-v0.7/blind_outputs.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          cases=json.loads(Path('evaluation/synthetic-action-v0.7/CASES.json').read_text())
+          assert cases['schemaVersion']=='synthetic-action-corpus-v0.7'
+          assert len(cases['cases'])==10
+          ids=[x['caseId'] for x in cases['cases']]
+          assert len(ids)==len(set(ids))==10
+
+          def walk(node, path='$'):
+              if isinstance(node, dict):
+                  assert 'const' not in node, f'const-only schema keyword is not allowed in strict output schema at {path}'
+                  if 'enum' in node:
+                      assert 'type' in node, f'enum requires explicit type at {path}'
+                  for k,v in node.items():
+                      walk(v, f'{path}.{k}')
+              elif isinstance(node, list):
+                  for i,v in enumerate(node):
+                      walk(v, f'{path}[{i}]')
+
+          comparison=json.loads(Path('schemas/action-comparison-v0.7.schema.json').read_text())
+          actions=json.loads(Path('schemas/rheo-actions-v0.6.schema.json').read_text())
+          assert comparison['properties']['actions']['minItems']==3
+          assert comparison['properties']['actions']['maxItems']==3
+          assert actions['properties']['actions']['minItems']==3
+          assert actions['properties']['actions']['maxItems']==3
+          walk(comparison)
+          walk(actions)
+          print('v0.7 corpus/strict-schema checks passed')
+          PY
+      - name: Required files
+        run: |
+          test -f research/CHANGE_RECORD_V0_7_SYNTHETIC_ACTION_BENCHMARK.md
+          test -f research/AMENDMENT_V0_7A_STRUCTURED_OUTPUT_SCHEMA_COMPATIBILITY.md
+          test -f prompts/bare-action-v0.7-system-prompt.md
+          test -f schemas/action-comparison-v0.7.schema.json
+          test -f evaluation/synthetic-action-v0.7/CASES.json
+          test -f evaluation/synthetic-action-v0.7/preflight.mjs
+          test -f evaluation/synthetic-action-v0.7/run_benchmark.mjs
+          test -f evaluation/synthetic-action-v0.7/blind_outputs.py
+      - name: Fixture benchmark smoke
+        env:
+          RHEO_MODEL_PROVIDER: fixture
+          PORT: 8080
+        run: |
+          npm start > /tmp/rheo-v07.log 2>&1 &
+          PID=$!
+          trap 'kill $PID || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/api/health >/dev/null; then break; fi
+            sleep 0.25
+          done
+          node evaluation/synthetic-action-v0.7/preflight.mjs
+          node evaluation/synthetic-action-v0.7/run_benchmark.mjs --samples 1 --case SYN-001
+          test $(find evaluation/synthetic-action-v0.7/model-runs -name 'SYN-001.*.json' | wc -l) -eq 2
+          echo 'v0.7 fixture benchmark smoke passed'
