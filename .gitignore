@@ -11,3 +11,8 @@ coverage/
 private-unseen-cases/
 evaluation/historical-corpus-v2/private-unseen-cases/
 evaluation/historical-corpus-v2/private-runs/
+
+# Synthetic benchmark generated runs and reveal keys.
+evaluation/synthetic-action-v0.7/model-runs/
+evaluation/synthetic-action-v0.8/model-runs/
+**/_BLINDING_KEY_PRIVATE_*.json
