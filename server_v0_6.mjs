@@ -61,10 +61,6 @@ function extractOutputText(raw){
   throw new Error('OpenAI response contained no output text');
 }
 
-function strictSchema(schema){
-  return schema;
-}
-
 const ACTIVATORS=new Set(['Be Active','Be Creative','Connect','Keep Learning','Take Notice','Give','Let Go']);
 const KINDS=['smallest_release','learning_action','generative_action'];
 
@@ -75,6 +71,17 @@ function diagnosisFromFlow(flow){
     alignedIntervention:String(p.alignedIntervention||flow?.alignedIntervention?.intervention||''),
     confidence:['low','medium','high'].includes(p.confidence)?p.confidence:'low'
   };
+}
+
+function strictSchema(schema,caseId,flow){
+  const s=structuredClone(schema);
+  const expected=diagnosisFromFlow(flow);
+  s.properties.caseId={...s.properties.caseId,enum:[caseId]};
+  const d=s.properties.diagnosisSnapshot.properties;
+  for(const [k,v] of Object.entries(expected))d[k]={...d[k],enum:[v]};
+  const actionProps=s.properties.actions.items.properties;
+  actionProps.alignedIntervention={...actionProps.alignedIntervention,enum:[expected.alignedIntervention]};
+  return s;
 }
 
 function validateActions(out,caseId,flow){
@@ -153,8 +160,8 @@ async function generateActions(body){
     body:JSON.stringify({
       model:OPENAI_MODEL,
       instructions,
-      input:[{role:'user',content:[{type:'input_text',text:`Generate the three action experiments from this frozen interview/diagnosis record. Preserve caseId exactly.\n\n${JSON.stringify(input)}`}]}],
-      text:{format:{type:'json_schema',name:'rheo_actions_v0_6',strict:true,schema:strictSchema(actionSchema)}},
+      input:[{role:'user',content:[{type:'input_text',text:`Generate the three action experiments from this frozen interview/diagnosis record. Preserve all frozen diagnosis metadata exactly.\n\n${JSON.stringify(input)}`}]}],
+      text:{format:{type:'json_schema',name:'rheo_actions_v0_6',strict:true,schema:strictSchema(actionSchema,caseId,flow)}},
       store:false
     })
   });
