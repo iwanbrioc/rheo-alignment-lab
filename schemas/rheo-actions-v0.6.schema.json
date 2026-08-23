@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion","caseId","diagnosisSnapshot","actions","noneIsValid","researchNote"],
   "properties": {
-    "schemaVersion": {"const":"0.6"},
+    "schemaVersion": {"type":"string","enum":["0.6"]},
     "caseId": {"type":"string"},
     "diagnosisSnapshot": {
       "type":"object",
@@ -16,7 +16,7 @@
         "organ":{"type":"string"},
         "horizon":{"type":"string"},
         "alignedIntervention":{"type":"string"},
-        "confidence":{"enum":["low","medium","high"]}
+        "confidence":{"type":"string","enum":["low","medium","high"]}
       }
     },
     "actions": {
@@ -29,12 +29,12 @@
         "required":["id","kind","title","action","whyThisAction","alignedIntervention","activators","prediction","stopOrChangeSignal","displacedCosts","irreversibilityCaution","assumptions"],
         "properties": {
           "id":{"type":"string"},
-          "kind":{"enum":["smallest_release","learning_action","generative_action"]},
+          "kind":{"type":"string","enum":["smallest_release","learning_action","generative_action"]},
           "title":{"type":"string"},
           "action":{"type":"string"},
           "whyThisAction":{"type":"string"},
           "alignedIntervention":{"type":"string"},
-          "activators":{"type":"array","items":{"enum":["Be Active","Be Creative","Connect","Keep Learning","Take Notice","Give","Let Go"]},"uniqueItems":true},
+          "activators":{"type":"array","items":{"type":"string","enum":["Be Active","Be Creative","Connect","Keep Learning","Take Notice","Give","Let Go"]}},
           "prediction": {
             "type":"object",
             "additionalProperties": false,
@@ -53,7 +53,7 @@
         }
       }
     },
-    "noneIsValid":{"const":true},
+    "noneIsValid":{"type":"boolean","enum":[true]},
     "researchNote":{"type":"string"}
   }
 }
