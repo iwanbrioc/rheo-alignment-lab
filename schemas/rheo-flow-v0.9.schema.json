@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo reciprocal flow map v0.9",
+  "description": "Operational reciprocal map using the canonical v0.9 causal grammar.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "caseId",
+    "propositions",
+    "liveDecision",
+    "workingReciprocalMap",
+    "primaryWorkingHypothesis",
+    "wholeCycleCausalMap",
+    "waysToWellbeing",
+    "frameRelocation",
+    "irreversibility",
+    "safetyCaution",
+    "specificitySelfCheck"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "0.9"},
+    "caseId": {"type": "string"},
+    "propositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "provenance", "confidence", "contested", "sourceRefs"],
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"},
+          "provenance": {
+            "enum": [
+              "user_reported_observation",
+              "user_interpretation",
+              "ai_inference",
+              "verified_external",
+              "absent_party_account",
+              "unknown"
+            ]
+          },
+          "confidence": {"enum": ["low", "medium", "high"]},
+          "contested": {"type": "boolean"},
+          "sourceRefs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "liveDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "deadlineOrOptionRisk", "immediateHarmDuringDelay"],
+      "properties": {
+        "decision": {"type": "string"},
+        "deadlineOrOptionRisk": {"type": "string"},
+        "immediateHarmDuringDelay": {"type": "string"}
+      }
+    },
+    "workingReciprocalMap": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rowId",
+          "triplet",
+          "state",
+          "observedRestriction",
+          "rheocraticHypothesis",
+          "discriminatingQuestion",
+          "smallestRelease",
+          "expectedReciprocalEffect",
+          "falsifier",
+          "evidenceRefs",
+          "confidence"
+        ],
+        "properties": {
+          "rowId": {
+            "enum": ["environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]
+          },
+          "triplet": {
+            "enum": [
+              "Re-enchantment → Natural Environment → Resources",
+              "Transformation → Culture → Values",
+              "Creativity → Infrastructure → Affordance",
+              "Dialogue → Society → Support",
+              "Curiosity → Outer Self → Capacity",
+              "Participation → Inner Self → Well-being",
+              "Nothing / Everything → No Self → Everything / Nothing"
+            ]
+          },
+          "state": {"enum": ["flowing", "restricted", "severed", "uncertain"]},
+          "observedRestriction": {"type": "string"},
+          "rheocraticHypothesis": {"type": "string"},
+          "discriminatingQuestion": {"type": "string"},
+          "smallestRelease": {"type": "string"},
+          "expectedReciprocalEffect": {"type": "string"},
+          "falsifier": {"type": "string"},
+          "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+          "confidence": {"enum": ["low", "medium", "high"]}
+        }
+      }
+    },
+    "primaryWorkingHypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported",
+        "rowId",
+        "triplet",
+        "observedRestriction",
+        "rheocraticHypothesis",
+        "discriminatingQuestion",
+        "smallestRelease",
+        "expectedReciprocalEffect",
+        "observableSignal",
+        "reviewHorizon",
+        "falsifier",
+        "evidenceRefs",
+        "confidence"
+      ],
+      "properties": {
+        "supported": {"type": "boolean"},
+        "rowId": {
+          "enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]
+        },
+        "triplet": {
+          "enum": [
+            null,
+            "Re-enchantment → Natural Environment → Resources",
+            "Transformation → Culture → Values",
+            "Creativity → Infrastructure → Affordance",
+            "Dialogue → Society → Support",
+            "Curiosity → Outer Self → Capacity",
+            "Participation → Inner Self → Well-being",
+            "Nothing / Everything → No Self → Everything / Nothing"
+          ]
+        },
+        "observedRestriction": {"type": "string"},
+        "rheocraticHypothesis": {"type": "string"},
+        "discriminatingQuestion": {"type": "string"},
+        "smallestRelease": {"type": "string"},
+        "expectedReciprocalEffect": {"type": "string"},
+        "observableSignal": {"type": "string"},
+        "reviewHorizon": {"type": "string"},
+        "falsifier": {"type": "string"},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"enum": ["low", "medium", "high"]}
+      }
+    },
+    "wholeCycleCausalMap": {"type": "string"},
+    "waysToWellbeing": {
+      "type": "array",
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]
+      }
+    },
+    "frameRelocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionRelevant", "privilegedCentre", "whatBecomesVisible", "actionImplication", "falsifier"],
+      "properties": {
+        "actionRelevant": {"type": "boolean"},
+        "privilegedCentre": {"type": "string"},
+        "whatBecomesVisible": {"type": "string"},
+        "actionImplication": {"type": "string"},
+        "falsifier": {"type": "string"}
+      }
+    },
+    "irreversibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["boundaryToProtect", "liveOptionToPreserve", "emergenceNotToConstrain", "displacedCosts", "regenerationRisk", "evidenceRefs"],
+      "properties": {
+        "boundaryToProtect": {"type": "string"},
+        "liveOptionToPreserve": {"type": "string"},
+        "emergenceNotToConstrain": {"type": "string"},
+        "displacedCosts": {"type": "array", "items": {"type": "string"}},
+        "regenerationRisk": {"type": "string"},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "safetyCaution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "indicators", "evidenceRefs", "uncertainty"],
+      "properties": {
+        "level": {"enum": ["unknown", "none_detected", "caution", "high"]},
+        "indicators": {"type": "array", "items": {"type": "string"}},
+        "evidenceRefs": {"type": "array", "items": {"type": "string"}},
+        "uncertainty": {"type": "string"}
+      }
+    },
+    "specificitySelfCheck": {"enum": ["specific", "mixed", "generic"]}
+  }
+}
