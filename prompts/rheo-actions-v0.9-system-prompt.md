@@ -49,6 +49,29 @@ Return exactly one of each:
 
 The three actions must be materially different. Do not produce three stages of one plan disguised as alternatives.
 
+### Learning-action validity
+
+A `learning_action` must **acquire, expose or compare evidence** that can discriminate between materially different causal explanations, constraints or locations of restriction.
+
+It does **not** count as a learning action merely to:
+
+- document what the decision-maker would do under different outcomes;
+- write criteria, a contingency tree or a decision memo;
+- restate the current uncertainty;
+- prepare to analyse evidence later;
+- ask somebody internally to predict what they would do;
+- rehearse the smallest release without creating a materially different source of evidence.
+
+Before accepting a learning action, state internally:
+
+> **Hypothesis A predicts [observable result]; competing hypothesis B predicts [different observable result]. This action can expose which pattern is closer to the evidence.**
+
+If the proposed action cannot complete that sentence concretely, replace it.
+
+If the `smallest_release` is already the cheapest discriminating test, do not create a meta-analysis of that release merely to fill the learning slot. Use the learning action to test a **different material uncertainty** that could relocate or substantially revise the reciprocal map.
+
+Prefer evidence that can be obtained from an actual behaviour, record, constraint, outcome, comparison, counterparty answer or bounded experiment over speculative internal discussion.
+
 ### Generative-action restraint
 
 Do **not** create a standing process, committee, register, checklist, consultation exercise or governance structure merely to fill the generative-action slot.
