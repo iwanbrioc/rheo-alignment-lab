@@ -19,7 +19,7 @@
     "specificitySelfCheck"
   ],
   "properties": {
-    "schemaVersion": {"const": "0.9"},
+    "schemaVersion": {"type": "string", "const": "0.9"},
     "caseId": {"type": "string"},
     "propositions": {
       "type": "array",
@@ -30,8 +30,8 @@
         "properties": {
           "id": {"type": "string"},
           "text": {"type": "string"},
-          "provenance": {"enum": ["user_reported_observation", "user_interpretation", "ai_inference", "verified_external", "absent_party_account", "unknown"]},
-          "confidence": {"enum": ["low", "medium", "high"]},
+          "provenance": {"type": "string", "enum": ["user_reported_observation", "user_interpretation", "ai_inference", "verified_external", "absent_party_account", "unknown"]},
+          "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
           "contested": {"type": "boolean"},
           "sourceRefs": {"type": "array", "items": {"type": "string"}}
         }
@@ -55,9 +55,9 @@
         "additionalProperties": false,
         "required": ["rowId", "triplet", "state", "observedRestriction", "rheocraticHypothesis", "discriminatingQuestion", "smallestRelease", "expectedReciprocalEffect", "falsifier", "evidenceRefs", "confidence"],
         "properties": {
-          "rowId": {"enum": ["environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
-          "triplet": {"enum": ["Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
-          "state": {"enum": ["flowing", "restricted", "severed", "uncertain"]},
+          "rowId": {"type": "string", "enum": ["environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
+          "triplet": {"type": "string", "enum": ["Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
+          "state": {"type": "string", "enum": ["flowing", "restricted", "severed", "uncertain"]},
           "observedRestriction": {"type": "string"},
           "rheocraticHypothesis": {"type": "string"},
           "discriminatingQuestion": {"type": "string"},
@@ -65,7 +65,7 @@
           "expectedReciprocalEffect": {"type": "string"},
           "falsifier": {"type": "string"},
           "evidenceRefs": {"type": "array", "items": {"type": "string"}},
-          "confidence": {"enum": ["low", "medium", "high"]}
+          "confidence": {"type": "string", "enum": ["low", "medium", "high"]}
         }
       }
     },
@@ -75,8 +75,8 @@
       "required": ["supported", "rowId", "triplet", "observedRestriction", "rheocraticHypothesis", "discriminatingQuestion", "smallestRelease", "expectedReciprocalEffect", "observableSignal", "reviewHorizon", "falsifier", "evidenceRefs", "confidence"],
       "properties": {
         "supported": {"type": "boolean"},
-        "rowId": {"enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
-        "triplet": {"enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
+        "rowId": {"type": ["string", "null"], "enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
+        "triplet": {"type": ["string", "null"], "enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
         "observedRestriction": {"type": "string"},
         "rheocraticHypothesis": {"type": "string"},
         "discriminatingQuestion": {"type": "string"},
@@ -86,14 +86,14 @@
         "reviewHorizon": {"type": "string"},
         "falsifier": {"type": "string"},
         "evidenceRefs": {"type": "array", "items": {"type": "string"}},
-        "confidence": {"enum": ["low", "medium", "high"]}
+        "confidence": {"type": "string", "enum": ["low", "medium", "high"]}
       }
     },
     "wholeCycleCausalMap": {"type": "string"},
     "waysToWellbeing": {
       "type": "array",
       "maxItems": 7,
-      "items": {"enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]}
+      "items": {"type": "string", "enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]}
     },
     "frameRelocation": {
       "type": "object",
@@ -125,12 +125,12 @@
       "additionalProperties": false,
       "required": ["level", "indicators", "evidenceRefs", "uncertainty"],
       "properties": {
-        "level": {"enum": ["unknown", "none_detected", "caution", "high"]},
+        "level": {"type": "string", "enum": ["unknown", "none_detected", "caution", "high"]},
         "indicators": {"type": "array", "items": {"type": "string"}},
         "evidenceRefs": {"type": "array", "items": {"type": "string"}},
         "uncertainty": {"type": "string"}
       }
     },
-    "specificitySelfCheck": {"enum": ["specific", "mixed", "generic"]}
+    "specificitySelfCheck": {"type": "string", "enum": ["specific", "mixed", "generic"]}
   }
 }
