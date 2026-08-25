@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rheo Action Set v0.9",
+  "description": "Three action experiments grounded in the v0.9 canonical operational reciprocal map.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "diagnosisSnapshot", "actions", "noneIsValid", "researchNote"],
+  "properties": {
+    "schemaVersion": {"const": "0.9"},
+    "caseId": {"type": "string"},
+    "diagnosisSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported",
+        "rowId",
+        "triplet",
+        "observedRestriction",
+        "rheocraticHypothesis",
+        "discriminatingQuestion",
+        "smallestRelease",
+        "expectedReciprocalEffect",
+        "falsifier",
+        "confidence"
+      ],
+      "properties": {
+        "supported": {"type": "boolean"},
+        "rowId": {
+          "enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]
+        },
+        "triplet": {
+          "enum": [
+            null,
+            "Re-enchantment → Natural Environment → Resources",
+            "Transformation → Culture → Values",
+            "Creativity → Infrastructure → Affordance",
+            "Dialogue → Society → Support",
+            "Curiosity → Outer Self → Capacity",
+            "Participation → Inner Self → Well-being",
+            "Nothing / Everything → No Self → Everything / Nothing"
+          ]
+        },
+        "observedRestriction": {"type": "string"},
+        "rheocraticHypothesis": {"type": "string"},
+        "discriminatingQuestion": {"type": "string"},
+        "smallestRelease": {"type": "string"},
+        "expectedReciprocalEffect": {"type": "string"},
+        "falsifier": {"type": "string"},
+        "confidence": {"enum": ["low", "medium", "high"]}
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "action",
+          "whyThisAction",
+          "horizonTriplet",
+          "observedRelationship",
+          "discriminatingQuestion",
+          "waysToWellbeing",
+          "prediction",
+          "falsifierOrChangeSignal",
+          "displacedCosts",
+          "irreversibilityCaution",
+          "assumptions"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "kind": {"enum": ["smallest_release", "learning_action", "generative_action"]},
+          "title": {"type": "string"},
+          "action": {"type": "string"},
+          "whyThisAction": {"type": "string"},
+          "horizonTriplet": {
+            "enum": [
+              null,
+              "Re-enchantment → Natural Environment → Resources",
+              "Transformation → Culture → Values",
+              "Creativity → Infrastructure → Affordance",
+              "Dialogue → Society → Support",
+              "Curiosity → Outer Self → Capacity",
+              "Participation → Inner Self → Well-being",
+              "Nothing / Everything → No Self → Everything / Nothing"
+            ]
+          },
+          "observedRelationship": {"type": "string"},
+          "discriminatingQuestion": {"type": "string"},
+          "waysToWellbeing": {
+            "type": "array",
+            "maxItems": 7,
+            "uniqueItems": true,
+            "items": {
+              "enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]
+            }
+          },
+          "prediction": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["whatShouldBecomeMorePossible", "observableSignal", "reviewHorizon"],
+            "properties": {
+              "whatShouldBecomeMorePossible": {"type": "string"},
+              "observableSignal": {"type": "string"},
+              "reviewHorizon": {"type": "string"}
+            }
+          },
+          "falsifierOrChangeSignal": {"type": "string"},
+          "displacedCosts": {"type": "array", "items": {"type": "string"}},
+          "irreversibilityCaution": {"type": "string"},
+          "assumptions": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "noneIsValid": {"const": true},
+    "researchNote": {"type": "string"}
+  }
+}
