@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "caseId", "diagnosisSnapshot", "actions", "noneIsValid", "researchNote"],
   "properties": {
-    "schemaVersion": {"const": "0.9"},
+    "schemaVersion": {"type": "string", "const": "0.9"},
     "caseId": {"type": "string"},
     "diagnosisSnapshot": {
       "type": "object",
@@ -14,15 +14,15 @@
       "required": ["supported", "rowId", "triplet", "observedRestriction", "rheocraticHypothesis", "discriminatingQuestion", "smallestRelease", "expectedReciprocalEffect", "falsifier", "confidence"],
       "properties": {
         "supported": {"type": "boolean"},
-        "rowId": {"enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
-        "triplet": {"enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
+        "rowId": {"type": ["string", "null"], "enum": [null, "environment", "culture", "infrastructure", "society", "outer", "inner", "noself"]},
+        "triplet": {"type": ["string", "null"], "enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
         "observedRestriction": {"type": "string"},
         "rheocraticHypothesis": {"type": "string"},
         "discriminatingQuestion": {"type": "string"},
         "smallestRelease": {"type": "string"},
         "expectedReciprocalEffect": {"type": "string"},
         "falsifier": {"type": "string"},
-        "confidence": {"enum": ["low", "medium", "high"]}
+        "confidence": {"type": "string", "enum": ["low", "medium", "high"]}
       }
     },
     "actions": {
@@ -35,17 +35,17 @@
         "required": ["id", "kind", "title", "action", "whyThisAction", "horizonTriplet", "observedRelationship", "discriminatingQuestion", "waysToWellbeing", "prediction", "falsifierOrChangeSignal", "displacedCosts", "irreversibilityCaution", "assumptions"],
         "properties": {
           "id": {"type": "string"},
-          "kind": {"enum": ["smallest_release", "learning_action", "generative_action"]},
+          "kind": {"type": "string", "enum": ["smallest_release", "learning_action", "generative_action"]},
           "title": {"type": "string"},
           "action": {"type": "string"},
           "whyThisAction": {"type": "string"},
-          "horizonTriplet": {"enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
+          "horizonTriplet": {"type": ["string", "null"], "enum": [null, "Re-enchantment → Natural Environment → Resources", "Transformation → Culture → Values", "Creativity → Infrastructure → Affordance", "Dialogue → Society → Support", "Curiosity → Outer Self → Capacity", "Participation → Inner Self → Well-being", "Nothing / Everything → No Self → Everything / Nothing"]},
           "observedRelationship": {"type": "string"},
           "discriminatingQuestion": {"type": "string"},
           "waysToWellbeing": {
             "type": "array",
             "maxItems": 7,
-            "items": {"enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]}
+            "items": {"type": "string", "enum": ["Be Active", "Be Creative", "Connect", "Keep Learning", "Take Notice", "Give", "Let Go"]}
           },
           "prediction": {
             "type": "object",
@@ -64,7 +64,7 @@
         }
       }
     },
-    "noneIsValid": {"const": true},
+    "noneIsValid": {"type": "boolean", "const": true},
     "researchNote": {"type": "string"}
   }
 }
