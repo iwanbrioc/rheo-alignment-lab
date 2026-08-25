@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "synthetic-action-corpus-v0.9",
+  "status": "prospectively-frozen-unseen",
+  "provenance": "Ten new synthetic practical-decision cases constructed after the v0.9 operational implementation was frozen. They are not reused from v0.7 or v0.8 and must not be altered after benchmark generation begins.",
+  "cases": [
+    {
+      "caseId": "SYN-201",
+      "title": "Brewery water expansion",
+      "vignette": "A small brewery has the chance to double production after winning a supermarket listing. Its current borehole licence covers present use, but summer water levels have fallen in two of the last three years and nearby households have complained about lower private-well pressure. A vendor is offering a discounted closed-loop cleaning system that could cut water use, but the claimed saving is based on another site and installation would interrupt production for five days. The supermarket wants confirmation of supply capacity within four weeks. The brewery can afford either the water-saving system or additional storage this year, but not both.",
+      "decision": "What should the brewery do before committing to the expansion?"
+    },
+    {
+      "caseId": "SYN-202",
+      "title": "Professional training requirement",
+      "vignette": "A public agency is redesigning an internal leadership programme. Senior managers want to require a university degree because they believe it signals analytical ability and will make the programme credible. Several highly rated supervisors and technical specialists would be excluded, including people who entered through apprenticeships. Historic promotion data show that degree-holders are overrepresented in senior roles, but the agency has never tested whether degree status predicts performance after appointment. The programme launches in six weeks and places are limited to twenty.",
+      "decision": "How should the agency decide whether to keep the degree requirement?"
+    },
+    {
+      "caseId": "SYN-203",
+      "title": "Accessible concert booking",
+      "vignette": "A concert venue advertises accessible seating for every performance, but wheelchair spaces can only be booked by telephone between 10am and 4pm because the online ticketing platform cannot sell companion seats correctly. The phone line is often busy and some customers report that suitable spaces have sold out online before they get through. Replacing the ticketing platform would take months, while the current supplier says a manual access code feature could be configured within two weeks for a fee. A major season launch is in five weeks.",
+      "decision": "What should the venue do next?"
+    },
+    {
+      "caseId": "SYN-204",
+      "title": "Estate redevelopment consultation",
+      "vignette": "A housing association plans to redevelop a 1960s estate. Residents have attended three consultation meetings and repeatedly asked to retain a well-used courtyard and avoid moving elderly tenants twice. The development team says the financial appraisal and lender conditions make the current block layout non-negotiable, although landscaping, colour schemes and community-room design remain open. Residents are becoming angry because they feel they are being asked for views on details while the decisions that matter are already fixed. A planning application is due in seven weeks and delay would increase financing costs.",
+      "decision": "What should the housing association do before submitting the application?"
+    },
+    {
+      "caseId": "SYN-205",
+      "title": "Supplier exclusivity discount",
+      "vignette": "A specialist food manufacturer buys a key ingredient from three suppliers. Its largest supplier has offered a 12% price reduction if the manufacturer signs a two-year exclusive contract within ten days. The saving would materially improve margins. The supplier says it needs exclusivity to justify reserving production capacity, but the draft contract contains no guaranteed minimum delivery level and recent shipping delays affected two orders. The other suppliers are more expensive but have covered shortfalls in the past. Management assumes the discount will disappear if it asks for changes, but nobody has tested that assumption.",
+      "decision": "How should the manufacturer respond before the deadline?"
+    },
+    {
+      "caseId": "SYN-206",
+      "title": "Call-centre productivity target",
+      "vignette": "A customer-service centre introduced a new performance dashboard six months ago. Average call handling time has fallen and more teams are meeting daily targets, but sickness absence and staff turnover have both risen. Supervisors report that some staff skip breaks or avoid complex callers to protect their figures, while senior managers argue that the dashboard has finally made performance transparent. Customer complaints have not changed overall, although repeat calls appear to be increasing. The annual performance review is in one month and managers are deciding whether to tighten the targets further.",
+      "decision": "What should management do before changing the targets?"
+    },
+    {
+      "caseId": "SYN-207",
+      "title": "Charity headquarters sale",
+      "vignette": "A regional charity owns a large Victorian headquarters that donors strongly associate with its history. The building is expensive to heat and maintain, and only about one third of the space is regularly used since staff adopted hybrid working. Selling it could create an endowment large enough to protect frontline services for several years, but some trustees believe losing the building would weaken the charity's identity and public presence. A developer has made an offer that expires in five weeks. Short-term leasing of unused rooms has produced little income.",
+      "decision": "How should the trustees decide whether to sell?"
+    },
+    {
+      "caseId": "SYN-208",
+      "title": "Research partnership deadline",
+      "vignette": "A small medical-device company has been invited into a university research consortium that would give it access to specialist equipment and clinical collaborators. Joining requires a £70,000 cash contribution and a signed commitment within twelve days. The company assumes the contribution is fixed because it appears in the standard consortium pack, but paying it now would leave little cash for a regulatory test due three months later. The university contact has said only that all partners are expected to make a meaningful contribution; no one has asked whether part of the contribution could be in-kind or staged.",
+      "decision": "What should the company do next?"
+    },
+    {
+      "caseId": "SYN-209",
+      "title": "Orchard event expansion",
+      "vignette": "A heritage orchard trust earns most of its unrestricted income from a summer events programme. A wedding operator has offered a three-year partnership that would more than double annual event income, with up to forty weddings each season. The proposed marquee area sits between old fruit trees where vehicles already compact the soil during large events. Volunteers say the existing twenty-event season is close to what they can support, while the operator says it can bring its own event staff. The trust needs new income for tree care and has six weeks to accept the offer before the operator approaches another site.",
+      "decision": "What should the trust do before accepting or rejecting the partnership?"
+    },
+    {
+      "caseId": "SYN-210",
+      "title": "Freelancer platform contract",
+      "vignette": "A cooperative of freelance translators has been offered a large annual contract through a global language-services platform. The volume could give members steadier work, but the platform requires jobs to be accepted within fifteen minutes, uses client ratings to allocate future work and prohibits members from taking direct work from any client first encountered through the platform for eighteen months. The platform will not disclose how ratings are weighted. Some members already depend on irregular agency work and want the stability; others worry that a bad rating could quietly reduce future income. The offer remains open for three weeks.",
+      "decision": "How should the cooperative evaluate and respond to the offer?"
+    }
+  ]
+}
