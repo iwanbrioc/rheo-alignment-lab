@@ -17,19 +17,29 @@ The run completed with:
 
 No model output was produced for that failed attempt.
 
-## Status of this run
+## Initial recovery decision
 
-This run is **technically incomplete and must not be used as the confirmatory dataset**.
+The initial conservative decision was to treat this run as technically incomplete and rerun all 120 attempts from scratch without inspecting the 119 successful outputs.
 
-The preregistered benchmark requires a complete balanced run before blinding. The existing 119 outputs must therefore not be selectively completed, substituted, rated, unblinded or used for confirmatory inference.
+A second full replacement run was begun using the same frozen implementation. It independently encountered another transport-level `fetch failed` (`SYN-207`, `rheo_v08`, sample 3). This showed that complete 120-call runs were vulnerable to recurring network/transport failures and that repeatedly discarding otherwise complete generations would impose substantial avoidable API cost.
 
-## Recovery decision
+## Superseding protocol amendment
 
-The entire 120-attempt benchmark will be rerun from scratch using the same frozen implementation, prompts, cases, schemas, model, sampling plan and analysis protocol.
+The initial discard-and-rerun recovery decision is superseded by:
 
-No benchmark outputs from the incomplete run will be inspected for qualitative or comparative performance before the replacement run is completed and blinded.
+`SALVAGE_PROTOCOL_2026-08-26.md`
 
-This is a technical recovery decision, not a change to the hypothesis, ontology, prompts, cases, rater protocol or analysis plan.
+Under that amendment:
+
+- the original 119 successful outputs remain untouched;
+- the missing `SYN-209 / matched / sample 1` cell is filled by the mechanically corresponding `SYN-209.matched.s01.json` from the second run;
+- the donor is selected by cell identity before advice-content inspection;
+- all other second-run outputs are excluded;
+- both raw runs remain untouched;
+- a separate derived balanced dataset is created and fully provenance-logged before blinding;
+- formal reporting must disclose the protocol amendment and include a sensitivity analysis omitting SYN-209.
+
+The amended dataset should be described as a **protocol-amended confirmatory dataset**, not as a zero-deviation preregistered run.
 
 ## Frozen implementation
 
@@ -37,4 +47,4 @@ The v0.9 implementation remains frozen at:
 
 `2f6f6a72403b068cbb8908aa40ccc26c6b555eb8`
 
-The failure does not trigger any implementation or prompt tuning.
+Neither technical failure triggered any implementation, ontology, prompt, schema, case, selector or scoring change.
