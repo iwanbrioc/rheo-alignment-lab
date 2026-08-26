@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "materialCorrection",
+    "verdict",
+    "canonicalBasis",
+    "observedRelationship",
+    "affectedBearers",
+    "whyActionChanges",
+    "cheapestCheckOrRelease",
+    "falsifier",
+    "correctionTarget",
+    "confidence"
+  ],
+  "properties": {
+    "materialCorrection": { "type": "boolean" },
+    "verdict": {
+      "type": "string",
+      "enum": ["MATERIAL CORRECTION", "NO MATERIAL CORRECTION"]
+    },
+    "canonicalBasis": {
+      "type": "string",
+      "enum": [
+        "Re-enchantment → Natural Environment → Resources",
+        "Transformation → Culture → Values",
+        "Creativity → Infrastructure → Affordance",
+        "Dialogue → Society → Support",
+        "Curiosity → Outer Self → Capacity",
+        "Participation → Inner Self → Well-being",
+        "Nothing/Everything → No Self → Everything/Nothing",
+        "None"
+      ]
+    },
+    "observedRelationship": { "type": "string" },
+    "affectedBearers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 6
+    },
+    "whyActionChanges": { "type": "string" },
+    "cheapestCheckOrRelease": { "type": "string" },
+    "falsifier": { "type": "string" },
+    "correctionTarget": {
+      "type": "string",
+      "enum": ["first_action", "a1", "a2", "a3", "burden_or_cost", "uncertainty", "none"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    }
+  }
+}
