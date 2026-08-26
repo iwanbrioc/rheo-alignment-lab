@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "status": "prospective",
+  "cases": [
+    {
+      "caseId": "SYN-301",
+      "title": "Rural demand-responsive bus pilot",
+      "vignette": "A county transport team must decide within five weeks whether to replace two lightly used fixed rural bus routes with a twelve-month demand-responsive minibus pilot. The vendor predicts a 28% operating saving and says passengers will book and pay through its smartphone app, with vehicles routed to virtual stops up to 500 metres from the requested pickup. The current routes carry about 310 regular pass holders; 22% are over 75. Mobile coverage is unreliable in several villages. The vendor proposal does not include telephone booking or cash payment. Current passenger surveys mostly measure satisfaction among people who already use the buses. The council can retain one fixed journey each way during a pilot, but doing so reduces the forecast saving to 18%.",
+      "decision": "What should the transport team do next before deciding whether to approve the pilot?"
+    },
+    {
+      "caseId": "SYN-302",
+      "title": "Volunteer-run theatre expansion",
+      "vignette": "A community theatre has been offered a six-month sponsorship worth £48,000 if it adds three evening performances each week and meets a monthly attendance target. The venue currently relies on 38 regular volunteers for front of house, bar and get-out duties. Over the last eight weeks, 12 volunteers covered 63% of last-minute gaps, but there have been no formal complaints and the volunteer coordinator says the team 'always steps up'. Two paid staff members already work occasional unpaid late finishes during busy weeks. The sponsor needs an answer in three weeks and is open to a smaller first phase if proposed promptly.",
+      "decision": "How should the theatre decide whether and how to accept the expansion offer?"
+    },
+    {
+      "caseId": "SYN-303",
+      "title": "Housing retrofit consultation",
+      "vignette": "A housing association is preparing a funded retrofit of 180 flats. Residents have attended three well-run consultation meetings and contributed extensively on decoration choices, appointment times and communications. The issue residents raise most often, however, is whether vulnerable households can remain in their flats during the noisiest two days of work. Project staff have repeatedly said temporary decant is 'outside the consultation' because the current contractor price assumes residents stay in place. The contract has not yet been signed, and the funder allows reasonable implementation-cost variations if justified before the final budget is submitted in four weeks. Residents are being invited to a fourth meeting next week.",
+      "decision": "What should the project team do before the next resident meeting and contract sign-off?"
+    },
+    {
+      "caseId": "SYN-304",
+      "title": "Library savings choice",
+      "vignette": "A council library service has been told to identify £180,000 of recurring annual savings within five weeks. The finance template presents two options: close the East branch or close the North branch. Officers and councillors have therefore spent two weeks debating which branch is 'less essential'. Both branches have different opening-hour patterns, leases and staffing arrangements. No one has costed a reduced-hours model, shared staffing, relocation of one specialist service, or a one-year lease renegotiation. Finance has confirmed only the amount and recurrence of the saving, not that a whole branch must close.",
+      "decision": "What should the library director do next before recommending a closure?"
+    },
+    {
+      "caseId": "SYN-305",
+      "title": "Bakery oven purchase",
+      "vignette": "A small bakery needs a second deck oven before its autumn wholesale contract starts in six weeks. Supplier A offers a proven model at £18,400 with a 10% discount expiring in ten days. Supplier B offers a newer £16,900 model with slightly higher capacity, but the bakery is unsure whether its existing three-phase electrical supply can support the specified startup load. Both suppliers can deliver within four weeks. The bakery knows its required tray capacity and has quotes for installation, but has not yet obtained the electrical load calculation or compared warranty response times.",
+      "decision": "What should the owner do next to choose between the ovens without losing a good option?"
+    },
+    {
+      "caseId": "SYN-306",
+      "title": "Local newspaper print renewal",
+      "vignette": "An independent local newspaper must decide in four weeks whether to renew its Saturday print contract for three years. The print edition now loses about £72,000 a year, while digital subscriptions have grown 35% in two years. The editor argues that 'if we stop printing, we stop being a newspaper'. About 1,900 mostly older readers still take print only, and several local advertisers buy print-and-digital bundles. The printer will also quote a twelve-month reduced-frequency contract if asked this week. The organisation's stated charitable purpose is independent local journalism and civic information, not production of a printed edition.",
+      "decision": "How should the board approach the renewal decision while protecting the newspaper's underlying purpose?"
+    },
+    {
+      "caseId": "SYN-307",
+      "title": "Wetland evening-event licence",
+      "vignette": "A wildlife trust has been offered £90,000 a year for a three-year licence allowing a private operator to run up to 45 evening events beside a restored wetland. The income could fund two ranger posts. The operator's acoustic consultant says average event noise will remain within the planning limit. The wetland supports breeding birds and has only been restored for four years; the trust has no data on repeated evening disturbance at this site. Rangers already absorb extra weekend monitoring during the breeding season. The operator says a first season capped at 15 events is negotiable if agreed within six weeks.",
+      "decision": "What should the trust do next before accepting or rejecting the event licence?"
+    },
+    {
+      "caseId": "SYN-308",
+      "title": "CRM renewal price increase",
+      "vignette": "A 24-person consultancy has 14 days to renew its CRM contract. The supplier has proposed a 9% annual price increase. Migrating this quarter would cost roughly £11,000 in staff and contractor time, while the increase costs about £4,800 in the first year. The account manager has authority to offer multi-year price caps but has not yet been asked. The company expects headcount to remain between 22 and 28 for the next two years and is satisfied with the product's functionality.",
+      "decision": "What should the operations director do next about the renewal?"
+    },
+    {
+      "caseId": "SYN-309",
+      "title": "Conference venue option",
+      "vignette": "A professional network is choosing between two venues for a conference eight months away. Venue A is preferred and is holding the date for seven days; its quote is £6,000 higher but includes AV and catering. Venue B is cheaper but requires separate AV procurement. The organiser has not yet confirmed whether Venue A's £4,000 deposit is refundable if delegate numbers are below 180 at the three-month review point, nor whether the seven-day hold can be extended while the committee compares total costs. Both venues currently have the date available.",
+      "decision": "What should the organiser do next before choosing a venue?"
+    },
+    {
+      "caseId": "SYN-310",
+      "title": "Office lease extension",
+      "vignette": "A design studio's office lease expires in ten weeks. The landlord has offered a two-year extension at the current rent if accepted within 12 days. The studio has 17 staff and expects between 15 and 20 next year. A similar nearby office is available at a slightly lower rent but would require about £9,000 of moving and fit-out costs. The landlord's email mentions a tenant break option after twelve months but does not state the notice period, conditions or whether the current-rent offer still applies if the break clause is included in the lease. The existing office works well for the team.",
+      "decision": "What should the studio director do next before accepting or rejecting the extension?"
+    }
+  ]
+}
