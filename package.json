@@ -1,0 +1,15 @@
+{
+  "name": "rheo-alignment-lab",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node evaluation/smoke_v0_3.mjs",
+    "prompt-budget": "python3 evaluation/prompt_budget.py",
+    "eval-self-test": "python3 evaluation/harness.py self-test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

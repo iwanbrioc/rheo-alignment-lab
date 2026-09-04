@@ -1,27 +1,41 @@
 # Rheo Alignment Lab
 
-**Rheo** is a research prototype exploring whether the Reciprocal Wellbeing (RWB) model can function as a useful AI alignment heuristic and practical decision-mapping framework.
-
-This repository contains the **v0.2 research baseline**: a small browser prototype, AI prompts, data schemas, an evaluation harness, and a preregistered adversarial testing framework.
+**Rheo** is a research project testing whether Iwan Brioc's Reciprocal Wellbeing (RWB) model can contribute a useful structural reasoning heuristic for AI-assisted decision support and alignment research.
 
 The central research question is:
 
-> **Does Reciprocal Wellbeing help an AI identify consequential structure that ordinary problem-solving misses — while remaining sensitive to genuine structural difference, invariant to narrator position and irrelevant framing, and without exporting the cost of successful advice elsewhere?**
+> **Does Reciprocal Wellbeing help an AI identify consequential structure that strong general reasoning misses — while remaining sensitive to genuine structural difference, robust to narrator position and irrelevant framing, and without exporting the cost of successful advice elsewhere?**
 
-## Status
+## Current status
 
-This is **not a validated decision-support product**. It is a research instrument intended to make its own claims falsifiable.
+This branch is **v0.3 — executable mechanism**. It follows the frozen `baseline-v0.2` adversarial review.
 
-The project deliberately separates:
+`baseline-v0.2` remains preserved at commit `b3dff9befbe2786abffd4b353ff57c5da726b3cb`. v0.2 contained the research specification, browser form and evaluation scaffolding but did not put a model in the loop. v0.3 makes that hypothesis executable without treating the repair itself as evidence that RWB works.
 
-1. **Rheo Guide** — a conversational mapping interface that helps a person examine a situation through the seven RWB horizons.
-2. **Research Evaluator** — a separate layer for retrospective testing, structural comparison, provenance scoring, and adversarial evaluation.
+This is **not a validated decision-support product**.
 
-The live guide must not optimise an aggregate RWB score. No Self is not a KPI or multiplier.
+## What v0.3 adds
+
+- a server-side model adapter at `POST /api/analyze`;
+- separate Rheo and matched-control prompts;
+- the same ontology-neutral structural-map schema for both conditions;
+- OpenAI Responses API integration with structured JSON output and `store: false`;
+- API credentials kept server-side;
+- a browser panel that sends the current case to the model and renders the returned map;
+- model-derived safety caution and narrator-implication events;
+- user challenge of model provenance classification without silently rewriting the original model map;
+- direct export of the same JSON object consumed by the evaluator;
+- omission-aware similarity: empty/empty dimensions are unscored rather than counted as perfect agreement;
+- separate coverage and granularity reporting;
+- coarse / standard / fine forced-granularity modes to make the A3 granularity critique testable;
+- a non-tautological example pair;
+- prompt-budget parity checks between the two development conditions;
+- an ontology-neutral development rubric;
+- an end-to-end fixture smoke test proving browser/API schema/evaluator compatibility without pretending that fixture output is model evidence.
 
 ## Reciprocal Wellbeing architecture
 
-Rheo uses seven nested horizons as lenses rather than scores:
+Rheo uses seven nested horizons internally as lenses, not scores:
 
 | Domain | Horizon | Reciprocal term |
 |---|---|---|
@@ -33,110 +47,77 @@ Rheo uses seven nested horizons as lenses rather than scores:
 | Inner Self | Participation | Wellbeing |
 | No Self | Nothing / Everything | Everything / Nothing |
 
-The model is treated as ecological, reciprocal, nonlinear and context-oriented. Input/output language is explanatory only.
+No Self is not a KPI, multiplier, compliance demand or optimisation variable.
 
-## v0.2 mechanisms
+## Shared output representation
 
-### Epistemic provenance
+Both research conditions must emit `schemas/structural-map-v0.3.schema.json`.
 
-Every consequential proposition should be represented with a source/provenance class:
+The shared representation contains proposition-level provenance, ordinary-language system elements, falsifiable mechanisms, uncertainties, power/exit structure, temporal/viability structure, external stakeholders, action classes, displaced costs, disconfirming evidence, narrator implication and safety caution.
 
-- `user_reported_fact`
-- `user_interpretation`
-- `ai_inference`
-- `verified_fact`
-- `absent_party_perspective`
-- `unknown`
+The output schema deliberately does **not** expose RWB horizon labels as scoring fields. Rheo may use RWB internally; the control is judged on the same ordinary structural representation.
 
-This is intended to reduce **epistemic laundering**: the transformation of a narrator's interpretation into apparent system fact.
+## Running the executable prototype
 
-### Three-axis structural test
+Requires Node.js 20+.
 
-Rheo is evaluated on three coupled properties:
+For a real model call:
 
-- **Symmetry** — mirrored accounts of the same underlying system should produce substantially similar structural maps.
-- **Discrimination** — genuinely different systems should produce substantially different maps.
-- **Stability** — cosmetic changes to the same account should not materially change the map.
+```bash
+export OPENAI_API_KEY="..."
+export OPENAI_MODEL="gpt-5"   # optional override
+npm start
+```
 
-High symmetry without discrimination indicates generic hedging. High discrimination without stability may indicate sensitivity to surface noise.
-
-### Sham control
-
-Every substantive evaluation should include an equally capable general model prompted to consider stakeholders, uncertainty, second-order effects, reversibility, alternative perspectives and safety, without RWB terminology.
-
-A positive Rheo result is only interesting if it adds something beyond strong general deliberative prompting.
-
-### Mechanism-change rule
-
-Benchmark-driven changes must be preregistered **before implementation**. A proposed mechanism change must state:
-
-- the hypothesised causal mechanism,
-- the primary metric expected to move,
-- collateral metrics expected to move,
-- metrics expected **not** to move,
-- any expected regression or trade-off.
-
-If only the targeted benchmark improves, the change should be treated as a likely benchmark patch until shown otherwise.
-
-### Safety and externalities
-
-Rheo must not use relationship recovery time or Dialogue as an argument for preserving exposure to coercion, abuse or danger. It also evaluates **harm under correct operation**: a map can be structurally accurate and still externalise costs onto third parties.
-
-### Flattery selection
-
-The research instrument logs the first point at which a map materially implicates the narrator, allowing later analysis of whether attrition becomes selected on flattering outputs.
-
-## Repository structure
+Then open:
 
 ```text
-app/                 Browser research prototype
-prompts/             Rheo and sham-control prompts
-schemas/             Case, map and event schemas
-evaluation/          Comparison harness and examples
-research/            Frozen claims, scoring and change protocol
-.github/              CI and adversarial issue template
-CLAUDE_REVIEW_BRIEF.md
+http://localhost:8080
 ```
+
+The API key is never sent to browser JavaScript.
+
+For pipeline testing without a paid model call:
+
+```bash
+RHEO_MODEL_PROVIDER=fixture npm start
+```
+
+The fixture provider is **only** a plumbing test. It must never be used as evidence about Rheo or the control condition.
+
+## Development checks
+
+```bash
+python3 evaluation/prompt_budget.py
+python3 evaluation/harness.py self-test
+python3 evaluation/harness.py screen-pairs evaluation/example-manifest.json
+node evaluation/smoke_v0_3.mjs
+```
+
+CI runs the same checks.
 
 ## Research integrity
 
-Development should use three distinct test layers:
+The v0.3 mechanism change was preregistered before implementation in:
 
-1. **Development set** — visible and usable for debugging.
-2. **Frozen benchmark** — fixed cases and scoring rules that are no longer tuned against after freeze.
-3. **External sealed set** — authored and scored by people or systems that did not participate in building the mechanism.
+- `research/CHANGE_RECORD_V0_3_EXECUTABLE_MECHANISM.md`
 
-The current builders and standing critics should not author or score the final sealed set.
+The external v0.2 review found implementation and evaluation failures that v0.3 is intended to make testable. Repairing those failures is not evidence for the RWB-specific claim.
 
-See:
+A substantive Rheo-vs-control claim still requires:
 
-- `research/EVALUATION_PROTOCOL.md`
-- `research/FROZEN_CLAIMS.md`
-- `research/MECHANISM_CHANGE_PROTOCOL.md`
-- `research/SCORING_RUBRIC.md`
-- `research/RED_TEAM_TESTS.md`
-
-## Running locally
-
-The browser prototype is static:
-
-```bash
-cd app
-python3 -m http.server 8080
-```
-
-Then open `http://localhost:8080`.
-
-The example evaluation harness can be run with:
-
-```bash
-python3 evaluation/harness.py evaluation/example-manifest.json
-```
+1. a strong instruction-budget-matched control, including an independently authored adversarial control;
+2. ontology-neutral blind scoring;
+3. pre-specified granularity analysis;
+4. reliable independent raters;
+5. frozen development and benchmark sets;
+6. an externally held sealed set that current builders and standing critics neither author nor score;
+7. longitudinal outcome evidence for any real-world usefulness claim.
 
 ## Important limitation
 
-The current prototype does **not** establish that RWB improves real-world decisions or AI alignment. Its purpose is to make that proposition testable, expose failure modes, and preserve an auditable record of how the mechanism changes in response to evidence.
+v0.3 establishes an **executable experimental apparatus**, not successful AI alignment. It allows the central hypothesis to be tested and falsified. It does not establish that RWB improves reasoning, safety, decision quality or real-world outcomes.
 
 ## Version
 
-**v0.2 research baseline — August 2026**
+**v0.3 executable mechanism — August 2026**

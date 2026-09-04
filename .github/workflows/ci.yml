@@ -15,15 +15,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check browser JavaScript syntax
+      - name: Check JavaScript syntax
         run: |
+          node --check server.mjs
           node --check app/app.js
           node --check app/app-core.js
           node --check app/app-analysis.js
           node --check app/app-report.js
+          node --check app/model.js
           node --check app/sw.js
-      - name: Check evaluation harness
-        run: python -m py_compile evaluation/harness.py
+          node --check evaluation/smoke_v0_3.mjs
+      - name: Check Python syntax
+        run: |
+          python -m py_compile evaluation/harness.py
+          python -m py_compile evaluation/prompt_budget.py
       - name: Parse JSON files
         run: |
           python - <<'PY'
@@ -37,10 +42,21 @@ jobs:
         run: |
           test -f prompts/rheo-system-prompt.md
           test -f prompts/sham-control-prompt.md
+          test -f prompts/rheo-v0.3-system-prompt.md
+          test -f prompts/control-v0.3-system-prompt.md
+          test -f schemas/structural-map-v0.3.schema.json
           test -f research/EVALUATION_PROTOCOL.md
           test -f research/FROZEN_CLAIMS.md
           test -f research/MECHANISM_CHANGE_PROTOCOL.md
           test -f research/SCORING_RUBRIC.md
+          test -f research/SCORING_RUBRIC_V0_3_NEUTRAL.md
           test -f research/RED_TEAM_TESTS.md
-      - name: Run example structural screen
+          test -f research/CHANGE_RECORD_V0_3_EXECUTABLE_MECHANISM.md
+      - name: Check Rheo/control prompt budget parity
+        run: python evaluation/prompt_budget.py
+      - name: Run evaluator self-test
+        run: python evaluation/harness.py self-test
+      - name: Run non-tautological example structural screen
         run: python evaluation/harness.py screen-pairs evaluation/example-manifest.json
+      - name: Run end-to-end fixture pipeline smoke test
+        run: node evaluation/smoke_v0_3.mjs
