@@ -1,205 +1,355 @@
-import React, { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { askRheo, getLocalContext, type LocalContextResponse, type RheoDecisionResponse } from './src/api';
 import { getDecisionLocation, type DecisionLocation } from './src/location';
+import { AdviceScreen } from './src/screens/AdviceScreen';
+import { AskScreen } from './src/screens/AskScreen';
+import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
+import { RecentDecisionsScreen } from './src/screens/RecentDecisionsScreen';
+import { fetchLocalContext } from './src/services/localContextApi';
+import { askRheo } from './src/services/rheoApi';
+import {
+  deleteDecisionSession,
+  listDecisionSessions,
+  upsertDecisionSession,
+} from './src/storage/decisionSessions';
+import { colors } from './src/theme';
+import type { DecisionChoice, DecisionSession, RecommendationSnapshot } from './src/types/decision';
+import type { LocalContextSnapshot } from './src/types/localContext';
+import {
+  createLocalId,
+  sanitizeDecisionSessionForStorage,
+} from './src/utils/decisionSession';
 
-const kindLabel: Record<string, string> = {
-  smallest_release: 'First release',
-  learning_action: 'Learn',
-  generative_action: 'Open a pathway',
-};
+type Screen = 'ask' | 'advice' | 'confirmation' | 'recent';
+type BusyState = 'location' | 'local' | 'rheo' | 'storage' | null;
+
+const MIN_SITUATION_LENGTH = 12;
+
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
 
 export default function App() {
-  const [decisionText, setDecisionText] = useState('');
+  const [screen, setScreen] = useState<Screen>('ask');
+  const [situation, setSituation] = useState('');
+  const [sessionId, setSessionId] = useState(() => createLocalId('decision'));
+  const [createdAt, setCreatedAt] = useState(() => new Date().toISOString());
   const [location, setLocation] = useState<DecisionLocation | null>(null);
-  const [localContext, setLocalContext] = useState<LocalContextResponse | null>(null);
-  const [result, setResult] = useState<RheoDecisionResponse | null>(null);
-  const [busy, setBusy] = useState<'location' | 'local' | 'rheo' | null>(null);
+  const [areaLabel, setAreaLabel] = useState<string | null>(null);
+  const [localContext, setLocalContext] = useState<LocalContextSnapshot | null>(null);
+  const [recommendation, setRecommendation] = useState<RecommendationSnapshot | null>(null);
+  const [choice, setChoice] = useState<DecisionChoice | null>(null);
+  const [customChoiceText, setCustomChoiceText] = useState('');
+  const [customChoiceVisible, setCustomChoiceVisible] = useState(false);
+  const [busy, setBusy] = useState<BusyState>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [storageMessage, setStorageMessage] = useState<string | null>(null);
+  const [recentSessions, setRecentSessions] = useState<DecisionSession[]>([]);
 
-  const canAsk = decisionText.trim().length >= 12 && busy === null;
-  const area = useMemo(() => location?.areaLabel || (location ? 'Approximate area captured' : null), [location]);
+  const trimmedSituation = situation.trim();
+  const canAsk = trimmedSituation.length >= MIN_SITUATION_LENGTH && busy === null;
 
-  async function captureLocation() {
-    setBusy('location');
-    setMessage(null);
+  const refreshRecentSessions = useCallback(async () => {
+    const sessions = await listDecisionSessions();
+    setRecentSessions(sessions);
+  }, []);
+
+  useEffect(() => {
+    void refreshRecentSessions();
+  }, [refreshRecentSessions]);
+
+  const buildCurrentSession = useCallback((
+    nextRecommendation: RecommendationSnapshot | null,
+    nextChoice: DecisionChoice | null,
+    updatedAt = new Date().toISOString(),
+  ): DecisionSession => sanitizeDecisionSessionForStorage({
+    id: sessionId,
+    createdAt,
+    updatedAt,
+    situation: trimmedSituation,
+    locationUsed: Boolean(areaLabel || localContext),
+    areaLabel,
+    localContext,
+    recommendation: nextRecommendation,
+    choice: nextChoice,
+    researchArm: null,
+  }), [areaLabel, createdAt, localContext, sessionId, trimmedSituation]);
+
+  const currentSession = useMemo(() => {
+    if (!recommendation) return null;
+    return buildCurrentSession(recommendation, choice);
+  }, [buildCurrentSession, choice, recommendation]);
+
+  async function persistSession(session: DecisionSession): Promise<void> {
     try {
-      const next = await getDecisionLocation();
-      setLocation(next);
+      await upsertDecisionSession(session);
+      await refreshRecentSessions();
+      setStorageMessage(null);
+    } catch (error) {
+      setStorageMessage(errorMessage(error, 'Rheo could not save this decision locally.'));
+    }
+  }
+
+  function beginFreshDecision(initialText = '') {
+    setSessionId(createLocalId('decision'));
+    setCreatedAt(new Date().toISOString());
+    setSituation(initialText);
+    setLocation(null);
+    setAreaLabel(null);
+    setLocalContext(null);
+    setRecommendation(null);
+    setChoice(null);
+    setCustomChoiceText('');
+    setCustomChoiceVisible(false);
+    setMessage(null);
+    setScreen('ask');
+  }
+
+  function handleSituationChange(text: string) {
+    const changed = text.trim() !== trimmedSituation;
+    setSituation(text);
+
+    if (!changed) return;
+
+    if (recommendation || choice) {
+      setSessionId(createLocalId('decision'));
+      setCreatedAt(new Date().toISOString());
+      setRecommendation(null);
+      setChoice(null);
+      setCustomChoiceText('');
+      setCustomChoiceVisible(false);
       setLocalContext(null);
-      setResult(null);
-      setMessage('Your approximate area is ready. Exact coordinates are not sent to Rheo.');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not use location.');
-    } finally {
-      setBusy(null);
+      setMessage('I cleared the previous recommendation because the predicament changed.');
+      setScreen('ask');
+      return;
+    }
+
+    if (localContext) {
+      setLocalContext(null);
+      setMessage('I cleared the local possibilities because the predicament changed.');
     }
   }
 
-  async function findLocal() {
-    if (!location || decisionText.trim().length < 12) return;
-    setBusy('local');
+  async function handleLookAround() {
+    if (!canAsk) return;
     setMessage(null);
+    setStorageMessage(null);
+    setRecommendation(null);
+    setChoice(null);
+    setCustomChoiceVisible(false);
+    setCustomChoiceText('');
+
+    let nextLocation: DecisionLocation;
     try {
-      const context = await getLocalContext(decisionText.trim(), location);
-      setLocalContext(context);
-      setResult(null);
-      setMessage(context.candidates.length ? 'Local possibilities found. Rheo will still test whether they are genuinely usable.' : context.warnings[0] || 'No local possibilities found.');
+      setBusy('location');
+      nextLocation = await getDecisionLocation();
+      setLocation(nextLocation);
+      setAreaLabel(nextLocation.areaLabel || 'Approximate area captured');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Local search failed.');
+      setMessage(errorMessage(error, 'Location lookup was not available. Rheo can still work without local context.'));
+      setBusy(null);
+      return;
+    }
+
+    try {
+      setBusy('local');
+      const context = await fetchLocalContext(trimmedSituation, nextLocation);
+      setLocalContext(context);
+      setAreaLabel(context.areaLabel || nextLocation.areaLabel || 'Approximate area captured');
+      setMessage(context.candidates.length
+        ? 'Local possibilities are ready. Treat them as evidence to check, not endorsements.'
+        : context.warnings[0] || 'No local possibilities came back. You can still ask Rheo.');
+    } catch (error) {
+      setLocalContext(null);
+      setMessage(`${errorMessage(error, 'Local search failed.')} You can still ask Rheo without local evidence.`);
     } finally {
       setBusy(null);
     }
   }
 
-  async function runRheo() {
+  function handleRemoveLocalContext() {
+    setLocation(null);
+    setAreaLabel(null);
+    setLocalContext(null);
+    setRecommendation(null);
+    setChoice(null);
+    setMessage('Local context removed from this decision.');
+  }
+
+  async function handleAskRheo() {
     if (!canAsk) return;
     setBusy('rheo');
     setMessage(null);
+    setStorageMessage(null);
+    setChoice(null);
+    setCustomChoiceText('');
+    setCustomChoiceVisible(false);
+
     try {
-      const next = await askRheo(decisionText.trim(), location, localContext);
-      setResult(next);
+      const nextRecommendation = await askRheo(trimmedSituation, location, localContext);
+      setRecommendation(nextRecommendation);
+      const session = buildCurrentSession(nextRecommendation, null);
+      await persistSession(session);
+      setScreen('advice');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Rheo could not complete the decision.');
+      setMessage(errorMessage(error, 'Rheo could not complete this decision.'));
     } finally {
       setBusy(null);
     }
+  }
+
+  async function saveChoice(nextChoice: DecisionChoice) {
+    if (!recommendation) return;
+    const session = buildCurrentSession(recommendation, nextChoice);
+    setChoice(nextChoice);
+    await persistSession(session);
+    setMessage(null);
+    setScreen('confirmation');
+  }
+
+  async function handleChooseRecommended(actionId: string) {
+    await saveChoice({
+      kind: 'recommended',
+      actionId,
+      capturedAt: new Date().toISOString(),
+    });
+  }
+
+  function handleShowCustomChoice() {
+    setCustomChoiceVisible(true);
+    setMessage(null);
+  }
+
+  async function handleSaveCustomChoice() {
+    const text = customChoiceText.trim();
+    if (!text) {
+      setMessage('Write the action you will actually take, or choose Not yet.');
+      return;
+    }
+
+    await saveChoice({
+      kind: 'custom',
+      text,
+      capturedAt: new Date().toISOString(),
+    });
+  }
+
+  async function handleChooseNotYet() {
+    await saveChoice({
+      kind: 'not_yet',
+      capturedAt: new Date().toISOString(),
+    });
+  }
+
+  async function handleDeleteCurrentDecision() {
+    if (!currentSession) return;
+    setBusy('storage');
+    try {
+      await deleteDecisionSession(currentSession.id);
+      await refreshRecentSessions();
+      setStorageMessage(null);
+      beginFreshDecision();
+      setMessage('Saved decision deleted.');
+    } catch (error) {
+      setStorageMessage(errorMessage(error, 'Rheo could not delete this decision.'));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleDeleteRecentDecision(id: string) {
+    setBusy('storage');
+    try {
+      await deleteDecisionSession(id);
+      await refreshRecentSessions();
+      setStorageMessage(null);
+    } catch (error) {
+      setStorageMessage(errorMessage(error, 'Rheo could not delete that decision.'));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function handleOpenSession(session: DecisionSession) {
+    setSessionId(session.id);
+    setCreatedAt(session.createdAt);
+    setSituation(session.situation);
+    setLocation(null);
+    setAreaLabel(session.areaLabel);
+    setLocalContext(session.localContext);
+    setRecommendation(session.recommendation);
+    setChoice(session.choice);
+    setCustomChoiceText(session.choice?.kind === 'custom' ? session.choice.text : '');
+    setCustomChoiceVisible(session.choice?.kind === 'custom');
+    setMessage(null);
+    setStorageMessage(null);
+    setScreen(session.choice ? 'confirmation' : session.recommendation ? 'advice' : 'ask');
   }
 
   return (
     <View style={styles.root}>
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.eyebrow}>RHEO</Text>
-        <Text style={styles.title}>What are you deciding?</Text>
-        <Text style={styles.intro}>
-          Describe the predicament in ordinary language. Add your area only when nearby places or services could change what is possible.
-        </Text>
-
-        <TextInput
-          accessibilityLabel="Decision or predicament"
-          multiline
-          value={decisionText}
-          onChangeText={(text) => {
-            setDecisionText(text);
-            setResult(null);
-            setLocalContext(null);
-          }}
-          placeholder="For example: My washing machine has broken and I need a reliable solution this week…"
-          style={styles.input}
-          textAlignVertical="top"
-        />
-
-        <View style={styles.actionRow}>
-          <Pressable
-            accessibilityRole="button"
-            disabled={busy !== null}
-            onPress={captureLocation}
-            style={({ pressed }) => [styles.secondaryButton, (pressed || busy !== null) && styles.buttonMuted]}
-          >
-            <Text style={styles.secondaryButtonText}>{location ? 'Refresh my area' : 'Use my area'}</Text>
-          </Pressable>
-          {location ? (
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => {
-                setLocation(null);
-                setLocalContext(null);
-                setResult(null);
-                setMessage('Location removed from this decision.');
-              }}
-              style={styles.textButton}
-            >
-              <Text style={styles.textButtonText}>Remove</Text>
-            </Pressable>
-          ) : null}
-        </View>
-
-        {busy === 'location' ? <ActivityIndicator accessibilityLabel="Finding your area" /> : null}
-        {area ? (
-          <View style={styles.areaPanel}>
-            <Text style={styles.areaLabel}>Using approximate area</Text>
-            <Text style={styles.areaText}>{area}</Text>
-            <Text style={styles.privacyText}>Foreground only · neighbourhood precision · no background tracking</Text>
-          </View>
+        {screen === 'ask' ? (
+          <AskScreen
+            areaLabel={areaLabel}
+            busy={busy}
+            canAsk={canAsk}
+            localContext={localContext}
+            message={message}
+            onAskRheo={handleAskRheo}
+            onLookAround={handleLookAround}
+            onOpenRecent={() => setScreen('recent')}
+            onRemoveLocalContext={handleRemoveLocalContext}
+            onSituationChange={handleSituationChange}
+            recentCount={recentSessions.length}
+            situation={situation}
+            storageMessage={storageMessage}
+          />
         ) : null}
 
-        {location ? (
-          <Pressable
-            accessibilityRole="button"
-            disabled={!canAsk}
-            onPress={findLocal}
-            style={({ pressed }) => [styles.secondaryWide, (!canAsk || pressed) && styles.buttonMuted]}
-          >
-            <Text style={styles.secondaryButtonText}>Find local pathways</Text>
-          </Pressable>
+        {screen === 'advice' && recommendation ? (
+          <AdviceScreen
+            areaLabel={areaLabel}
+            choice={choice}
+            customChoiceText={customChoiceText}
+            customChoiceVisible={customChoiceVisible}
+            localContext={localContext}
+            message={message}
+            onBackToAsk={() => {
+              setMessage(null);
+              setScreen('ask');
+            }}
+            onChooseNotYet={handleChooseNotYet}
+            onChooseRecommended={handleChooseRecommended}
+            onCustomChoiceTextChange={setCustomChoiceText}
+            onSaveCustomChoice={handleSaveCustomChoice}
+            onShowCustomChoice={handleShowCustomChoice}
+            recommendation={recommendation}
+            situation={trimmedSituation}
+            storageMessage={storageMessage}
+          />
         ) : null}
 
-        {busy === 'local' ? <ActivityIndicator accessibilityLabel="Finding local pathways" /> : null}
-
-        {localContext ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Local context</Text>
-            <Text style={styles.sectionNote}>These are possibilities to test, not endorsements.</Text>
-            {localContext.candidates.length === 0 ? (
-              <Text style={styles.bodyText}>No real local places are available from the configured provider yet.</Text>
-            ) : (
-              localContext.candidates.map((candidate) => (
-                <View style={styles.candidate} key={candidate.id}>
-                  <Text style={styles.candidateName}>{candidate.name}</Text>
-                  <Text style={styles.meta}>
-                    {[candidate.category, candidate.distanceM === null ? null : `${Math.max(0.1, candidate.distanceM / 1000).toFixed(1)} km`]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </Text>
-                  {candidate.address ? <Text style={styles.bodyText}>{candidate.address}</Text> : null}
-                  <Text style={styles.whyText}>{candidate.whyRelevant}</Text>
-                  {candidate.sourceUrl ? (
-                    <Pressable accessibilityRole="link" onPress={() => Linking.openURL(candidate.sourceUrl!)}>
-                      <Text style={styles.linkText}>View source</Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              ))
-            )}
-            {localContext.attribution ? <Text style={styles.attribution}>{localContext.attribution}</Text> : null}
-          </View>
+        {screen === 'confirmation' && currentSession ? (
+          <ConfirmationScreen
+            onBackToRecommendation={() => setScreen('advice')}
+            onDelete={handleDeleteCurrentDecision}
+            onStartAnother={() => beginFreshDecision()}
+            session={currentSession}
+            storageMessage={storageMessage}
+          />
         ) : null}
 
-        {message ? <Text accessibilityLiveRegion="polite" style={styles.message}>{message}</Text> : null}
-
-        <Pressable
-          accessibilityRole="button"
-          disabled={!canAsk}
-          onPress={runRheo}
-          style={({ pressed }) => [styles.primaryButton, (!canAsk || pressed) && styles.primaryMuted]}
-        >
-          {busy === 'rheo' ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.primaryButtonText}>Ask Rheo</Text>}
-        </Pressable>
-
-        {result ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Three ways forward</Text>
-            {result.actions.map((action, index) => (
-              <View style={styles.actionCard} key={action.id}>
-                <Text style={styles.actionIndex}>{index + 1} · {kindLabel[action.kind] || action.kind}</Text>
-                <Text style={styles.actionTitle}>{action.title}</Text>
-                <Text style={styles.actionText}>{action.action}</Text>
-                <Text style={styles.whyText}>{action.whyThisAction}</Text>
-                <Text style={styles.stopText}>Reconsider if: {action.falsifierOrChangeSignal}</Text>
-              </View>
-            ))}
-          </View>
+        {screen === 'recent' ? (
+          <RecentDecisionsScreen
+            onBack={() => setScreen('ask')}
+            onDelete={handleDeleteRecentDecision}
+            onOpen={handleOpenSession}
+            sessions={recentSessions}
+            storageMessage={storageMessage}
+          />
         ) : null}
       </ScrollView>
     </View>
@@ -207,40 +357,14 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f7f5ef' },
-  content: { paddingHorizontal: 20, paddingTop: 64, paddingBottom: 48, gap: 14 },
-  eyebrow: { fontSize: 13, letterSpacing: 3, fontWeight: '700', color: '#45524a' },
-  title: { fontSize: 34, lineHeight: 39, fontWeight: '700', color: '#172019' },
-  intro: { fontSize: 17, lineHeight: 25, color: '#4f5a52' },
-  input: { minHeight: 150, borderWidth: 1, borderColor: '#b8bdb7', borderRadius: 18, backgroundColor: '#ffffff', padding: 16, fontSize: 17, lineHeight: 24, color: '#172019' },
-  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
-  secondaryButton: { minHeight: 46, paddingHorizontal: 16, borderRadius: 23, borderWidth: 1, borderColor: '#69756d', justifyContent: 'center' },
-  secondaryWide: { minHeight: 48, paddingHorizontal: 18, borderRadius: 16, borderWidth: 1, borderColor: '#69756d', justifyContent: 'center', alignItems: 'center' },
-  secondaryButtonText: { fontSize: 16, fontWeight: '600', color: '#27342c' },
-  textButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
-  textButtonText: { fontSize: 15, color: '#5f695f', textDecorationLine: 'underline' },
-  buttonMuted: { opacity: 0.5 },
-  areaPanel: { borderLeftWidth: 3, borderLeftColor: '#68776d', paddingLeft: 13, paddingVertical: 6 },
-  areaLabel: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, color: '#657068' },
-  areaText: { fontSize: 17, fontWeight: '600', color: '#27342c', marginTop: 3 },
-  privacyText: { fontSize: 13, color: '#6d766f', marginTop: 3 },
-  section: { marginTop: 8, gap: 10 },
-  sectionTitle: { fontSize: 23, lineHeight: 28, fontWeight: '700', color: '#172019' },
-  sectionNote: { fontSize: 14, lineHeight: 20, color: '#657068' },
-  bodyText: { fontSize: 15, lineHeight: 21, color: '#414b44' },
-  candidate: { borderTopWidth: 1, borderTopColor: '#d5d8d3', paddingTop: 12, gap: 4 },
-  candidateName: { fontSize: 18, fontWeight: '600', color: '#1d2921' },
-  meta: { fontSize: 13, fontWeight: '600', color: '#68736b' },
-  whyText: { fontSize: 14, lineHeight: 20, color: '#58635b' },
-  linkText: { fontSize: 14, fontWeight: '600', color: '#324b3b', textDecorationLine: 'underline', paddingVertical: 4 },
-  attribution: { fontSize: 12, color: '#777f79' },
-  message: { fontSize: 14, lineHeight: 20, color: '#4e5b52', backgroundColor: '#eceee9', borderRadius: 12, padding: 12 },
-  primaryButton: { minHeight: 54, borderRadius: 18, backgroundColor: '#263d2e', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
-  primaryMuted: { opacity: 0.48 },
-  primaryButtonText: { fontSize: 17, fontWeight: '700', color: '#ffffff' },
-  actionCard: { backgroundColor: '#ffffff', borderRadius: 18, padding: 16, gap: 7, borderWidth: 1, borderColor: '#d7dad6' },
-  actionIndex: { fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase', color: '#6b756e' },
-  actionTitle: { fontSize: 19, fontWeight: '700', color: '#172019' },
-  actionText: { fontSize: 16, lineHeight: 23, color: '#2b372f' },
-  stopText: { fontSize: 13, lineHeight: 19, color: '#6a4e43', marginTop: 2 },
+  root: {
+    backgroundColor: colors.background,
+    flex: 1,
+  },
+  content: {
+    gap: 18,
+    paddingBottom: 48,
+    paddingHorizontal: 20,
+    paddingTop: 58,
+  },
 });

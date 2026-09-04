@@ -6,6 +6,7 @@ __pycache__/
 .env.*
 node_modules/
 coverage/
+mobile/.smoke-build/
 
 # Historical Corpus v2 private material. This repository is public.
 private-unseen-cases/

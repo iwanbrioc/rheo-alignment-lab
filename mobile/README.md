@@ -1,19 +1,22 @@
-# Rheo mobile v0.1 — geolocated decision context
+# Rheo mobile v0.2 - geolocated decision loop
 
-This is an Expo/React Native prototype for testing whether optional local context helps Rheo reveal practical pathways that would otherwise remain invisible.
+This is an Expo/React Native alpha for testing whether optional local context helps Rheo reveal practical pathways that would otherwise remain invisible.
 
 It is **not** part of the v1.1 confirmatory benchmark and lives on a separate product branch.
 
 ## What works in this slice
 
 - enter a decision/predicament in ordinary language;
-- optionally request foreground location;
+- optionally ask Rheo to look around using foreground location;
 - reduce coordinates to neighbourhood precision before they leave the device;
 - search for a bounded set of decision-relevant local possibilities;
-- display those possibilities with provenance and uncertainty;
+- display those possibilities as evidence to check, with provenance, retrieval time and uncertainty;
 - pass the local evidence, without raw coordinates, into the existing v0.9 Rheo flow/action pipeline;
-- receive the existing three Rheo action types;
-- remove location and continue without it.
+- receive three ordinary-language action options;
+- explicitly choose a recommended action, write another action or choose not yet;
+- save the recommendation/choice record locally on device;
+- revisit and delete recent local decision sessions;
+- remove local context and continue without it.
 
 There is intentionally no background tracking and no map yet.
 
@@ -30,6 +33,8 @@ There is intentionally no background tracking and no map yet.
 cd mobile
 npm install
 ```
+
+The repository includes a mobile `package-lock.json`; CI uses `npm ci`.
 
 ## Run the servers
 
@@ -92,12 +97,16 @@ npm run typecheck
 npm run doctor
 ```
 
-## Privacy assumptions in v0.1
+## Privacy and storage assumptions in v0.2
 
 - location is opt-in and foreground only;
 - latitude/longitude are rounded to three decimal places on-device;
 - the place-search service receives those approximate coordinates transiently;
 - the Rheo case record receives only the area label and returned candidate evidence, not the lookup coordinates;
+- saved decision sessions contain the predicament text, optional area label, local evidence snapshot, recommendation snapshot and explicit choice;
+- saved decision sessions deliberately omit `latitude` and `longitude` fields;
+- alpha decision history is stored locally with AsyncStorage and can be deleted in the app;
+- AsyncStorage is not an encrypted vault, so do not treat saved alpha decision history as encrypted sensitive storage;
 - the app works without location;
 - no background movement history is created.
 

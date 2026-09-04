@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - mobile-rheo-geolocated-context
+      - mobile-rheo-alpha-v0.2
     paths:
       - 'mobile/**'
       - 'docs/MOBILE_LOCAL_CONTEXT_ARCHITECTURE.md'
@@ -22,11 +23,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.13.1'
-      - name: Local context fixture smoke
-        run: node mobile/smoke_local_context.mjs
       - name: Install mobile dependencies
         working-directory: mobile
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+      - name: Mobile fixture and session smokes
+        working-directory: mobile
+        run: npm run smoke:local
       - name: Typecheck mobile app
         working-directory: mobile
         run: npm run typecheck
