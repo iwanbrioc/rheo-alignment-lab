@@ -37,10 +37,11 @@ export type RheoDecisionResponse = {
   actions: RheoAction[];
 };
 
-const API_URL = process.env.EXPO_PUBLIC_RHEO_API_URL || 'http://localhost:8080';
+const RHEO_API_URL = process.env.EXPO_PUBLIC_RHEO_API_URL || 'http://localhost:8080';
+const LOCAL_CONTEXT_API_URL = process.env.EXPO_PUBLIC_LOCAL_CONTEXT_API_URL || 'http://localhost:8081';
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
+async function postJson<T>(baseUrl: string, path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -54,7 +55,7 @@ export async function getLocalContext(
   decisionText: string,
   location: DecisionLocation,
 ): Promise<LocalContextResponse> {
-  return postJson<LocalContextResponse>('/api/local-context', {
+  return postJson<LocalContextResponse>(LOCAL_CONTEXT_API_URL, '/api/local-context', {
     decisionText,
     location,
     radiusM: 5000,
@@ -96,8 +97,8 @@ export async function askRheo(
     },
   };
 
-  const flowResult = await postJson<any>('/api/rheo-flow', { caseRecord });
-  const actionResult = await postJson<any>('/api/rheo-actions', {
+  const flowResult = await postJson<any>(RHEO_API_URL, '/api/rheo-flow', { caseRecord });
+  const actionResult = await postJson<any>(RHEO_API_URL, '/api/rheo-actions', {
     caseId,
     flow: flowResult.flow,
     testimony: [{ role: 'participant', text: decisionText, questionType: 'decision' }],
