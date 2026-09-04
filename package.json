@@ -13,10 +13,12 @@
     "smoke:v0.6": "node evaluation/action-outcome-v0.6/smoke_v0_6.mjs",
     "smoke:v0.9": "node evaluation/operational-v0.9/smoke_v0_9.mjs",
     "smoke:v1.0": "RHEO_MODEL_PROVIDER=fixture node evaluation/rheocratic-critic-v1.0/preflight.mjs && RHEO_MODEL_PROVIDER=fixture node evaluation/rheocratic-critic-v1.0/run_benchmark.mjs --samples 1 --case SYN-301",
+    "smoke:v1.1": "RHEO_MODEL_PROVIDER=fixture node evaluation/rheocratic-transition-v1.1/preflight.mjs && RHEO_MODEL_PROVIDER=fixture node evaluation/rheocratic-transition-v1.1/run_benchmark.mjs --samples 1 --case SYN-401",
     "benchmark:v0.7": "node evaluation/synthetic-action-v0.7/preflight.mjs && node evaluation/synthetic-action-v0.7/run_benchmark.mjs --samples 3",
     "benchmark:v0.8": "node evaluation/synthetic-action-v0.8/preflight.mjs && node evaluation/synthetic-action-v0.8/run_benchmark.mjs --samples 3",
     "benchmark:v0.9": "node evaluation/synthetic-action-v0.9/preflight.mjs && node evaluation/synthetic-action-v0.9/run_benchmark.mjs --samples 3",
     "benchmark:v1.0": "node evaluation/rheocratic-critic-v1.0/preflight.mjs && node evaluation/rheocratic-critic-v1.0/run_benchmark.mjs --samples 2",
+    "benchmark:v1.1": "node evaluation/rheocratic-transition-v1.1/preflight.mjs && node evaluation/rheocratic-transition-v1.1/run_benchmark.mjs --samples 2",
     "prompt-budget": "python3 evaluation/prompt_budget.py",
     "eval-self-test": "python3 evaluation/harness.py self-test"
   },
