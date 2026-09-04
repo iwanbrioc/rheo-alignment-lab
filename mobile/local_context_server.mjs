@@ -38,7 +38,7 @@ const server = http.createServer(async (req,res) => {
     if (req.method === 'POST' && url.pathname === '/api/local-context') {
       const body = await readJsonBody(req);
       const result = await getLocalAffordanceContext(body);
-      return json(res,200,result);
+      return json(res,200,{ ...result, retrievedAt:new Date().toISOString() });
     }
     return json(res,404,{ error:'not found', errorCode:'not_found' });
   } catch (e) {
