@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "smoke:local": "node smoke_local_context.mjs && node smoke_decision_sessions.mjs",
+    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs",
     "doctor": "npx expo-doctor@latest"
   },
   "dependencies": {

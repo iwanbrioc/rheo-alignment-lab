@@ -3,8 +3,10 @@ const MAX_RADIUS_M = 10000;
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const cache = new Map();
 let lastNominatimRequestAt = 0;
+let nominatimQueue = Promise.resolve();
 
 const QUERY_RULES = [
+  { test: /\b(jobs?|jobless|unemployed|unemployment|employment|recruitment|careers?|skills?|apprenticeships?)\b|(?:looking|searching|look|search|find|finding)\s+for\s+work/i, queries: ['employment agency', 'college', 'library'] },
   { test: /wash(ing)? machine|appliance|repair|broken|fix/i, queries: ['appliance repair', 'repair cafe', 'laundrette'] },
   { test: /bike|cycle|cycling|commut|transport|bus|parking/i, queries: ['bicycle repair', 'cycle shop', 'bus station'] },
   { test: /food|grocer|vegetable|produce|bakery|supply/i, queries: ['farm shop', 'greengrocer', 'bakery'] },
@@ -55,7 +57,6 @@ async function searchNominatim(query, lat, lon, radiusM) {
   const key = `${query}|${lat}|${lon}|${radiusM}|${baseUrl}`;
   const cached = cache.get(key);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.value;
-  await throttleNominatim();
   const params = new URLSearchParams({
     q: query,
     format: 'jsonv2',
@@ -64,14 +65,23 @@ async function searchNominatim(query, lat, lon, radiusM) {
     bounded: '1',
     viewbox: `${left},${top},${right},${bottom}`
   });
-  const response = await fetch(`${baseUrl.replace(/\/$/,'')}/search?${params}`, {
-    headers: { 'user-agent': userAgent, accept: 'application/json' }
+  // Share one queue across users so concurrent lookups respect the provider limit.
+  const request = nominatimQueue.then(async () => {
+    const queuedCache = cache.get(key);
+    if (queuedCache && Date.now() - queuedCache.at < CACHE_TTL_MS) return queuedCache.value;
+    await throttleNominatim();
+    const response = await fetch(`${baseUrl.replace(/\/$/,'')}/search?${params}`, {
+      headers: { 'user-agent': userAgent, accept: 'application/json' },
+      signal: AbortSignal.timeout(10_000)
+    });
+    if (!response.ok) throw Object.assign(new Error(`Local provider returned ${response.status}`), { code: 'local_provider_error' });
+    const rows = await response.json();
+    const value = Array.isArray(rows) ? rows : [];
+    cache.set(key, { at: Date.now(), value });
+    return value;
   });
-  if (!response.ok) throw Object.assign(new Error(`Local provider returned ${response.status}`), { code: 'local_provider_error' });
-  const rows = await response.json();
-  const value = Array.isArray(rows) ? rows : [];
-  cache.set(key, { at: Date.now(), value });
-  return value;
+  nominatimQueue = request.catch(() => {});
+  return request;
 }
 
 export function validateLocalContextRequest(body = {}) {

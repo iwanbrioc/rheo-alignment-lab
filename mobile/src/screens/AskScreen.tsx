@@ -62,6 +62,7 @@ export function AskScreen({
 
       <TextInput
         accessibilityLabel="What are you trying to work out?"
+        editable={busy === null}
         multiline
         onChangeText={onSituationChange}
         placeholder="For example: My washing machine has broken and I need a reliable solution this week..."
@@ -74,7 +75,7 @@ export function AskScreen({
         <View style={styles.localCopy}>
           <Text style={styles.panelTitle}>Local context</Text>
           <Text style={styles.panelText}>
-            Use this only if nearby places or services could affect what is possible. Rheo treats results as evidence to check.
+            Share your approximate area with the place-search service to find nearby possibilities. Results are evidence to check.
           </Text>
         </View>
         <View style={styles.buttonRow}>
@@ -85,7 +86,7 @@ export function AskScreen({
             variant="secondary"
           />
           {showLocalStatus ? (
-            <AppButton label="Remove" onPress={onRemoveLocalContext} variant="quiet" />
+            <AppButton disabled={busy !== null} label="Remove" onPress={onRemoveLocalContext} variant="quiet" />
           ) : null}
         </View>
       </View>

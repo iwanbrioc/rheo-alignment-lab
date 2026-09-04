@@ -11,22 +11,45 @@ export type DecisionLocation = {
 
 const roundNeighbourhood = (value: number) => Math.round(value * 1000) / 1000;
 
+async function withTimeout<T>(operation: Promise<T>, milliseconds: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), milliseconds);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
 export async function getDecisionLocation(): Promise<DecisionLocation> {
   const permission = await Location.requestForegroundPermissionsAsync();
   if (permission.status !== 'granted') {
     throw new Error('Location permission was not granted. Rheo can still work without local context.');
   }
 
-  const current = await Location.getCurrentPositionAsync({
-    accuracy: Location.Accuracy.Balanced,
-  });
+  if (!await Location.hasServicesEnabledAsync()) {
+    throw new Error('Location services are off. Turn them on or continue without local context.');
+  }
+
+  const current = await withTimeout(
+    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+    20_000,
+    'Your location was not available in time. Try again or continue without local context.',
+  );
+  const latitude = roundNeighbourhood(current.coords.latitude);
+  const longitude = roundNeighbourhood(current.coords.longitude);
 
   let areaLabel: string | null = null;
   try {
-    const addresses = await Location.reverseGeocodeAsync({
-      latitude: current.coords.latitude,
-      longitude: current.coords.longitude,
-    });
+    const addresses = await withTimeout(
+      Location.reverseGeocodeAsync({ latitude, longitude }),
+      5_000,
+      'Area name lookup timed out.',
+    );
     const a = addresses[0];
     if (a) {
       areaLabel = [a.district, a.city, a.region, a.country].filter(Boolean).join(', ') || null;
@@ -37,8 +60,8 @@ export async function getDecisionLocation(): Promise<DecisionLocation> {
 
   return {
     // Deliberately reduce precision before coordinates leave the device.
-    latitude: roundNeighbourhood(current.coords.latitude),
-    longitude: roundNeighbourhood(current.coords.longitude),
+    latitude,
+    longitude,
     accuracyM: current.coords.accuracy,
     capturedAt: new Date(current.timestamp).toISOString(),
     areaLabel,

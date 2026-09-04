@@ -67,6 +67,10 @@ node mobile/local_context_server.mjs
 
 The public Nominatim service is not the intended production provider. Respect its usage policy and switch to a suitable paid/self-hosted source before scale.
 
+Read the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) before enabling it. This is an explicit, low-volume prototype choice: searches are user-triggered, bounded to the current area, queued at most once per second across requests, and cached for 15 minutes. Show OpenStreetMap attribution. Do not use it for autocomplete, bulk place collection or a public-scale service. Only category terms and the approximate search boundary are sent to this provider, never the predicament text.
+
+Job and skills predicaments search for employment agencies, colleges and libraries. These listings do not establish job vacancies, course places, costs or eligibility.
+
 ## Run the app
 
 ```bash
@@ -89,6 +93,18 @@ npm start
 
 These public variables contain server addresses only, never secrets.
 
+### iPhone simulator
+
+The simulator uses a simulated location, not the Mac's physical GPS. In Simulator choose **Features > Location > Custom Location** to set a test area, then tap **Look around me** and allow foreground location. A real phone uses its own location services. If no GPS fix arrives within 20 seconds, Rheo allows retrying or continuing without location.
+
+If Expo reports that it cannot connect to `127.0.0.1` on a Mac where `localhost` resolves to IPv6 first, start the simulator preview with:
+
+```bash
+NODE_OPTIONS=--dns-result-order=ipv4first npm start -- --localhost --port 19000 --ios
+```
+
+Check `http://localhost:8080/api/health` and `http://localhost:8081/api/local-health` for the running providers. `fixture` means test responses or no real places. Real answers require the Rheo server to have a server-only `OPENAI_API_KEY` and `RHEO_MODEL_PROVIDER=openai`; nearby search separately needs its live provider enabled. Existing saved fixture recommendations remain unchanged; ask again to generate new advice.
+
 ## Checks
 
 ```bash
@@ -101,8 +117,10 @@ npm run doctor
 
 - location is opt-in and foreground only;
 - latitude/longitude are rounded to three decimal places on-device;
+- rounding happens before the operating system's area-name lookup as well as the place-search request;
 - the place-search service receives those approximate coordinates transiently;
 - the Rheo case record receives only the area label and returned candidate evidence, not the lookup coordinates;
+- with the OpenAI provider enabled, predicament text, approximate area label and local evidence are sent to OpenAI to generate the recommendation; the existing server requests `store: false`;
 - saved decision sessions contain the predicament text, optional area label, local evidence snapshot, recommendation snapshot and explicit choice;
 - saved decision sessions deliberately omit `latitude` and `longitude` fields;
 - alpha decision history is stored locally with AsyncStorage and can be deleted in the app;
