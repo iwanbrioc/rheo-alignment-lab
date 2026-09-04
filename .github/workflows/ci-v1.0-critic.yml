@@ -1,0 +1,26 @@
+name: v1.0 Rheocratic critic fixture smoke
+
+on:
+  push:
+    branches:
+      - v1.0-rheocratic-critic-benchmark
+      - v1.0-rheocratic-critic-freeze
+  pull_request:
+    paths:
+      - 'evaluation/rheocratic-critic-v1.0/**'
+      - 'prompts/*critic-v1.0-system-prompt.md'
+      - 'schemas/*critic-v1.0.schema.json'
+      - 'package.json'
+      - '.github/workflows/ci-v1.0-critic.yml'
+  workflow_dispatch:
+
+jobs:
+  fixture-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run frozen v1.0 fixture smoke
+        run: npm run smoke:v1.0
