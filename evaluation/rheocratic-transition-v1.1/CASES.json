@@ -1,0 +1,78 @@
+{
+  "version": "1.1",
+  "status": "prospective",
+  "cases": [
+    {
+      "caseId": "SYN-401",
+      "title": "Repairable washing machine",
+      "vignette": "A household of four has a nine-year-old washing machine that has stopped draining. They need reliable laundry within six days because one parent starts a run of long shifts. A manufacturer engineer can attend in 12 days and quotes a £95 call-out plus parts. A replacement of similar quality can be delivered tomorrow for £520, with the old machine collected. A well-reviewed independent repairer three miles away can diagnose within 48 hours for £55, but says this model sometimes needs an uncommon pump they do not keep in stock; if required, the part normally arrives in four to seven days. A repair café in the same town has volunteers familiar with the brand and diagnostic tools, but its next session is in three weeks. The independent repairer says several local repair businesses struggle to source uncommon appliance parts individually and would use a reliable shared parts source if one existed. A nearby laundrette can cover urgent washing at about £22 for the week. The household has enough cash for either repair or replacement but cannot tolerate an uncertain two-week gap.",
+      "decision": "What should the household do now about the failed washing machine?"
+    },
+    {
+      "caseId": "SYN-402",
+      "title": "Neighbourhood grocer supply change",
+      "vignette": "A neighbourhood grocer has been told its national wholesaler will raise the minimum weekly order from £1,800 to £2,600 in five weeks. The shop currently orders about £2,050 and would either have to carry more stock or pay a surcharge. Three vegetable growers within 15 miles, a bakery and a preserves producer have all previously offered to supply the shop directly. Their combined products could replace about £700 of the current weekly order, but they use different order days, invoices and delivery arrangements. The owner estimates that personally coordinating five extra suppliers could add four to six hours of work each week. One of the growers already delivers to two cafés near the shop and has a refrigerated van with spare capacity on Tuesdays. The national wholesaler offers reliable credit terms and remains the cheapest source for staples. The owner has six staff, thin margins and no appetite for a symbolic local-sourcing project that makes the shop less viable.",
+      "decision": "How should the grocer respond to the wholesaler's new minimum order?"
+    },
+    {
+      "caseId": "SYN-403",
+      "title": "Hospital parking reduction",
+      "vignette": "A medium-sized hospital employer will lose 110 staff parking spaces in eight weeks while an adjacent building is redeveloped for 18 months. About 420 employees currently drive alone on a typical weekday. Forty per cent of staff work shifts that begin before 07:00 or end after 21:00. A bus corridor serves the site well during the day but poorly at those edges. An existing demand-responsive minibus scheme operates across three nearby towns but is lightly used by hospital staff and currently requires booking two hours ahead. The council transport team says it could consider a hospital stop and adjusted booking rules if the employer can show likely demand. The hospital already has secure cycle storage for 70 bikes but no showers in one major building. Staff representatives warn that a blanket parking charge would hit lower-paid shift workers hardest. Management must publish its temporary parking plan within three weeks.",
+      "decision": "What should the hospital do first to reduce solo-car demand without making work inaccessible?"
+    },
+    {
+      "caseId": "SYN-404",
+      "title": "Parent-run after-school proposal",
+      "vignette": "A primary school's contracted after-school club has increased its price by 28%, creating a £19,000 annual gap. The governing body must decide within four weeks whether to renew. Eight parents have suggested replacing two of the five weekly sessions with a parent rota because many parents are already near the school at pickup. Four of the eight work part-time; six are women. None is currently employed by the school, only two have current enhanced DBS checks, and the existing provider supplies a qualified lead, insurance, safeguarding training and guaranteed cover when staff are absent. The headteacher estimates that managing a parent rota, cancellations and safeguarding checks would add at least three staff hours each week. The local authority has confirmed that any school-run provision would retain the school's safeguarding and insurance responsibilities. The provider is willing to discuss fewer sessions or a smaller club, and there is a waiting list of 11 families who say they need dependable care to remain in work.",
+      "decision": "How should the school respond to the cost increase and the parent-rota proposal?"
+    },
+    {
+      "caseId": "SYN-405",
+      "title": "Shared makers' workspace",
+      "vignette": "Five sole-trader makers in neighbouring workshops have each been told their rents will rise by 18–25% in three months. Their current units are small but individually leased and require little shared administration. A former builders' merchant half a mile away has 520 square metres vacant and the owner would consider one five-year lease to a tenant group at a total rent about 15% below their combined new rents. Fit-out for extraction, electrics and partitions is estimated at £32,000–£48,000. Three makers already share occasional equipment purchases; two run public workshops and often hire teaching space elsewhere. None wants to become an unpaid building manager. A local community-development lender has said it can review a business plan for fit-out finance, but no maker wants to guarantee another's debts. Their present landlords require answers on renewals within six weeks.",
+      "decision": "What should the makers do about the rent increases and possible shared building?"
+    },
+    {
+      "caseId": "SYN-406",
+      "title": "Freelancer platform dependence",
+      "vignette": "Six experienced freelance translators get between 45% and 75% of their work through the same online platform. The platform will raise commission from 12% to 19% in one month and is introducing rules that make repeat clients harder to move off-platform, although direct contracting with clients first met elsewhere remains permitted. Four freelancers already refer overflow work informally to one another. All have strong delivery skills, but none wants to spend much time on sales, credit control or contract administration. One freelancer already pays £70 a month for bookkeeping software that can issue invoices for multiple trading names; another has experience reviewing standard service contracts. A small agency has offered to take over client administration for 10% of billings, which would still reduce dependence on the platform but create another intermediary. No one can afford an abrupt fall in workload.",
+      "decision": "How should the freelancers respond to the platform fee rise and growing dependence?"
+    },
+    {
+      "caseId": "SYN-407",
+      "title": "Community solar enthusiasm",
+      "vignette": "Residents in a block of 64 flats are facing high electricity bills and a residents' group wants to create a community solar scheme. The largest suitable roof belongs to a private freeholder who has not yet agreed to its use. The local distribution network operator's public map shows possible capacity constraints in the area, but no connection enquiry has been made. No resident has developed an energy project before. A consultant estimates that a proper feasibility study would cost £6,000–£9,000 before legal and grid costs. The residents' association has £4,500 unrestricted reserves and relies on three active volunteers. Separately, a council-supported collective tariff scheme closes to applications in 18 days and is expected to save participating households around £120–£180 a year without capital commitment. A local energy charity offers free monthly introductory clinics but cannot develop the project for them.",
+      "decision": "What should the residents' association do now about energy costs and the solar proposal?"
+    },
+    {
+      "caseId": "SYN-408",
+      "title": "Independent venues and ticketing fees",
+      "vignette": "Four independent cultural venues in one city each use large commercial ticketing platforms whose fees have risen. Their annual combined platform and payment fees are about £41,000. One 180-seat venue built a simple in-house box-office system during the pandemic and now pays much less per ticket, but its manager spends about five hours a month maintaining integrations and cannot support other venues. The venues already cross-promote some events but use different mailing lists, websites and access requirements. A local software cooperative says it could build a shared event-feed and export standard for £7,500, allowing each venue to keep its own ticketing system while publishing to a common listings feed; ongoing hosting would be about £160 a month. The dominant platform still drives significant discovery for two venues, so an immediate full exit could reduce sales. A joint city festival in four months creates a natural deadline for improving shared listings.",
+      "decision": "How should the venues respond to rising ticketing-platform costs?"
+    },
+    {
+      "caseId": "SYN-409",
+      "title": "Adult-learning equipment purchase",
+      "vignette": "An adult-learning charity has won funding for a 10-week digital-fabrication course starting in five weeks. It needs two laser cutters with a minimum bed size. Buying two suitable machines costs £11,800 and the grant explicitly permits capital purchase. A nearby college owns three compatible machines, but external users are allowed only during staffed daytime hours; six of the charity's ten sessions are evenings. Two local design businesses each own one compatible cutter, but their insurers will not currently cover unsupervised third-party use. The college says a formal access agreement would take at least two months to approve. The charity has no previous equipment-sharing protocol and must confirm procurement within eight days to guarantee delivery and installation. It expects to run similar courses again but has no funding yet confirmed beyond this programme.",
+      "decision": "Should the charity buy the equipment or try to create a shared-access arrangement now?"
+    },
+    {
+      "caseId": "SYN-410",
+      "title": "Residents and repeated flooding",
+      "vignette": "Twelve homes on a short street have experienced surface-water flooding three times in two years. The council drainage team accepts that the highway system needs investigation but says major works are unlikely for at least 18 months. Several residents want to buy pumps and organise a rota to clear highway gullies whenever heavy rain is forecast. Council officers have warned residents not to enter the carriageway or lift drain covers and say highway drainage remains the authority's responsibility. Two residents are elderly, three work away regularly and one household has already spent £3,000 on flood barriers. The council offers free property-level flood surveys and has asked for dated photographs and water-depth observations to help prioritise the capital queue. A local flood group can lend simple rain gauges and explain safe recording methods. Storm season begins in six weeks.",
+      "decision": "What should residents do now while waiting for a council drainage solution?"
+    },
+    {
+      "caseId": "SYN-411",
+      "title": "Restored orchard grazing",
+      "vignette": "A community orchard restored three years ago needs vegetation management across six hectares. Contractors quote £4,800 for seasonal cutting. A smallholder two miles away has offered to graze a small flock for £1,800 and would like a repeat arrangement if it works. Grazing could also reduce machinery use and connect the orchard with a local food enterprise. However, two meadow areas were reseeded last autumn, several young fruit trees still need guards, and perimeter fencing is incomplete. The volunteer group that manages the orchard is already stretched and cannot supervise livestock daily. The county ecologist says grazing can be beneficial once establishment thresholds are met but recommends excluding newly seeded zones this season and requiring the livestock owner to carry daily welfare responsibility. The smallholder is willing to provide temporary electric fencing and daily checks if access and water can be agreed within three weeks.",
+      "decision": "How should the orchard group decide whether to use grazing this season?"
+    },
+    {
+      "caseId": "SYN-412",
+      "title": "Reusable takeaway-container network",
+      "vignette": "Five cafés within a two-kilometre town-centre area face a 22% rise in disposable takeaway-container costs. A regional reusable-container service already operates in a nearby city. It charges each participating café a £950 setup fee plus a per-use fee, provides containers and central washing, and requires customers to return containers within 14 days. At present the service has only one return point in this town, at a railway station on the edge of the centre. The provider says it would install two additional smart return bins at no extra capital cost if at least three cafés sign for a 12-month pilot. One café has spare dry-storage space that could hold returned containers temporarily; another has almost none. Customer research from the provider suggests return rates fall sharply when a return point is more than a ten-minute walk from usual journeys. The cafés need to place their next six-month disposable-packaging order within four weeks.",
+      "decision": "How should the cafés respond to the packaging price rise and the reusable-container offer?"
+    }
+  ]
+}
