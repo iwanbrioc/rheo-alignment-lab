@@ -1,0 +1,30 @@
+name: v1.1 Rheocratic transition fixture smoke
+
+on:
+  push:
+    branches:
+      - v1.1-rheocratic-transition-benchmark
+      - v1.1-rheocratic-transition-freeze
+    paths:
+      - 'evaluation/rheocratic-transition-v1.1/**'
+      - 'prompts/*transition*v1.1*'
+      - 'schemas/transition-editor-v1.1.schema.json'
+      - 'package.json'
+      - '.github/workflows/ci-v1.1-transition.yml'
+  pull_request:
+    paths:
+      - 'evaluation/rheocratic-transition-v1.1/**'
+      - 'prompts/*transition*v1.1*'
+      - 'schemas/transition-editor-v1.1.schema.json'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  fixture-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run smoke:v1.1
