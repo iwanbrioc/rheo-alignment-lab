@@ -16,6 +16,7 @@ export type LocalContextCandidate = {
 export type LocalContextResponse = {
   provider: string;
   attribution: string | null;
+  retrievedAt: string;
   areaLabel: string | null;
   searchQueries: string[];
   candidates: LocalContextCandidate[];
@@ -82,6 +83,7 @@ export async function askRheo(
         ? {
             provider: localContext.provider,
             attribution: localContext.attribution,
+            retrievedAt: localContext.retrievedAt,
             candidates: localContext.candidates.map((candidate) => ({
               id: candidate.id,
               name: candidate.name,
@@ -89,6 +91,7 @@ export async function askRheo(
               distanceM: candidate.distanceM,
               address: candidate.address,
               source: candidate.source,
+              sourceUrl: candidate.sourceUrl,
               whyRelevant: candidate.whyRelevant,
             })),
             warnings: localContext.warnings,
