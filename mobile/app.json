@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Rheo",
+    "slug": "rheo-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Rheo to use your location while you are making a decision so it can look for nearby practical options."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.rheo.mobile"
+    },
+    "android": {
+      "package": "org.rheo.mobile"
+    }
+  }
+}
