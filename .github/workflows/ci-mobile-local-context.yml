@@ -1,0 +1,32 @@
+name: Rheo mobile local-context checks
+
+on:
+  push:
+    branches:
+      - mobile-rheo-geolocated-context
+    paths:
+      - 'mobile/**'
+      - 'docs/MOBILE_LOCAL_CONTEXT_ARCHITECTURE.md'
+      - '.github/workflows/ci-mobile-local-context.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'docs/MOBILE_LOCAL_CONTEXT_ARCHITECTURE.md'
+  workflow_dispatch:
+
+jobs:
+  local-context-and-types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+      - name: Local context fixture smoke
+        run: node mobile/smoke_local_context.mjs
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: npm install --no-audit --no-fund
+      - name: Typecheck mobile app
+        working-directory: mobile
+        run: npm run typecheck
