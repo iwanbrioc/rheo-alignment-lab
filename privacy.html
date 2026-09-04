@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f4ed">
+  <meta name="description" content="Current privacy notes for the Rheo website and mobile alpha.">
+  <title>Privacy — Rheo</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="index.html" aria-label="Rheo home">
+        <span class="brand-mark" aria-hidden="true">r</span>
+        <span class="brand-name">Rheo</span>
+      </a>
+      <span></span>
+      <span class="alpha-pill">Alpha</span>
+    </div>
+  </header>
+
+  <main class="legal-main" id="main">
+    <div class="shell">
+      <a class="back-link" href="index.html">← Back to Rheo</a>
+      <header class="legal-header">
+        <p class="eyebrow">Privacy</p>
+        <h1>Keep only what the decision actually needs.</h1>
+        <p>These notes describe the privacy posture of the current rheocracy.org website and the Rheo mobile alpha while both are still in development.</p>
+        <p class="legal-updated">Last updated: 5 September 2026</p>
+      </header>
+
+      <div class="legal-content">
+        <section>
+          <h2>The website</h2>
+          <p>This first version of rheocracy.org is a static informational website. Rheo does not add analytics, advertising, tracking pixels, account creation, newsletter forms or behavioural profiling to the site.</p>
+          <p>The hosting and network providers used to deliver the site may process ordinary connection data such as IP addresses, browser information and server logs as part of operating their infrastructure. Those systems are outside the page code itself.</p>
+        </section>
+
+        <section>
+          <h2>The mobile alpha</h2>
+          <p>The current Rheo alpha is being built as a local-first decision tool. It does not require an account and does not include cloud sync, background location tracking, movement history or an analytics SDK.</p>
+          <p>Decision sessions may be stored locally on the device so that a user can revisit or delete them. The product should make that local storage visible rather than implying that nothing is retained.</p>
+        </section>
+
+        <section>
+          <h2>Location</h2>
+          <p>Location is optional. Rheo must remain usable without granting location permission.</p>
+          <ul>
+            <li>Location is requested only in the foreground when the user explicitly asks Rheo to look around them.</li>
+            <li>Location precision is reduced before it is used for local-context lookup.</li>
+            <li>Raw coordinates are not stored in the saved decision session.</li>
+            <li>Nearby results are presented as possibilities to check, not as endorsements or proof of availability, accessibility or suitability.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Requests to Rheo</h2>
+          <p>To generate a response, the situation a user writes—and, where the user has chosen it, relevant local context—may be sent to the configured Rheo service. The service needs that information in order to produce decision support.</p>
+          <p>The alpha is not intended to collect personal information for advertising, user scoring or behavioural targeting.</p>
+        </section>
+
+        <section>
+          <h2>What Rheo deliberately does not claim</h2>
+          <p>Rheo does not claim that locally stored decision text is encrypted unless the underlying device or storage implementation actually provides that protection. It also does not describe approximate local results as verified merely because a provider returned them.</p>
+        </section>
+
+        <section>
+          <h2>This page will change</h2>
+          <p>Rheo is still an alpha. Before any public release that materially changes storage, hosting, accounts, telemetry, third-party services or data retention, this page should be updated to describe those changes in ordinary language.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div>
+        <a class="brand footer-brand" href="index.html" aria-label="Rheo home">
+          <span class="brand-mark" aria-hidden="true">r</span>
+          <span class="brand-name">Rheo</span>
+        </a>
+        <p class="footer-note">A decision companion for finding practical ways forward while keeping future possibilities open.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#principles">Principles</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+      <p class="footer-small">Rheo is experimental decision-support software. It does not replace qualified professional advice where health, safety, law or regulated financial matters require it.</p>
+    </div>
+  </footer>
+</body>
+</html>
