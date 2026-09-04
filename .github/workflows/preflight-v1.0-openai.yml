@@ -1,9 +1,6 @@
 name: v1.0 OpenAI connectivity preflight
 
 on:
-  push:
-    branches:
-      - v1.0-rheocratic-critic-benchmark
   workflow_dispatch:
 
 jobs:
