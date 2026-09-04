@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Transition editor v1.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "materialTransition",
+    "verdict",
+    "observedPathway",
+    "persistentEffect",
+    "reinforcementMechanism",
+    "affectedBearers",
+    "immediateAdequacy",
+    "viabilityCheck",
+    "smallestRelease",
+    "falsifier",
+    "correctionTarget",
+    "proposedChange"
+  ],
+  "properties": {
+    "materialTransition": { "type": "boolean" },
+    "verdict": { "type": "string", "enum": ["MATERIAL TRANSITION", "NO MATERIAL TRANSITION"] },
+    "observedPathway": { "type": "string" },
+    "persistentEffect": { "type": "string" },
+    "reinforcementMechanism": { "type": "string" },
+    "affectedBearers": { "type": "array", "items": { "type": "string" }, "maxItems": 8 },
+    "immediateAdequacy": { "type": "string" },
+    "viabilityCheck": { "type": "string" },
+    "smallestRelease": { "type": "string" },
+    "falsifier": { "type": "string" },
+    "correctionTarget": { "type": "string", "enum": ["none", "a1", "a2", "a3"] },
+    "proposedChange": { "type": "string" }
+  }
+}
