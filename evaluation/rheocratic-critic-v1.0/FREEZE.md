@@ -2,9 +2,20 @@
 
 ## Status
 
-**FREEZE CANDIDATE — no confirmatory OpenAI outputs authorised yet.**
+**IMPLEMENTATION FREEZE CREATED — confirmatory generation is permitted only from the frozen commit recorded below.**
 
-This branch contains the prospective v1.0 critic design. It must pass the fixture smoke before an immutable implementation-freeze branch is created.
+The prospective v1.0 critic design passed the fixture smoke before the implementation-freeze branch was created. No research prompt, case, schema, critic rule, rater rule or analysis rule was changed as a result of the fixture run.
+
+## Recorded implementation freeze
+
+- freeze branch: `v1.0-rheocratic-critic-freeze`
+- frozen/tested commit: `0673005a79e8d5bddee404a2c9f7f98a3015494c`
+- fixture workflow: `v1.0 Rheocratic critic fixture smoke`
+- fixture workflow run: `33861808035`
+- fixture result: **success**
+- fixture command: `npm run smoke:v1.0`
+
+The freeze branch must not be advanced, rebased or amended once confirmatory generation begins. This record is maintained on the development branch so that the frozen branch remains exactly the tested commit.
 
 ## Files inside the prospective freeze
 
@@ -48,7 +59,7 @@ Before the implementation freeze, fixes are permitted only for such implementati
 
 ## Confirmatory boundary
 
-Once an implementation-freeze branch is created and any real OpenAI confirmatory output is generated:
+Once any real OpenAI confirmatory output is generated from the frozen implementation:
 
 - cases are immutable;
 - critic prompts are immutable;
@@ -89,10 +100,6 @@ Raters receive only `BLINDED.zip` and `RATER_PROMPT.md`.
 
 They are not told condition names, condition count, source pairing, case-design notes or mechanism expectations.
 
-## Final freeze action
+## Confirmatory execution rule
 
-After fixture smoke passes, create an immutable branch named:
-
-`v1.0-rheocratic-critic-freeze`
-
-from the exact tested commit. Record that commit SHA here before any confirmatory generation.
+All confirmatory generation must run from `v1.0-rheocratic-critic-freeze` at commit `0673005a79e8d5bddee404a2c9f7f98a3015494c`. Generated model runs and reveal material must remain outside the public repository until the blind reviews are frozen and the protocol permits unblinding.
