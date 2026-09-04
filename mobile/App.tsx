@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   sectionNote: { fontSize: 14, lineHeight: 20, color: '#657068' },
   bodyText: { fontSize: 15, lineHeight: 21, color: '#414b44' },
   candidate: { borderTopWidth: 1, borderTopColor: '#d5d8d3', paddingTop: 12, gap: 4 },
-  candidateName: { fontSize: 18, fontWeight: '650', color: '#1d2921' },
+  candidateName: { fontSize: 18, fontWeight: '600', color: '#1d2921' },
   meta: { fontSize: 13, fontWeight: '600', color: '#68736b' },
   whyText: { fontSize: 14, lineHeight: 20, color: '#58635b' },
   linkText: { fontSize: 14, fontWeight: '600', color: '#324b3b', textDecorationLine: 'underline', paddingVertical: 4 },
