@@ -1,0 +1,24 @@
+name: v1.0 OpenAI connectivity preflight
+
+on:
+  push:
+    branches:
+      - v1.0-rheocratic-critic-benchmark
+  workflow_dispatch:
+
+jobs:
+  openai-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v1.0-rheocratic-critic-freeze
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate frozen OpenAI preflight only
+        env:
+          RHEO_MODEL_PROVIDER: openai
+          OPENAI_MODEL: gpt-5.6
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node evaluation/rheocratic-critic-v1.0/preflight.mjs
