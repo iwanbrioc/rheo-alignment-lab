@@ -1,6 +1,6 @@
 # Rheocratic Transition Benchmark v1.1 — freeze record
 
-Status: **FREEZE CANDIDATE — awaiting successful fixture smoke on the final candidate commit. No confirmatory generation authorised until the tested commit is copied to the freeze branch.**
+Status: **IMPLEMENTATION FREEZE CREATED — confirmatory generation is permitted only from the frozen commit recorded below.**
 
 ## Pre-freeze methodological audit
 
@@ -53,7 +53,7 @@ No v1.1 result may be described as evidence that Rheocracy will cause societal c
 
 None of these limitations will be altered in response to confirmatory output quality after freeze.
 
-## Candidate implementation
+## Frozen implementation
 
 Expected confirmatory design:
 
@@ -66,14 +66,12 @@ Expected confirmatory design:
 - prespecified midrank collapse in `ANALYSIS_PLAN.md`;
 - private reveal key opened only after all reviews are frozen.
 
-## Freeze completion fields
-
-These fields must be completed only after the final candidate fixture CI passes:
+Freeze record:
 
 - freeze branch: `v1.1-rheocratic-transition-freeze`
-- frozen/tested commit: **PENDING**
+- frozen/tested commit: `d5f7842efac4fcd8bf82661d22e4d57f401f6bcd`
 - fixture workflow: `v1.1 Rheocratic transition fixture smoke`
-- fixture run ID: **PENDING**
-- result: **PENDING**
+- fixture run ID: `33873615121`
+- result: **success**
 
-After completion, confirmatory generation is permitted only from that exact frozen commit.
+The development record is intentionally maintained off the freeze branch so the freeze branch remains the exact fixture-tested commit. Confirmatory generation must run from the frozen branch/commit. Model runs and reveal material must remain outside the public repository until blind reviews are frozen and the protocol permits unblinding.
