@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
@@ -65,8 +66,11 @@ export function AskScreen({
         editable={busy === null}
         multiline
         onChangeText={onSituationChange}
+        onSubmitEditing={Keyboard.dismiss}
         placeholder="For example: My washing machine has broken and I need a reliable solution this week..."
+        returnKeyType="done"
         style={styles.input}
+        submitBehavior="blurAndSubmit"
         textAlignVertical="top"
         value={situation}
       />

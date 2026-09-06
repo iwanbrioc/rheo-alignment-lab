@@ -113,6 +113,12 @@ npm run typecheck
 npm run doctor
 ```
 
+The keyboard smoke checks component settings and action handlers without a native runtime.
+On a phone, also check both the predicament and custom-action inputs: **Done** dismisses
+the keyboard without submitting, dragging the page dismisses it, and action buttons work
+on the first tap. The page makes room for the iOS keyboard so lower buttons remain reachable
+by scrolling. Long text still wraps across lines; the keyboard's return key now finishes editing.
+
 ## Privacy and storage assumptions in v0.2
 
 - location is opt-in and foreground only;

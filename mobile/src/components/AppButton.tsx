@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, radii, spacing } from '../theme';
 
 type AppButtonProps = {
@@ -29,7 +29,10 @@ export function AppButton({
       accessibilityRole="button"
       accessibilityState={{ disabled, selected }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => {
+        Keyboard.dismiss();
+        onPress();
+      }}
       style={({ pressed }) => [
         styles.base,
         isPrimary && styles.primary,

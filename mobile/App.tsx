@@ -290,7 +290,12 @@ export default function App() {
   return (
     <View style={styles.root}>
       <StatusBar style="auto" />
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={styles.content}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
         {screen === 'ask' ? (
           <AskScreen
             areaLabel={areaLabel}

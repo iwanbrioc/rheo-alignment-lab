@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ActionCard } from '../components/ActionCard';
 import { AppButton } from '../components/AppButton';
 import { colors, radii, spacing } from '../theme';
@@ -95,8 +95,11 @@ export function AdviceScreen({
               accessibilityLabel="Something else you will actually do"
               multiline
               onChangeText={onCustomChoiceTextChange}
+              onSubmitEditing={Keyboard.dismiss}
               placeholder="Write the action you will actually take..."
+              returnKeyType="done"
               style={styles.customInput}
+              submitBehavior="blurAndSubmit"
               textAlignVertical="top"
               value={customChoiceText}
             />
