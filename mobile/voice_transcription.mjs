@@ -49,6 +49,10 @@ export function createVoiceHandler() {
   let active = 0;
   let nextRequestAt = 0;
   return async function handleVoice(req, res, json) {
+    // Native clients send no Origin. A web page must not spend the LAN server's API quota.
+    if (req.headers.origin) {
+      return json(res, 403, { error: 'Voice transcription is available from the mobile app only.' });
+    }
     if (active >= 2 || Date.now() < nextRequestAt) {
       return json(res, 429, { error: 'Voice transcription is busy. Please try again shortly.' });
     }

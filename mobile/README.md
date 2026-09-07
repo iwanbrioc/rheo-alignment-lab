@@ -147,6 +147,7 @@ capabilities are enabled. Cancellation after upload cannot retract audio already
 This remains a trusted-LAN alpha server, not an authenticated public service. Do not expose
 it to the internet: production needs HTTPS, authentication and stronger per-user quotas.
 Uploads are capped at 4 MiB with timeouts, a short request throttle and two concurrent requests.
+The voice endpoint rejects browser-origin requests; this recording flow targets iOS/Android.
 
 Added Expo-compatible dependencies: `expo-audio` and its required `expo-asset` peer for recording, `expo-file-system` for
 temporary-file cleanup and upload, and `expo-image` for the bundled Lucide microphone/stop

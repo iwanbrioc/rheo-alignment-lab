@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
-import { MAX_VOICE_BYTES, transcribeVoice } from './voice_transcription.mjs';
+import { createVoiceHandler, MAX_VOICE_BYTES, transcribeVoice } from './voice_transcription.mjs';
 
 const { outputText } = ts.transpileModule(readFileSync(new URL('./src/services/voiceSession.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -106,6 +106,9 @@ assert.match(cleanupFailure.session.state.error, /temporary audio file/);
 
 const oldKey = process.env.OPENAI_API_KEY;
 const oldProvider = process.env.RHEO_VOICE_PROVIDER;
+let browserStatus;
+await createVoiceHandler()({ headers: { origin: 'https://untrusted.example' } }, {}, (_res, status) => { browserStatus = status; });
+assert.equal(browserStatus, 403, 'web pages must not be allowed to spend the LAN server API quota');
 try {
   delete process.env.RHEO_VOICE_PROVIDER;
   await assert.rejects(transcribeVoice(Buffer.from('test audio'), 'audio/mp4'), { status: 503 });
@@ -141,4 +144,4 @@ try {
   else process.env.RHEO_VOICE_PROVIDER = oldProvider;
 }
 
-console.log('mobile voice smoke PASS | explicit recording/upload | permission denial | cancellation races | retry | cleanup | bounded uploads | server-only key');
+console.log('mobile voice smoke PASS | explicit recording/upload | permission denial | cancellation races | retry | cleanup | bounded uploads | server-only key | browser-origin rejection');
