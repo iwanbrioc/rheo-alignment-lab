@@ -6,7 +6,7 @@ It is **not** part of the v1.1 confirmatory benchmark and lives on a separate pr
 
 ## What works in this slice
 
-- enter a decision/predicament in ordinary language;
+- speak a short voice note by default, or type a decision/predicament;
 - optionally ask Rheo to look around using foreground location;
 - reduce coordinates to neighbourhood precision before they leave the device;
 - search for a bounded set of decision-relevant local possibilities;
@@ -112,6 +112,52 @@ npm run smoke:local
 npm run typecheck
 npm run doctor
 ```
+
+### Voice input
+
+The question screen starts with **Speak**, without opening the keyboard or microphone.
+Tap the microphone, grant foreground microphone access, then stop recording. Clips stop
+automatically after two minutes. **Use recording** explicitly sends the clip for transcription;
+stopping alone does not upload it. The resulting words are editable and are appended to any
+existing question. **Ask Rheo** remains a separate action. **Type** is always available.
+
+Enable transcription in the same terminal as the mobile local-context server:
+
+```bash
+export RHEO_VOICE_PROVIDER=openai
+export OPENAI_API_KEY='YOUR_KEY'
+node mobile/local_context_server.mjs
+```
+
+This product-only endpoint uses `gpt-4o-mini-transcribe` at OpenAI's audio transcription
+API, with the key on the server only. It shares `EXPO_PUBLIC_LOCAL_CONTEXT_API_URL` with
+local search; on a phone use the computer's LAN address. Transcription needs internet access
+and uses the API account's quota. It is disabled unless explicitly configured and never
+returns fabricated fixture transcripts. See `GET /api/voice/health` for configuration status.
+
+Audio is sent only after **Use recording**, through the local server to OpenAI. The server
+holds a bounded clip in memory, does not log or persist clips/transcripts, and returns only
+text. This does not promise zero retention by the transcription provider. The app attempts
+to delete its cached clip after successful use, discard, cancellation or leaving the screen.
+A crash or failed deletion can leave temporary audio in the device cache until the OS clears
+it. Recordings are never saved in decision history. The edited text follows the existing
+decision-storage policy. Leaving Rheo interrupts active recording; no background audio
+capabilities are enabled. Cancellation after upload cannot retract audio already sent.
+
+This remains a trusted-LAN alpha server, not an authenticated public service. Do not expose
+it to the internet: production needs HTTPS, authentication and stronger per-user quotas.
+Uploads are capped at 4 MiB with timeouts, a short request throttle and two concurrent requests.
+
+Added Expo-compatible dependencies: `expo-audio` and its required `expo-asset` peer for recording, `expo-file-system` for
+temporary-file cleanup and upload, and `expo-image` for the bundled Lucide microphone/stop
+icons (license in `assets/voice-icons/`). These work in Expo Go; a standalone build must be
+rebuilt to include the microphone permission. No decision-engine or location behaviour changes.
+
+Voice smoke coverage includes no recording/upload on mount, permission denial, separate
+upload consent, double taps, cancellation during permission/transcription, retry, text
+preservation, cleanup failure, upload limits and sanitized provider failures. On a physical
+phone also check microphone capture, interruption by locking/switching apps, the two-minute
+limit, transcript editing and typing with microphone access denied.
 
 The keyboard smoke checks component settings and action handlers without a native runtime.
 On a phone, also check both the predicament and custom-action inputs: **Done** dismisses

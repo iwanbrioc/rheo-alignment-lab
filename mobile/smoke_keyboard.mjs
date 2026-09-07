@@ -11,6 +11,7 @@ const react = {
   useCallback: (callback) => callback,
   useEffect: () => {},
   useMemo: (callback) => callback(),
+  useRef: (value) => ({ current: value }),
   useState: (initial) => [typeof initial === 'function' ? initial() : initial, () => {}],
 };
 const native = {
@@ -40,6 +41,13 @@ function loadComponent(file) {
     require: (name) => {
       if (name === 'react') return react;
       if (name === 'react-native') return native;
+      if (name === 'expo-audio') return {
+        RecordingPresets: { HIGH_QUALITY: {} },
+        useAudioRecorder: () => ({}),
+        useAudioRecorderState: () => ({ durationMillis: 0 }),
+      };
+      if (name === 'expo-file-system' || name === 'expo-image' || name.endsWith('.svg')) return {};
+      if (name.endsWith('/services/voiceSession')) return { VoiceSession: class {} };
       if (name.endsWith('/theme')) return { colors: {}, radii: {}, spacing: {} };
       if (name.endsWith('/utils/decisionSession')) return { createLocalId: () => 'test-decision' };
       if (name.startsWith('.') || name === 'expo-status-bar') return {};
@@ -66,10 +74,10 @@ assert.equal(scroll.props.automaticallyAdjustKeyboardInsets, true);
 assert.equal(scroll.props.keyboardDismissMode, 'on-drag');
 assert.equal(scroll.props.keyboardShouldPersistTaps, 'handled', 'buttons must respond on the first tap');
 
-const { AskScreen } = loadComponent('./src/screens/AskScreen.tsx');
+const { VoiceInput } = loadComponent('./src/components/VoiceInput.tsx');
 const { AdviceScreen } = loadComponent('./src/screens/AdviceScreen.tsx');
 const inputs = [
-  findNode(AskScreen({ situation: 'I need help finding work.', busy: null, recentCount: 0 }), 'TextInput'),
+  findNode(VoiceInput({ value: 'I need help finding work.', onBusyChange: () => {} }), 'TextInput'),
   findNode(AdviceScreen({ recommendation: { actions: [] }, customChoiceVisible: true, customChoiceText: '' }), 'TextInput'),
 ];
 for (const input of inputs) {

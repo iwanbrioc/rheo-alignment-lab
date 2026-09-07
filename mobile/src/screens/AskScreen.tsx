@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Keyboard,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { AppButton } from '../components/AppButton';
 import { LocalCandidateCard } from '../components/LocalCandidateCard';
+import { VoiceInput } from '../components/VoiceInput';
 import { colors, radii, spacing } from '../theme';
 import type { LocalContextSnapshot } from '../types/localContext';
 import { formatDateTime } from '../utils/format';
@@ -44,8 +43,10 @@ export function AskScreen({
   onAskRheo,
   onOpenRecent,
 }: AskScreenProps) {
+  const [voiceBusy, setVoiceBusy] = useState(false);
+  const inputBusy = busy !== null || voiceBusy;
   const hasEnoughSituation = situation.trim().length >= 12;
-  const canLookAround = hasEnoughSituation && busy === null;
+  const canLookAround = hasEnoughSituation && !inputBusy;
   const showLocalStatus = areaLabel || localContext;
 
   return (
@@ -53,25 +54,18 @@ export function AskScreen({
       <View style={styles.headerRow}>
         <Text style={styles.eyebrow}>RHEO ALPHA</Text>
         {recentCount > 0 ? (
-          <AppButton label={`Recent (${recentCount})`} onPress={onOpenRecent} variant="quiet" />
+          <AppButton disabled={inputBusy} label={`Recent (${recentCount})`} onPress={onOpenRecent} variant="quiet" />
         ) : null}
       </View>
       <Text style={styles.title}>What are you trying to work out?</Text>
       <Text style={styles.intro}>
-        Describe the predicament in ordinary language. Location is optional; nearby evidence can reveal possibilities, but it is never required.
+        Your words, your decision. Location is optional.
       </Text>
 
-      <TextInput
-        accessibilityLabel="What are you trying to work out?"
-        editable={busy === null}
-        multiline
+      <VoiceInput
+        disabled={busy !== null}
         onChangeText={onSituationChange}
-        onSubmitEditing={Keyboard.dismiss}
-        placeholder="For example: My washing machine has broken and I need a reliable solution this week..."
-        returnKeyType="done"
-        style={styles.input}
-        submitBehavior="blurAndSubmit"
-        textAlignVertical="top"
+        onBusyChange={setVoiceBusy}
         value={situation}
       />
 
@@ -90,7 +84,7 @@ export function AskScreen({
             variant="secondary"
           />
           {showLocalStatus ? (
-            <AppButton disabled={busy !== null} label="Remove" onPress={onRemoveLocalContext} variant="quiet" />
+            <AppButton disabled={inputBusy} label="Remove" onPress={onRemoveLocalContext} variant="quiet" />
           ) : null}
         </View>
       </View>
@@ -141,12 +135,12 @@ export function AskScreen({
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
 
       <AppButton
-        disabled={!canAsk || busy !== null}
+        disabled={!canAsk || inputBusy}
         label={busy === 'rheo' ? 'Asking Rheo...' : 'Ask Rheo'}
         onPress={onAskRheo}
         variant="primary"
       />
-      {!hasEnoughSituation ? <Text style={styles.hint}>Write a little more so Rheo has enough context to work with.</Text> : null}
+      {!hasEnoughSituation ? <Text style={styles.hint}>Say or write a little more so Rheo has enough context.</Text> : null}
     </View>
   );
 }
@@ -176,17 +170,6 @@ const styles = StyleSheet.create({
     color: colors.body,
     fontSize: 17,
     lineHeight: 25,
-  },
-  input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    color: colors.ink,
-    fontSize: 17,
-    lineHeight: 24,
-    minHeight: 150,
-    padding: spacing.lg,
   },
   localPanel: {
     backgroundColor: colors.surfaceAlt,

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import http from 'node:http';
 import { getLocalAffordanceContext } from './local_context_v0_1.mjs';
+import { createVoiceHandler } from './voice_transcription.mjs';
 
 const PORT = Number(process.env.LOCAL_CONTEXT_PORT || 8081);
+const handleVoice = createVoiceHandler();
 
 function json(res, status, body) {
   const text = JSON.stringify(body);
@@ -32,6 +34,12 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return json(res,204,{});
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
+    if (req.method === 'POST' && url.pathname === '/api/voice/transcribe') {
+      return await handleVoice(req, res, json);
+    }
+    if (req.method === 'GET' && url.pathname === '/api/voice/health') {
+      return json(res, 200, { enabled: process.env.RHEO_VOICE_PROVIDER === 'openai' && Boolean(process.env.OPENAI_API_KEY) });
+    }
     if (req.method === 'GET' && url.pathname === '/api/local-health') {
       return json(res,200,{ version:'0.1.0', provider:process.env.LOCAL_CONTEXT_PROVIDER || 'fixture', storesLocation:false });
     }

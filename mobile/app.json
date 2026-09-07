@@ -11,7 +11,17 @@
         {
           "locationWhenInUsePermission": "Allow Rheo to use your location while you are making a decision so it can look for nearby practical options."
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Rheo to record a short voice note when you tap the microphone. You choose whether to send it for transcription.",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-image",
+      "expo-asset"
     ],
     "ios": {
       "supportsTablet": true,
