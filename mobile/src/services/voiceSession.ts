@@ -14,6 +14,12 @@ export function appendVoiceText(existing: string, transcript: string): string {
   return [existing.trim(), transcript.trim()].filter(Boolean).join('\n\n');
 }
 
+export class MicrophonePermissionError extends Error {
+  constructor() {
+    super('Microphone access is off. You can type instead, or enable it in your phone settings.');
+  }
+}
+
 export class VoiceSession {
   state: VoiceState = { phase: 'idle', error: null };
   private pending: Promise<void> = Promise.resolve();
@@ -53,7 +59,10 @@ export class VoiceSession {
         if (!this.cancelled) {
           const cleanupError = await this.cleanup();
           if (this.cancelled) return;
-          this.update('idle', cleanupError || (error instanceof Error ? error.message : 'Microphone unavailable. You can type instead.'));
+          const message = error instanceof MicrophonePermissionError
+            ? error.message
+            : 'Rheo could not start recording. Check your microphone and try again, or choose Type.';
+          this.update('idle', cleanupError ? `${message} ${cleanupError}` : message);
         }
       }
     })();

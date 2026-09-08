@@ -5,7 +5,7 @@ import { File } from 'expo-file-system';
 import { Image } from 'expo-image';
 import { AppButton } from './AppButton';
 import { transcribeVoiceNote } from '../services/voiceApi';
-import { appendVoiceText, VoiceSession, type VoiceState } from '../services/voiceSession';
+import { appendVoiceText, MicrophonePermissionError, VoiceSession, type VoiceState } from '../services/voiceSession';
 import { colors, radii, spacing } from '../theme';
 
 type VoiceInputProps = {
@@ -34,10 +34,13 @@ export function VoiceInput({ value, onChangeText, onBusyChange, disabled = false
   const [session] = useState(() => new VoiceSession({
     prepare: async () => {
       const permission = await AudioModule.requestRecordingPermissionsAsync();
-      if (!permission.granted) throw new Error('Microphone access is off. You can type instead, or enable it in your phone settings.');
+      if (!permission.granted) throw new MicrophonePermissionError();
       await setAudioModeAsync({ allowsRecording: true, allowsBackgroundRecording: false, shouldPlayInBackground: false, playsInSilentMode: true });
-      await recorder.prepareToRecordAsync();
-      recordingUri.current = recorder.uri;
+      try {
+        await recorder.prepareToRecordAsync();
+      } finally {
+        recordingUri.current = recorder.uri;
+      }
     },
     record: () => recorder.record({ forDuration: 120 }),
     stop: async () => {

@@ -10,7 +10,7 @@ const { outputText } = ts.transpileModule(readFileSync(new URL('./src/services/v
 });
 const module = { exports: {} };
 vm.runInNewContext(outputText, { module, exports: module.exports, AbortController, Error });
-const { VoiceSession, appendVoiceText } = module.exports;
+const { VoiceSession, appendVoiceText, MicrophonePermissionError } = module.exports;
 
 function deferred() {
   let resolve;
@@ -48,11 +48,26 @@ assert.equal(basic.session.state.phase, 'idle');
 assert.equal(basic.calls.at(-1), 'cleanup');
 assert.equal(appendVoiceText('Existing text.', 'More words.'), 'Existing text.\n\nMore words.');
 
-const denied = setup({ prepare: async () => { throw new Error('Microphone access is off.'); } });
+const denied = setup({ prepare: async () => { throw new MicrophonePermissionError(); } });
 await denied.session.start();
 assert.equal(denied.session.state.phase, 'idle');
-assert.match(denied.session.state.error, /Microphone/);
+assert.match(denied.session.state.error, /Microphone access is off.*phone settings/);
 assert.ok(!denied.calls.includes('record'));
+
+let startupAttempts = 0;
+const unavailable = setup({ prepare: async () => {
+  if (++startupAttempts === 1) throw new Error('FunctionCallException: prepareToRecordAsync at private/native/path.swift:123');
+} });
+await unavailable.session.start();
+assert.equal(unavailable.session.state.phase, 'idle');
+assert.match(unavailable.session.state.error, /try again.*Type/);
+assert.doesNotMatch(unavailable.session.state.error, /FunctionCallException|prepareToRecordAsync|private/);
+assert.deepEqual(unavailable.calls, ['cleanup']);
+assert.deepEqual(unavailable.text, [], 'startup failure must not replace existing text');
+await unavailable.session.start();
+assert.equal(unavailable.session.state.phase, 'recording', 'startup failure must permit retry');
+assert.equal(unavailable.session.state.error, null);
+await unavailable.session.cancel();
 
 const permission = deferred();
 const earlyCancel = setup({ prepare: () => permission.promise });
@@ -144,4 +159,4 @@ try {
   else process.env.RHEO_VOICE_PROVIDER = oldProvider;
 }
 
-console.log('mobile voice smoke PASS | explicit recording/upload | permission denial | cancellation races | retry | cleanup | bounded uploads | server-only key | browser-origin rejection');
+console.log('mobile voice smoke PASS | explicit recording/upload | permission denial | sanitized startup failure/retry | cancellation races | retry | cleanup | bounded uploads | server-only key | browser-origin rejection');
