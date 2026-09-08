@@ -2,6 +2,7 @@ import React from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ActionCard } from '../components/ActionCard';
 import { AppButton } from '../components/AppButton';
+import { RheoBrand } from '../components/RheoBrand';
 import { colors, radii, spacing } from '../theme';
 import type { DecisionChoice, RecommendationSnapshot } from '../types/decision';
 import type { LocalContextSnapshot } from '../types/localContext';
@@ -44,6 +45,7 @@ export function AdviceScreen({
 }: AdviceScreenProps) {
   return (
     <View style={styles.screen}>
+      <RheoBrand compact />
       <View style={styles.contextPanel}>
         <Text style={styles.eyebrow}>YOUR PREDICAMENT</Text>
         <Text style={styles.situation}>{situation}</Text>

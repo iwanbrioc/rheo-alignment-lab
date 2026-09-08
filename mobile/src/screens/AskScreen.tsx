@@ -8,6 +8,7 @@ import {
 import { AppButton } from '../components/AppButton';
 import { LocalCandidateCard } from '../components/LocalCandidateCard';
 import { VoiceInput } from '../components/VoiceInput';
+import { RheoBrand } from '../components/RheoBrand';
 import { colors, radii, spacing } from '../theme';
 import type { LocalContextSnapshot } from '../types/localContext';
 import { formatDateTime } from '../utils/format';
@@ -52,7 +53,7 @@ export function AskScreen({
   return (
     <View style={styles.screen}>
       <View style={styles.headerRow}>
-        <Text style={styles.eyebrow}>RHEO ALPHA</Text>
+        <RheoBrand />
         {recentCount > 0 ? (
           <AppButton disabled={inputBusy} label={`Recent (${recentCount})`} onPress={onOpenRecent} variant="quiet" />
         ) : null}
@@ -152,13 +153,9 @@ const styles = StyleSheet.create({
   headerRow: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     justifyContent: 'space-between',
-  },
-  eyebrow: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: '700',
-    lineHeight: 18,
   },
   title: {
     color: colors.ink,

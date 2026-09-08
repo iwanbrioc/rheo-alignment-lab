@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/brand/icon.png",
     "plugins": [
       [
         "expo-location",
@@ -21,14 +22,27 @@
         }
       ],
       "expo-image",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0D2328",
+          "image": "./assets/brand/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.rheo.mobile"
     },
     "android": {
-      "package": "org.rheo.mobile"
+      "package": "org.rheo.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#0D2328"
+      }
     }
   }
 }

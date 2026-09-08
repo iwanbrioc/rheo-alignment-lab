@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
+import { RheoBrand } from '../components/RheoBrand';
 import { colors, radii, spacing } from '../theme';
 import type { DecisionSession } from '../types/decision';
 import { describeChoice } from '../utils/decisionSession';
@@ -23,7 +24,10 @@ export function RecentDecisionsScreen({
 }: RecentDecisionsScreenProps) {
   return (
     <View style={styles.screen}>
-      <Text style={styles.eyebrow}>LOCAL HISTORY</Text>
+      <View style={styles.headerRow}>
+        <RheoBrand compact />
+        <Text style={styles.eyebrow}>LOCAL HISTORY</Text>
+      </View>
       <Text style={styles.title}>Recent decisions</Text>
       <Text style={styles.intro}>Saved only on this device. Delete anything you do not want kept here.</Text>
 
@@ -55,6 +59,13 @@ export function RecentDecisionsScreen({
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
+  },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    justifyContent: 'space-between',
   },
   eyebrow: {
     color: colors.muted,

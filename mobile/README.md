@@ -166,6 +166,26 @@ the keyboard without submitting, dragging the page dismisses it, and action butt
 on the first tap. The page makes room for the iOS keyboard so lower buttons remain reachable
 by scrolling. Long text still wraps across lines; the keyboard's return key now finishes editing.
 
+## Mobile branding (issue #13)
+
+Ask uses the approved lotus and Rheo wordmark; Advice, Confirmation and Recent use
+a smaller lockup. The question and decision controls stay dominant, and the
+warm-neutral screens are unchanged. Header artwork has a single "Rheo" accessibility
+label and wraps alongside secondary controls on narrow screens.
+
+The canonical artwork and generation notes are in `assets/brand/`. Added dependencies:
+`react-native-svg` for the exact vector lotus and `expo-splash-screen` for the native
+launch screen, both installed with Expo's SDK-compatible versions. No new Expo
+project, navigation framework, remote fonts or image services were introduced.
+All brand assets are bundled; branding adds no network calls, permissions, storage,
+analytics or changes to voice, foreground location or decision records.
+
+The native app icon and splash are configured for the next standalone build.
+Expo Go can show the screen branding but does not faithfully preview a standalone
+splash or replace Expo Go's home-screen icon. Verify those in a release build on
+iOS and Android. The brand smoke checks source fidelity, PNG content/dimensions,
+the adaptive icon safe circle, accessibility and the four screen integrations.
+
 ## Privacy and storage assumptions in v0.2
 
 - location is opt-in and foreground only;

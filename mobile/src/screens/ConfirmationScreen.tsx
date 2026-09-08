@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
+import { RheoBrand } from '../components/RheoBrand';
 import { colors, radii, spacing } from '../theme';
 import type { DecisionSession } from '../types/decision';
 import { describeChoice, getChosenAction } from '../utils/decisionSession';
@@ -25,7 +26,10 @@ export function ConfirmationScreen({
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.eyebrow}>SAVED LOCALLY</Text>
+      <View style={styles.headerRow}>
+        <RheoBrand compact />
+        <Text style={styles.eyebrow}>SAVED LOCALLY</Text>
+      </View>
       <Text style={styles.title}>Decision noted</Text>
       <Text style={styles.intro}>This alpha keeps the record on this device so you can revisit or delete it.</Text>
 
@@ -62,6 +66,13 @@ export function ConfirmationScreen({
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
+  },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    justifyContent: 'space-between',
   },
   eyebrow: {
     color: colors.muted,
