@@ -7,6 +7,7 @@ import type {
 import type { LocalContextSnapshot } from '../types/localContext';
 import { createLocalId, removeCoordinateFields } from '../utils/decisionSession';
 import { postJson } from './http';
+import { plainLanguageActions } from './plainLanguage';
 
 const RHEO_API_URL = process.env.EXPO_PUBLIC_RHEO_API_URL || 'http://localhost:8080';
 
@@ -84,6 +85,7 @@ export async function askRheo(
   if (actions.length !== 3) {
     throw new Error('Rheo did not return the three action options expected for this alpha.');
   }
+  const presentation = actionResult.provider === 'fixture' ? { actions } : await plainLanguageActions(actions);
 
   return {
     id: createLocalId('recommendation'),
@@ -92,6 +94,7 @@ export async function askRheo(
     flow: flowResult.flow,
     flowMeta: metaFromResponse(flowResult),
     actionMeta: metaFromResponse(actionResult),
-    actions,
+    originalActions: actions,
+    ...presentation,
   };
 }

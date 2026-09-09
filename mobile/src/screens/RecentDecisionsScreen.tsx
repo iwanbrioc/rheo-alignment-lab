@@ -6,6 +6,7 @@ import { colors, radii, spacing } from '../theme';
 import type { DecisionSession } from '../types/decision';
 import { describeChoice } from '../utils/decisionSession';
 import { compactText, formatDateTime } from '../utils/format';
+import { latestPreparation, preparationStatus } from '../utils/preparation';
 
 type RecentDecisionsScreenProps = {
   sessions: DecisionSession[];
@@ -42,6 +43,7 @@ export function RecentDecisionsScreen({
               <Text style={styles.date}>{formatDateTime(session.updatedAt)}</Text>
               <Text style={styles.situation}>{compactText(session.situation, 96)}</Text>
               <Text style={styles.choice}>{compactText(describeChoice(session), 96)}</Text>
+              {latestPreparation(session) ? <Text style={styles.choice}>{preparationStatus(latestPreparation(session)!)}</Text> : null}
               <View style={styles.buttonRow}>
                 <AppButton label="Open" onPress={() => onOpen(session)} />
                 <AppButton label="Delete" onPress={() => onDelete(session.id)} variant="danger" />

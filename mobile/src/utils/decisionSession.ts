@@ -164,6 +164,7 @@ export function withSituationChanged(
     recommendation: null,
     choice: null,
     researchArm: null,
+    preparations: [],
   });
 }
 

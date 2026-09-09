@@ -79,6 +79,7 @@ function load(file) {
       if (name.endsWith('/theme')) return { colors: {}, radii: {}, spacing: {} };
       if (name.endsWith('/utils/decisionSession')) return { getChosenAction: () => null, describeChoice: () => 'Not yet' };
       if (name.endsWith('/utils/format')) return { formatDateTime: () => 'Today' };
+      if (name.endsWith('/utils/preparation')) return { chosenPreparationStep: () => null, latestPreparation: () => null, preparationTasks: () => [] };
       if (name.startsWith('.')) return {};
       throw new Error(`Unexpected import ${name}`);
     },

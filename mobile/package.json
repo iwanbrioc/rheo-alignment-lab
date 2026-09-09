@@ -9,12 +9,12 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_brand.mjs",
+    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_brand.mjs && node smoke_preparation.mjs",
     "doctor": "npx expo-doctor@latest"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "expo": "^57.0.17",
+    "expo": "~57.0.21",
     "expo-asset": "~57.0.16",
     "expo-audio": "~57.0.4",
     "expo-file-system": "~57.0.6",

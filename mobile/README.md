@@ -18,6 +18,10 @@ It is **not** part of the v1.1 confirmatory benchmark and lives on a separate pr
 - revisit and delete recent local decision sessions;
 - remove local context and continue without it.
 
+The app can also prepare a chosen step: check public sources and write an unsent
+message or checklist, after a separate approval. New live answers use a simple-English
+wording pass. Both features are product-only; the frozen decision engine is unchanged.
+
 There is intentionally no background tracking and no map yet.
 
 ## Requirements
@@ -185,6 +189,72 @@ Expo Go can show the screen branding but does not faithfully preview a standalon
 splash or replace Expo Go's home-screen icon. Verify those in a release build on
 iOS and Android. The brand smoke checks source fidelity, PNG content/dimensions,
 the adaptive icon safe circle, accessibility and the four screen integrations.
+
+## Help with a chosen step
+
+After saving a choice, tap **Prepare this step**. Check or edit the text to share,
+then tap **Ask Rheo to research and draft**. Opening the screen or choosing an option
+does not start research. Rheo checks public websites and returns linked findings,
+one draft message/checklist, what still needs you, and what is unclear.
+It cannot send, submit forms, contact people, book, buy or mark your action done.
+You can select text in the draft. Sending it remains your separate action.
+**Not yet** and fixture recommendations do not start preparation. A custom choice can.
+
+Enable the helper in the terminal that runs the mobile local-context server:
+
+```bash
+export RHEO_AGENT_PROVIDER=openai
+export OPENAI_API_KEY='YOUR_KEY'
+node mobile/local_context_server.mjs
+```
+
+This also enables plain-English wording for new live recommendations. To enable only
+wording, use `RHEO_PLAIN_LANGUAGE_PROVIDER=openai` instead. Both default to
+`gpt-5.4-mini`; `RHEO_AGENT_MODEL` can select another compatible model. No key belongs
+in the app or an `EXPO_PUBLIC_*` variable. The app uses the existing local-context
+server address. `GET /api/preparation/health` reports whether preparation is enabled.
+
+Preparation makes two OpenAI Responses requests: public web search, then a no-tool
+drafting step. It uses at most four web-tool calls, 4200 output tokens per request,
+and 120 seconds for the whole run. The alpha server allows two concurrent requests
+and ten starts per hour across all users. Each run may cost money on the API account.
+There is no background agent. Keep the app open. Cancel, leave the screen or put
+Rheo in the background to stop; reopening never silently restarts paid work.
+Stopping cannot undo data already shared or guarantee that provider billing stops.
+Review the instructions before retrying. A failed save can be retried without running
+research again. After a crash, an unfinished run is shown as interrupted.
+
+Only the reviewed text is sent for preparation. It starts with the chosen step, your
+question and optional area label, all visible and editable before approval. No hidden
+recommendation, choice history or raw coordinates are attached. Search providers may receive search
+terms. Both Responses calls use `store: false`, which is not a promise of zero provider
+retention. The server does not log or write briefs/results to disk. It holds a request
+digest and result in memory for up to ten minutes to prevent duplicate runs. Local
+deletion does not retract provider data or immediately clear that short-lived cache.
+
+Approvals, instructions, findings, source links and drafts are saved with the decision
+on the device, separately from the recommendation and choice. At most ten attempts
+per decision and twenty recent decisions are kept. Delete the decision to delete its
+saved drafts too. AsyncStorage is **not encrypted sensitive storage**. A storage read
+failure leaves existing history untouched and stops new writes until it can be read.
+
+The wording step sends only the four displayed fields plus IDs/kinds of the three
+existing options to the same provider, without tools. It adds one request, up to 45
+seconds and 5000 output tokens, with a separate twenty-per-hour/two-concurrent limit.
+The app saves both original options and the exact displayed wording with model/status
+metadata. IDs, option order, numbers and links are checked; semantic equivalence and
+reading level cannot be guaranteed by those checks. Important details still need
+human review. A failed wording pass shows the original with a clear notice. Existing
+saved advice and fixture outputs are not rewritten. Choosing never edits either copy.
+
+This is still a trusted-LAN iOS/Android alpha, not a public service. New endpoints
+reject browser-origin requests but do not authenticate native clients. Do not expose
+them to the internet. Production needs HTTPS, authentication, per-user spending limits
+and a separate approval/execution design before any external action is added.
+
+No new dependency was needed for these features. Expo was patched from 57.0.20 to
+57.0.21 to match Expo Doctor. See `../docs/MOBILE_PREPARATION.md` for module boundaries
+and tests. GPS, voice input and the approved lotus artwork are unchanged.
 
 ## Privacy and storage assumptions in v0.2
 

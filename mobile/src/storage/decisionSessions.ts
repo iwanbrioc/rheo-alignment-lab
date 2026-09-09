@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { DecisionSession } from '../types/decision';
+import type { PreparationTask } from '../types/preparation';
+import { preparationChoiceKey, preparationTasks } from '../utils/preparation';
 import {
   parseDecisionSessions,
   sanitizeDecisionSessionForStorage,
@@ -8,6 +10,13 @@ import {
 
 const STORAGE_KEY = '@rheo/decision-sessions/v0.2';
 const MAX_SESSIONS = 20;
+let writes: Promise<unknown> = Promise.resolve();
+
+function writeInOrder<T>(operation: () => Promise<T>): Promise<T> {
+  const next = writes.then(operation);
+  writes = next.catch(() => {});
+  return next;
+}
 
 function newestFirst(a: DecisionSession, b: DecisionSession): number {
   return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
@@ -16,14 +25,12 @@ function newestFirst(a: DecisionSession, b: DecisionSession): number {
 async function readAll(): Promise<DecisionSession[]> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
-    return parseDecisionSessions(raw).sort(newestFirst);
+    const items: unknown = JSON.parse(raw || '[]');
+    const sessions = parseDecisionSessions(raw);
+    if (!Array.isArray(items) || items.length !== sessions.length) throw new Error('Invalid history');
+    return sessions.sort(newestFirst);
   } catch {
-    try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Storage may be unavailable in tests or restricted environments.
-    }
-    return [];
+    throw new Error('Saved history could not be read. No saved decisions were changed. Please try again.');
   }
 }
 
@@ -37,20 +44,44 @@ export async function getDecisionSession(id: string): Promise<DecisionSession | 
 }
 
 export async function upsertDecisionSession(session: DecisionSession): Promise<void> {
-  const stored = await readAll();
-  const clean = sanitizeDecisionSessionForStorage(session);
-  const next = [
-    clean,
-    ...stored.filter((existing) => existing.id !== clean.id),
-  ]
-    .sort(newestFirst)
-    .slice(0, MAX_SESSIONS);
+  return writeInOrder(async () => {
+    const stored = await readAll();
+    const clean = sanitizeDecisionSessionForStorage(session);
+    const next = [
+      clean,
+      ...stored.filter((existing) => existing.id !== clean.id),
+    ]
+      .sort(newestFirst)
+      .slice(0, MAX_SESSIONS);
 
-  await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(next));
+    await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(next));
+  });
 }
 
 export async function deleteDecisionSession(id: string): Promise<void> {
-  const stored = await readAll();
-  const next = stored.filter((session) => session.id !== id);
-  await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(next));
+  return writeInOrder(async () => {
+    const stored = await readAll();
+    const next = stored.filter((session) => session.id !== id);
+    await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(next));
+  });
+}
+
+export async function savePreparationTask(sessionId: string, task: PreparationTask): Promise<DecisionSession> {
+  return writeInOrder(async () => {
+    const sessions = await readAll();
+    const session = sessions.find((item) => item.id === sessionId);
+    if (!session || preparationChoiceKey(session) !== task.choiceKey) {
+      throw new Error('The saved choice changed or was deleted. Research was not attached.');
+    }
+    const previous = preparationTasks(session);
+    if (!previous.some((item) => item.id === task.id) && previous.length >= 10) {
+      throw new Error('This decision already has ten preparations. Start a new decision for more.');
+    }
+    const tasks = previous.some((item) => item.id === task.id)
+      ? previous.map((item) => item.id === task.id ? task : item) : [...previous, task];
+    const updated = sanitizeDecisionSessionForStorage({ ...session, preparations: tasks, updatedAt: task.updatedAt });
+    if (preparationTasks(updated).length !== tasks.length) throw new Error('Invalid preparation record');
+    await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(sessions.map((item) => item.id === sessionId ? updated : item)));
+    return updated;
+  });
 }

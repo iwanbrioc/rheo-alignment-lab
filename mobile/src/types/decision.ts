@@ -1,4 +1,5 @@
 import type { LocalContextSnapshot } from './localContext';
+import type { PreparationTask } from './preparation';
 
 export type ActionKind = 'smallest_release' | 'learning_action' | 'generative_action';
 
@@ -38,6 +39,8 @@ export type RecommendationSnapshot = {
   flowMeta: RecommendationMeta;
   actionMeta: RecommendationMeta;
   actions: RecommendationAction[];
+  originalActions?: RecommendationAction[];
+  language?: { status: 'simple' | 'original'; provider: string | null; model: string | null };
 };
 
 export type DecisionChoice =
@@ -69,4 +72,5 @@ export type DecisionSession = {
   recommendation: RecommendationSnapshot | null;
   choice: DecisionChoice | null;
   researchArm: ResearchArm;
+  preparations?: PreparationTask[];
 };

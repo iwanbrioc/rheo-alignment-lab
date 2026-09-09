@@ -6,6 +6,7 @@ import { colors, radii, spacing } from '../theme';
 import type { DecisionSession } from '../types/decision';
 import { describeChoice, getChosenAction } from '../utils/decisionSession';
 import { formatDateTime } from '../utils/format';
+import { chosenPreparationStep, latestPreparation, preparationStatus, preparationTasks } from '../utils/preparation';
 
 type ConfirmationScreenProps = {
   session: DecisionSession;
@@ -13,6 +14,7 @@ type ConfirmationScreenProps = {
   onBackToRecommendation: () => void;
   onStartAnother: () => void;
   onDelete: () => void;
+  onPrepare: () => void;
 };
 
 export function ConfirmationScreen({
@@ -21,8 +23,10 @@ export function ConfirmationScreen({
   onBackToRecommendation,
   onStartAnother,
   onDelete,
+  onPrepare,
 }: ConfirmationScreenProps) {
   const chosenAction = getChosenAction(session);
+  const preparation = latestPreparation(session);
 
   return (
     <View style={styles.screen}>
@@ -53,6 +57,14 @@ export function ConfirmationScreen({
       </View>
 
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
+
+      {chosenPreparationStep(session) || preparationTasks(session).length ? (
+        <View style={styles.buttonColumn}>
+          <Text style={styles.choice}>{preparation ? preparationStatus(preparation) : 'Let Rheo help you get ready'}</Text>
+          <Text style={styles.body}>Rheo can check public websites and write a draft. You check the text before anything is shared.</Text>
+          <AppButton label={preparation || !chosenPreparationStep(session) ? 'View prepared work' : 'Prepare this step'} onPress={onPrepare} />
+        </View>
+      ) : null}
 
       <View style={styles.buttonColumn}>
         <AppButton label="Return to recommendation" onPress={onBackToRecommendation} />

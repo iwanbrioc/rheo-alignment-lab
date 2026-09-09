@@ -63,6 +63,9 @@ export function AdviceScreen({
       </View>
 
       <View style={styles.cards}>
+        {recommendation.language?.status === 'original' ? (
+          <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>Rheo could not simplify these answers. The original wording is shown.</Text>
+        ) : null}
         {recommendation.actions.map((action, index) => (
           <ActionCard
             action={action}

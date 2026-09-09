@@ -2,9 +2,13 @@
 import http from 'node:http';
 import { getLocalAffordanceContext } from './local_context_v0_1.mjs';
 import { createVoiceHandler } from './voice_transcription.mjs';
+import { createPreparationHandler, preparationEnabled } from './preparation_agent.mjs';
+import { createPlainLanguageHandler } from './plain_language.mjs';
 
 const PORT = Number(process.env.LOCAL_CONTEXT_PORT || 8081);
 const handleVoice = createVoiceHandler();
+const handlePreparation = createPreparationHandler();
+const handlePlainLanguage = createPlainLanguageHandler();
 
 function json(res, status, body) {
   const text = JSON.stringify(body);
@@ -34,6 +38,15 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return json(res,204,{});
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
+    if (req.method === 'POST' && url.pathname === '/api/plain-actions') {
+      return await handlePlainLanguage(req, res, json);
+    }
+    if (req.method === 'POST' && url.pathname === '/api/preparation') {
+      return await handlePreparation(req, res, json);
+    }
+    if (req.method === 'GET' && url.pathname === '/api/preparation/health') {
+      return json(res, 200, { enabled: preparationEnabled(), capability: 'research-and-draft-v1', externalActions: false });
+    }
     if (req.method === 'POST' && url.pathname === '/api/voice/transcribe') {
       return await handleVoice(req, res, json);
     }

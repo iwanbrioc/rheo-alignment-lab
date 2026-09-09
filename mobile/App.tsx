@@ -6,6 +6,7 @@ import { AdviceScreen } from './src/screens/AdviceScreen';
 import { AskScreen } from './src/screens/AskScreen';
 import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
 import { RecentDecisionsScreen } from './src/screens/RecentDecisionsScreen';
+import { PreparationScreen } from './src/screens/PreparationScreen';
 import { fetchLocalContext } from './src/services/localContextApi';
 import { askRheo } from './src/services/rheoApi';
 import {
@@ -16,12 +17,13 @@ import {
 import { colors } from './src/theme';
 import type { DecisionChoice, DecisionSession, RecommendationSnapshot } from './src/types/decision';
 import type { LocalContextSnapshot } from './src/types/localContext';
+import type { PreparationTask } from './src/types/preparation';
 import {
   createLocalId,
   sanitizeDecisionSessionForStorage,
 } from './src/utils/decisionSession';
 
-type Screen = 'ask' | 'advice' | 'confirmation' | 'recent';
+type Screen = 'ask' | 'advice' | 'confirmation' | 'recent' | 'preparation';
 type BusyState = 'location' | 'local' | 'rheo' | 'storage' | null;
 
 const MIN_SITUATION_LENGTH = 12;
@@ -35,6 +37,9 @@ export default function App() {
   const [situation, setSituation] = useState('');
   const [sessionId, setSessionId] = useState(() => createLocalId('decision'));
   const [createdAt, setCreatedAt] = useState(() => new Date().toISOString());
+  const [updatedAt, setUpdatedAt] = useState(createdAt);
+  const [preparations, setPreparations] = useState<PreparationTask[]>([]);
+  const [preparationSession, setPreparationSession] = useState<DecisionSession | null>(null);
   const [location, setLocation] = useState<DecisionLocation | null>(null);
   const [areaLabel, setAreaLabel] = useState<string | null>(null);
   const [localContext, setLocalContext] = useState<LocalContextSnapshot | null>(null);
@@ -56,17 +61,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    void refreshRecentSessions();
+    void refreshRecentSessions().catch(() => setStorageMessage('Saved history could not be loaded. Please try opening Recent again.'));
   }, [refreshRecentSessions]);
 
   const buildCurrentSession = useCallback((
     nextRecommendation: RecommendationSnapshot | null,
     nextChoice: DecisionChoice | null,
-    updatedAt = new Date().toISOString(),
+    nextUpdatedAt = updatedAt,
   ): DecisionSession => sanitizeDecisionSessionForStorage({
     id: sessionId,
     createdAt,
-    updatedAt,
+    updatedAt: nextUpdatedAt,
     situation: trimmedSituation,
     locationUsed: Boolean(areaLabel || localContext),
     areaLabel,
@@ -74,7 +79,8 @@ export default function App() {
     recommendation: nextRecommendation,
     choice: nextChoice,
     researchArm: null,
-  }), [areaLabel, createdAt, localContext, sessionId, trimmedSituation]);
+    preparations,
+  }), [areaLabel, createdAt, localContext, preparations, sessionId, trimmedSituation, updatedAt]);
 
   const currentSession = useMemo(() => {
     if (!recommendation) return null;
@@ -84,6 +90,7 @@ export default function App() {
   async function persistSession(session: DecisionSession): Promise<void> {
     try {
       await upsertDecisionSession(session);
+      setUpdatedAt(session.updatedAt);
       await refreshRecentSessions();
       setStorageMessage(null);
     } catch (error) {
@@ -94,6 +101,9 @@ export default function App() {
   function beginFreshDecision(initialText = '') {
     setSessionId(createLocalId('decision'));
     setCreatedAt(new Date().toISOString());
+    setUpdatedAt(new Date().toISOString());
+    setPreparations([]);
+    setPreparationSession(null);
     setSituation(initialText);
     setLocation(null);
     setAreaLabel(null);
@@ -115,6 +125,8 @@ export default function App() {
     if (recommendation || choice) {
       setSessionId(createLocalId('decision'));
       setCreatedAt(new Date().toISOString());
+      setUpdatedAt(new Date().toISOString());
+      setPreparations([]);
       setRecommendation(null);
       setChoice(null);
       setCustomChoiceText('');
@@ -189,7 +201,7 @@ export default function App() {
     try {
       const nextRecommendation = await askRheo(trimmedSituation, location, localContext);
       setRecommendation(nextRecommendation);
-      const session = buildCurrentSession(nextRecommendation, null);
+      const session = buildCurrentSession(nextRecommendation, null, new Date().toISOString());
       await persistSession(session);
       setScreen('advice');
     } catch (error) {
@@ -201,7 +213,7 @@ export default function App() {
 
   async function saveChoice(nextChoice: DecisionChoice) {
     if (!recommendation) return;
-    const session = buildCurrentSession(recommendation, nextChoice);
+    const session = buildCurrentSession(recommendation, nextChoice, new Date().toISOString());
     setChoice(nextChoice);
     await persistSession(session);
     setMessage(null);
@@ -274,6 +286,8 @@ export default function App() {
   function handleOpenSession(session: DecisionSession) {
     setSessionId(session.id);
     setCreatedAt(session.createdAt);
+    setUpdatedAt(session.updatedAt);
+    setPreparations(session.preparations || []);
     setSituation(session.situation);
     setLocation(null);
     setAreaLabel(session.areaLabel);
@@ -305,7 +319,10 @@ export default function App() {
             message={message}
             onAskRheo={handleAskRheo}
             onLookAround={handleLookAround}
-            onOpenRecent={() => setScreen('recent')}
+            onOpenRecent={() => {
+              setScreen('recent');
+              void refreshRecentSessions().catch(() => setStorageMessage('Saved history could not be loaded. Return and try Recent again.'));
+            }}
             onRemoveLocalContext={handleRemoveLocalContext}
             onSituationChange={handleSituationChange}
             recentCount={recentSessions.length}
@@ -342,8 +359,22 @@ export default function App() {
             onBackToRecommendation={() => setScreen('advice')}
             onDelete={handleDeleteCurrentDecision}
             onStartAnother={() => beginFreshDecision()}
+            onPrepare={() => { setPreparationSession(currentSession); setScreen('preparation'); }}
             session={currentSession}
             storageMessage={storageMessage}
+          />
+        ) : null}
+
+        {screen === 'preparation' && preparationSession ? (
+          <PreparationScreen
+            session={preparationSession}
+            onBack={() => setScreen('confirmation')}
+            onSaved={(saved) => {
+              setPreparationSession(saved);
+              setPreparations(saved.preparations || []);
+              setUpdatedAt(saved.updatedAt);
+              void refreshRecentSessions().catch(() => setStorageMessage('Preparation saved, but history could not refresh.'));
+            }}
           />
         ) : null}
 
