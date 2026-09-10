@@ -117,6 +117,24 @@ npm run typecheck
 npm run doctor
 ```
 
+### Waiting for an answer
+
+The Ask button becomes **Stop** while Rheo works. A short status reports the actual
+step: understanding the question, finding three options, then simplifying the wording.
+Stop keeps the question and does not save an unfinished recommendation. Each core
+request has a 90-second limit; the phone waits at most 20 seconds for simpler wording,
+then uses the original options with a visible notice. The two core requests are
+sequential, so these are per-step limits, not a 90-second total.
+
+Stopping the phone's request cannot retract data already sent or guarantee the
+existing decision server stops its provider request or billing. No automatic retry
+is added. The configured main model and frozen decision engine remain unchanged.
+
+On 10 September 2026, one synthetic question took 83.102 seconds with `gpt-5.6`
+and 23.285 seconds on a separate `gpt-5.4-mini` test server, including simpler wording.
+This is a single comparison, not a benchmark or guarantee of speed or answer quality.
+Changing the main model remains an explicit deployment choice via `OPENAI_MODEL`.
+
 ### Voice input
 
 The question screen starts with **Speak**, without opening the keyboard or microphone.
@@ -176,6 +194,12 @@ Ask uses the approved lotus and Rheo wordmark; Advice, Confirmation and Recent u
 a smaller lockup. The question and decision controls stay dominant, and the
 warm-neutral screens are unchanged. Header artwork has a single "Rheo" accessibility
 label and wraps alongside secondary controls on narrow screens.
+
+The wordmark is rendered before cropping and keeps a transparent border, avoiding
+clipped letter edges. Device-safe padding uses `react-native-safe-area-context`
+(`~5.7.0`) so headers and bottom controls clear notches and home indicators. This
+adds no permissions, network calls or storage. A standalone native build needs
+rebuilding after this dependency is added; the SDK-compatible Expo Go supports it.
 
 The canonical artwork and generation notes are in `assets/brand/`. Added dependencies:
 `react-native-svg` for the exact vector lotus and `expo-splash-screen` for the native

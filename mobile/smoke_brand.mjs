@@ -54,6 +54,11 @@ const wordmark = await parsePng(read('./assets/brand/wordmark.png'));
 assert.ok(wordmark.width >= 600 && wordmark.height >= 180, 'wordmark must be crisp at 3x header size');
 assert.ok(wordmark.data.some((value, index) => index % 4 === 3 && value === 0), 'wordmark needs transparency');
 assert.ok(wordmark.data.some((value, index) => index % 4 === 3 && value === 255), 'wordmark must not be blank');
+for (let y = 0; y < wordmark.height; y++) for (let x = 0; x < wordmark.width; x++) {
+  if (x < 12 || y < 12 || x >= wordmark.width - 12 || y >= wordmark.height - 12) {
+    assert.equal(wordmark.data[(y * wordmark.width + x) * 4 + 3], 0, 'wordmark needs clear edges so no letter can clip');
+  }
+}
 
 const react = {
   createElement: (type, props, ...children) => ({ type, props: { ...props, children } }),

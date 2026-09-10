@@ -8,6 +8,8 @@ redraw the lotus or substitute the earlier circle-R or animation artwork.
   its original font stack, bold weight and proportions. Rendered with an installed
   source-stack fallback on macOS; no font file is bundled. Only its fill changes
   to source dark teal for contrast against the app's warm-neutral background.
+  The full source canvas is rasterized before trimming; a 16-pixel transparent
+  border keeps every letter clear of image edges. The smoke checks that border.
 - `icon.png`: opaque 1024-square lotus-only icon on source dark teal.
 - `adaptive-icon.png`: transparent 1024-square lotus within Android's safe circle.
 - `splash.png`: transparent 1024-square source lotus and Rheo, without the subtitle,
@@ -28,6 +30,9 @@ For a deliberate brand-source update, use Node, the mobile dependencies and Shar
 node scripts/generate_brand_assets.mjs /absolute/path/to/sharp
 npm run smoke:local
 ```
+
+Append `--wordmark-only` after the Sharp path to regenerate just `wordmark.png`
+without rewriting the icon, splash or generated source metadata.
 
 The optional argument selects an already-installed Sharp module; otherwise the
 script resolves `sharp` normally. Use a machine with a font from the source stack

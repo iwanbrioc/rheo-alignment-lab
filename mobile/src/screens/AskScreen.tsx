@@ -12,6 +12,7 @@ import { RheoBrand } from '../components/RheoBrand';
 import { colors, radii, spacing } from '../theme';
 import type { LocalContextSnapshot } from '../types/localContext';
 import { formatDateTime } from '../utils/format';
+import type { RheoStage } from '../services/rheoApi';
 
 type AskScreenProps = {
   situation: string;
@@ -27,6 +28,8 @@ type AskScreenProps = {
   onRemoveLocalContext: () => void;
   onAskRheo: () => void;
   onOpenRecent: () => void;
+  rheoStage?: RheoStage | null;
+  onCancelRheo?: () => void;
 };
 
 export function AskScreen({
@@ -43,6 +46,8 @@ export function AskScreen({
   onRemoveLocalContext,
   onAskRheo,
   onOpenRecent,
+  rheoStage,
+  onCancelRheo,
 }: AskScreenProps) {
   const [voiceBusy, setVoiceBusy] = useState(false);
   const inputBusy = busy !== null || voiceBusy;
@@ -136,11 +141,18 @@ export function AskScreen({
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
 
       <AppButton
-        disabled={!canAsk || inputBusy}
-        label={busy === 'rheo' ? 'Asking Rheo...' : 'Ask Rheo'}
-        onPress={onAskRheo}
+        disabled={busy === 'rheo' ? !onCancelRheo : !canAsk || inputBusy}
+        label={busy === 'rheo' ? 'Stop' : busy === 'storage' ? 'Saving...' : 'Ask Rheo'}
+        onPress={busy === 'rheo' ? () => onCancelRheo?.() : onAskRheo}
         variant="primary"
       />
+      {busy === 'rheo' ? (
+        <View style={styles.section}>
+          <Text accessibilityLiveRegion="polite" style={styles.loadingText}>
+            {rheoStage === 'wording' ? 'Making the wording clear...' : rheoStage === 'options' ? 'Finding three ways forward...' : 'Thinking about your question...'}
+          </Text>
+        </View>
+      ) : null}
       {!hasEnoughSituation ? <Text style={styles.hint}>Say or write a little more so Rheo has enough context.</Text> : null}
     </View>
   );

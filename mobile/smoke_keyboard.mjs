@@ -41,6 +41,7 @@ function loadComponent(file) {
     require: (name) => {
       if (name === 'react') return react;
       if (name === 'react-native') return native;
+      if (name === 'react-native-safe-area-context') return { SafeAreaProvider: 'SafeAreaProvider', SafeAreaView: 'SafeAreaView', initialWindowMetrics: null };
       if (name === 'expo-audio') return {
         RecordingPresets: { HIGH_QUALITY: {} },
         useAudioRecorder: () => ({}),
@@ -50,6 +51,7 @@ function loadComponent(file) {
       if (name.endsWith('/services/voiceSession')) return { VoiceSession: class {} };
       if (name.endsWith('/theme')) return { colors: {}, radii: {}, spacing: {} };
       if (name.endsWith('/utils/decisionSession')) return { createLocalId: () => 'test-decision' };
+      if (name.endsWith('/components/AppButton')) return { AppButton: 'AppButton' };
       if (name.startsWith('.') || name === 'expo-status-bar') return {};
       throw new Error(`Unexpected import: ${name}`);
     },
@@ -57,11 +59,11 @@ function loadComponent(file) {
   return module.exports;
 }
 
-function findNode(node, type) {
+function findNode(node, type, matches = () => true) {
   if (!node || typeof node !== 'object') return null;
-  if (node.type === type) return node;
+  if (node.type === type && matches(node.props)) return node;
   for (const child of (node.props?.children || []).flat(Infinity)) {
-    const found = findNode(child, type);
+    const found = findNode(child, type, matches);
     if (found) return found;
   }
   return null;
@@ -69,10 +71,25 @@ function findNode(node, type) {
 
 const { default: App } = loadComponent('./App.tsx');
 const scroll = findNode(App(), 'ScrollView');
+assert.ok(findNode(App(), 'SafeAreaView'), 'all screens must stay inside device safe areas');
 assert.ok(scroll);
 assert.equal(scroll.props.automaticallyAdjustKeyboardInsets, true);
 assert.equal(scroll.props.keyboardDismissMode, 'on-drag');
 assert.equal(scroll.props.keyboardShouldPersistTaps, 'handled', 'buttons must respond on the first tap');
+assert.equal(scroll.props.contentInsetAdjustmentBehavior, 'never', 'safe area padding must not be applied twice');
+
+const { AskScreen } = loadComponent('./src/screens/AskScreen.tsx');
+const asking = AskScreen({ situation: 'Public test question', busy: 'rheo', canAsk: false,
+  onCancelRheo: () => events.push('stop'), onAskRheo: () => events.push('ask') });
+const stop = findNode(asking, 'AppButton', (props) => props.label === 'Stop');
+assert.ok(stop);
+assert.equal(stop.props.disabled, false, 'Stop must remain available while other controls are disabled');
+events.length = 0;
+stop.props.onPress();
+assert.deepEqual(events, ['stop'], 'Stop must cancel rather than ask again');
+const saving = AskScreen({ situation: 'Public test question', busy: 'storage', canAsk: false });
+assert.equal(findNode(saving, 'AppButton', (props) => props.label === 'Saving...').props.disabled, true,
+  'saving a completed answer must not offer cancellation of an already finished request');
 
 const { VoiceInput } = loadComponent('./src/components/VoiceInput.tsx');
 const { AdviceScreen } = loadComponent('./src/screens/AdviceScreen.tsx');

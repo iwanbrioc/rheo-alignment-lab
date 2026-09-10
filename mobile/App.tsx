@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import { initialWindowMetrics, SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { getDecisionLocation, type DecisionLocation } from './src/location';
 import { AdviceScreen } from './src/screens/AdviceScreen';
@@ -8,7 +9,7 @@ import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
 import { RecentDecisionsScreen } from './src/screens/RecentDecisionsScreen';
 import { PreparationScreen } from './src/screens/PreparationScreen';
 import { fetchLocalContext } from './src/services/localContextApi';
-import { askRheo } from './src/services/rheoApi';
+import { askRheo, type RheoStage } from './src/services/rheoApi';
 import {
   deleteDecisionSession,
   listDecisionSessions,
@@ -48,6 +49,8 @@ export default function App() {
   const [customChoiceText, setCustomChoiceText] = useState('');
   const [customChoiceVisible, setCustomChoiceVisible] = useState(false);
   const [busy, setBusy] = useState<BusyState>(null);
+  const [rheoStage, setRheoStage] = useState<RheoStage | null>(null);
+  const rheoRequest = useRef<AbortController | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [storageMessage, setStorageMessage] = useState<string | null>(null);
   const [recentSessions, setRecentSessions] = useState<DecisionSession[]>([]);
@@ -62,6 +65,7 @@ export default function App() {
 
   useEffect(() => {
     void refreshRecentSessions().catch(() => setStorageMessage('Saved history could not be loaded. Please try opening Recent again.'));
+    return () => rheoRequest.current?.abort();
   }, [refreshRecentSessions]);
 
   const buildCurrentSession = useCallback((
@@ -190,7 +194,9 @@ export default function App() {
   }
 
   async function handleAskRheo() {
-    if (!canAsk) return;
+    if (!canAsk || rheoRequest.current) return;
+    const controller = new AbortController();
+    rheoRequest.current = controller;
     setBusy('rheo');
     setMessage(null);
     setStorageMessage(null);
@@ -199,7 +205,10 @@ export default function App() {
     setCustomChoiceVisible(false);
 
     try {
-      const nextRecommendation = await askRheo(trimmedSituation, location, localContext);
+      const nextRecommendation = await askRheo(trimmedSituation, location, localContext, { signal: controller.signal, onStage: setRheoStage });
+      if (controller.signal.aborted) return;
+      rheoRequest.current = null;
+      setBusy('storage');
       setRecommendation(nextRecommendation);
       const session = buildCurrentSession(nextRecommendation, null, new Date().toISOString());
       await persistSession(session);
@@ -207,6 +216,8 @@ export default function App() {
     } catch (error) {
       setMessage(errorMessage(error, 'Rheo could not complete this decision.'));
     } finally {
+      rheoRequest.current = null;
+      setRheoStage(null);
       setBusy(null);
     }
   }
@@ -302,9 +313,12 @@ export default function App() {
   }
 
   return (
-    <View style={styles.root}>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+    <SafeAreaView style={styles.root}>
       <StatusBar style="auto" />
       <ScrollView
+        key={screen}
+        contentInsetAdjustmentBehavior="never"
         automaticallyAdjustKeyboardInsets
         contentContainerStyle={styles.content}
         keyboardDismissMode="on-drag"
@@ -314,6 +328,8 @@ export default function App() {
           <AskScreen
             areaLabel={areaLabel}
             busy={busy}
+            rheoStage={rheoStage}
+            onCancelRheo={() => rheoRequest.current?.abort()}
             canAsk={canAsk}
             localContext={localContext}
             message={message}
@@ -388,7 +404,8 @@ export default function App() {
           />
         ) : null}
       </ScrollView>
-    </View>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -399,8 +416,8 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 18,
-    paddingBottom: 48,
+    paddingBottom: 24,
     paddingHorizontal: 20,
-    paddingTop: 58,
+    paddingTop: 12,
   },
 });

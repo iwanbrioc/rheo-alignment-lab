@@ -10,6 +10,11 @@ import { postJson } from './http';
 import { plainLanguageActions } from './plainLanguage';
 
 const RHEO_API_URL = process.env.EXPO_PUBLIC_RHEO_API_URL || 'http://localhost:8080';
+export type RheoStage = 'understanding' | 'options' | 'wording';
+
+function checkActive(signal?: AbortSignal) {
+  if (signal?.aborted) throw Object.assign(new Error('Request stopped. Your question is still here.'), { name: 'AbortError' });
+}
 
 type RheoFlowResponse = {
   provider?: string;
@@ -55,7 +60,9 @@ export async function askRheo(
   decisionText: string,
   location: DecisionLocation | null,
   localContext: LocalContextSnapshot | null,
+  options: { signal?: AbortSignal; onStage?: (stage: RheoStage) => void } = {},
 ): Promise<RecommendationSnapshot> {
+  checkActive(options.signal);
   const caseId = createLocalId('mobile-case');
   const cleanedLocalContext = localContext
     ? removeCoordinateFields(localContext)
@@ -74,18 +81,24 @@ export async function askRheo(
     },
   };
 
-  const flowResult = await postJson<RheoFlowResponse>(RHEO_API_URL, '/api/rheo-flow', { caseRecord });
+  options.onStage?.('understanding');
+  const flowResult = await postJson<RheoFlowResponse>(RHEO_API_URL, '/api/rheo-flow', { caseRecord }, options);
+  checkActive(options.signal);
+  options.onStage?.('options');
   const actionResult = await postJson<RheoActionSetResponse>(RHEO_API_URL, '/api/rheo-actions', {
     caseId,
     flow: flowResult.flow,
     testimony: [{ role: 'participant', text: decisionText, questionType: 'decision' }],
-  });
+  }, options);
   const actions = normaliseActions(actionResult.actionSet?.actions);
 
   if (actions.length !== 3) {
     throw new Error('Rheo did not return the three action options expected for this alpha.');
   }
-  const presentation = actionResult.provider === 'fixture' ? { actions } : await plainLanguageActions(actions);
+  checkActive(options.signal);
+  if (actionResult.provider !== 'fixture') options.onStage?.('wording');
+  const presentation = actionResult.provider === 'fixture' ? { actions } : await plainLanguageActions(actions, options.signal);
+  checkActive(options.signal);
 
   return {
     id: createLocalId('recommendation'),
