@@ -16,6 +16,9 @@ import {
   upsertDecisionSession,
 } from './src/storage/decisionSessions';
 import { colors } from './src/theme';
+import { DecisionSave, type DecisionSaveState } from './src/services/decisionSave';
+import { SaveNotice } from './src/components/SaveNotice';
+import { confirmDeleteDecision, confirmDiscardUnsaved } from './src/utils/confirm';
 import type { DecisionChoice, DecisionSession, RecommendationSnapshot } from './src/types/decision';
 import type { LocalContextSnapshot } from './src/types/localContext';
 import type { PreparationTask } from './src/types/preparation';
@@ -51,12 +54,16 @@ export default function App() {
   const [busy, setBusy] = useState<BusyState>(null);
   const [rheoStage, setRheoStage] = useState<RheoStage | null>(null);
   const rheoRequest = useRef<AbortController | null>(null);
+  const localRequest = useRef<AbortController | null>(null);
+  const deleting = useRef(false);
+  const [saveState, setSaveState] = useState<DecisionSaveState>({ status: 'idle', pending: null, error: null });
+  const [decisionSave] = useState(() => new DecisionSave(upsertDecisionSession, setSaveState));
   const [message, setMessage] = useState<string | null>(null);
   const [storageMessage, setStorageMessage] = useState<string | null>(null);
   const [recentSessions, setRecentSessions] = useState<DecisionSession[]>([]);
 
   const trimmedSituation = situation.trim();
-  const canAsk = trimmedSituation.length >= MIN_SITUATION_LENGTH && busy === null;
+  const canAsk = trimmedSituation.length >= MIN_SITUATION_LENGTH && busy === null && saveState.status !== 'saving';
 
   const refreshRecentSessions = useCallback(async () => {
     const sessions = await listDecisionSessions();
@@ -65,7 +72,7 @@ export default function App() {
 
   useEffect(() => {
     void refreshRecentSessions().catch(() => setStorageMessage('Saved history could not be loaded. Please try opening Recent again.'));
-    return () => rheoRequest.current?.abort();
+    return () => { rheoRequest.current?.abort(); localRequest.current?.abort(); };
   }, [refreshRecentSessions]);
 
   const buildCurrentSession = useCallback((
@@ -91,18 +98,35 @@ export default function App() {
     return buildCurrentSession(recommendation, choice);
   }, [buildCurrentSession, choice, recommendation]);
 
-  async function persistSession(session: DecisionSession): Promise<void> {
-    try {
-      await upsertDecisionSession(session);
+  async function persistSession(session: DecisionSession): Promise<boolean> {
+    const saved = await decisionSave.save(session);
+    if (saved) {
       setUpdatedAt(session.updatedAt);
-      await refreshRecentSessions();
-      setStorageMessage(null);
-    } catch (error) {
-      setStorageMessage(errorMessage(error, 'Rheo could not save this decision locally.'));
+      void refreshHistory();
     }
+    return saved;
+  }
+
+  async function refreshHistory() {
+    try { await refreshRecentSessions(); setStorageMessage(null); }
+    catch { setStorageMessage('Saved decisions could not be loaded. Tap Retry to try again.'); }
+  }
+
+  async function retrySave() {
+    const pending = decisionSave.state.pending;
+    if (!pending || decisionSave.state.status !== 'failed') return;
+    await persistSession(pending);
+  }
+
+  async function leaveDecision(action: () => void) {
+    if (decisionSave.state.status === 'saving' || deleting.current) return;
+    if (decisionSave.state.status === 'failed' && !await confirmDiscardUnsaved()) return;
+    decisionSave.reset();
+    action();
   }
 
   function beginFreshDecision(initialText = '') {
+    decisionSave.reset();
     setSessionId(createLocalId('decision'));
     setCreatedAt(new Date().toISOString());
     setUpdatedAt(new Date().toISOString());
@@ -136,19 +160,21 @@ export default function App() {
       setCustomChoiceText('');
       setCustomChoiceVisible(false);
       setLocalContext(null);
-      setMessage('I cleared the previous recommendation because the predicament changed.');
+      setMessage('Your question changed, so the earlier options were cleared.');
       setScreen('ask');
       return;
     }
 
     if (localContext) {
       setLocalContext(null);
-      setMessage('I cleared the local possibilities because the predicament changed.');
+      setMessage('Your question changed, so the earlier nearby results were cleared.');
     }
   }
 
   async function handleLookAround() {
-    if (!canAsk) return;
+    if (!canAsk || localRequest.current) return;
+    const controller = new AbortController();
+    localRequest.current = controller;
     setMessage(null);
     setStorageMessage(null);
     setRecommendation(null);
@@ -159,29 +185,44 @@ export default function App() {
     let nextLocation: DecisionLocation;
     try {
       setBusy('location');
-      nextLocation = await getDecisionLocation();
+      nextLocation = await getDecisionLocation(controller.signal);
+      if (controller.signal.aborted) return;
       setLocation(nextLocation);
       setAreaLabel(nextLocation.areaLabel || 'Approximate area captured');
     } catch (error) {
+      if (controller.signal.aborted) return;
       setMessage(errorMessage(error, 'Location lookup was not available. Rheo can still work without local context.'));
       setBusy(null);
+      localRequest.current = null;
       return;
     }
 
     try {
       setBusy('local');
-      const context = await fetchLocalContext(trimmedSituation, nextLocation);
+      const context = await fetchLocalContext(trimmedSituation, nextLocation, controller.signal);
+      if (controller.signal.aborted) return;
       setLocalContext(context);
       setAreaLabel(context.areaLabel || nextLocation.areaLabel || 'Approximate area captured');
       setMessage(context.candidates.length
         ? 'Local possibilities are ready. Treat them as evidence to check, not endorsements.'
         : context.warnings[0] || 'No local possibilities came back. You can still ask Rheo.');
     } catch (error) {
+      if (controller.signal.aborted) return;
       setLocalContext(null);
       setMessage(`${errorMessage(error, 'Local search failed.')} You can still ask Rheo without local evidence.`);
     } finally {
-      setBusy(null);
+      if (localRequest.current === controller) { localRequest.current = null; setBusy(null); }
     }
+  }
+
+  function stopLocalSearch() {
+    localRequest.current?.abort();
+    localRequest.current = null;
+    setBusy(null);
+    setLocation(null);
+    setAreaLabel(null);
+    setLocalContext(null);
+    setMessage('Search stopped. You can ask Rheo without your area.');
   }
 
   function handleRemoveLocalContext() {
@@ -223,7 +264,7 @@ export default function App() {
   }
 
   async function saveChoice(nextChoice: DecisionChoice) {
-    if (!recommendation) return;
+    if (!recommendation || decisionSave.state.status === 'saving') return;
     const session = buildCurrentSession(recommendation, nextChoice, new Date().toISOString());
     setChoice(nextChoice);
     await persistSession(session);
@@ -266,30 +307,37 @@ export default function App() {
   }
 
   async function handleDeleteCurrentDecision() {
-    if (!currentSession) return;
+    if (!currentSession || deleting.current || decisionSave.state.status === 'saving') return;
+    deleting.current = true;
+    if (!await confirmDeleteDecision()) { deleting.current = false; return; }
     setBusy('storage');
     try {
       await deleteDecisionSession(currentSession.id);
-      await refreshRecentSessions();
-      setStorageMessage(null);
+      setRecentSessions((sessions) => sessions.filter((session) => session.id !== currentSession.id));
       beginFreshDecision();
       setMessage('Saved decision deleted.');
+      await refreshHistory();
     } catch (error) {
       setStorageMessage(errorMessage(error, 'Rheo could not delete this decision.'));
     } finally {
+      deleting.current = false;
       setBusy(null);
     }
   }
 
   async function handleDeleteRecentDecision(id: string) {
+    if (deleting.current || decisionSave.state.status === 'saving') return;
+    deleting.current = true;
+    if (!await confirmDeleteDecision()) { deleting.current = false; return; }
     setBusy('storage');
     try {
       await deleteDecisionSession(id);
-      await refreshRecentSessions();
-      setStorageMessage(null);
+      setRecentSessions((sessions) => sessions.filter((session) => session.id !== id));
+      await refreshHistory();
     } catch (error) {
       setStorageMessage(errorMessage(error, 'Rheo could not delete that decision.'));
     } finally {
+      deleting.current = false;
       setBusy(null);
     }
   }
@@ -315,7 +363,7 @@ export default function App() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
     <SafeAreaView style={styles.root}>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
       <ScrollView
         key={screen}
         contentInsetAdjustmentBehavior="never"
@@ -324,21 +372,20 @@ export default function App() {
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
+        <SaveNotice state={saveState} onRetry={() => { void retrySave(); }} />
         {screen === 'ask' ? (
           <AskScreen
             areaLabel={areaLabel}
-            busy={busy}
+            busy={saveState.status === 'saving' ? 'storage' : busy}
             rheoStage={rheoStage}
             onCancelRheo={() => rheoRequest.current?.abort()}
+            onCancelLocal={stopLocalSearch}
             canAsk={canAsk}
             localContext={localContext}
             message={message}
             onAskRheo={handleAskRheo}
             onLookAround={handleLookAround}
-            onOpenRecent={() => {
-              setScreen('recent');
-              void refreshRecentSessions().catch(() => setStorageMessage('Saved history could not be loaded. Return and try Recent again.'));
-            }}
+            onOpenRecent={() => { setScreen('recent'); void refreshHistory(); }}
             onRemoveLocalContext={handleRemoveLocalContext}
             onSituationChange={handleSituationChange}
             recentCount={recentSessions.length}
@@ -349,16 +396,17 @@ export default function App() {
 
         {screen === 'advice' && recommendation ? (
           <AdviceScreen
+            busy={saveState.status === 'saving'}
             areaLabel={areaLabel}
             choice={choice}
             customChoiceText={customChoiceText}
             customChoiceVisible={customChoiceVisible}
             localContext={localContext}
             message={message}
-            onBackToAsk={() => {
+            onBackToAsk={() => { void leaveDecision(() => {
               setMessage(null);
               setScreen('ask');
-            }}
+            }); }}
             onChooseNotYet={handleChooseNotYet}
             onChooseRecommended={handleChooseRecommended}
             onCustomChoiceTextChange={setCustomChoiceText}
@@ -372,9 +420,11 @@ export default function App() {
 
         {screen === 'confirmation' && currentSession ? (
           <ConfirmationScreen
+            saveStatus={saveState.status}
+            busy={busy === 'storage' || saveState.status === 'saving'}
             onBackToRecommendation={() => setScreen('advice')}
             onDelete={handleDeleteCurrentDecision}
-            onStartAnother={() => beginFreshDecision()}
+            onStartAnother={() => { void leaveDecision(() => beginFreshDecision()); }}
             onPrepare={() => { setPreparationSession(currentSession); setScreen('preparation'); }}
             session={currentSession}
             storageMessage={storageMessage}
@@ -396,9 +446,11 @@ export default function App() {
 
         {screen === 'recent' ? (
           <RecentDecisionsScreen
+            busy={busy === 'storage' || saveState.status === 'saving'}
+            onRetry={() => { void refreshHistory(); }}
             onBack={() => setScreen('ask')}
             onDelete={handleDeleteRecentDecision}
-            onOpen={handleOpenSession}
+            onOpen={(session) => { void leaveDecision(() => handleOpenSession(session)); }}
             sessions={recentSessions}
             storageMessage={storageMessage}
           />

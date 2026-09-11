@@ -30,6 +30,7 @@ type AskScreenProps = {
   onOpenRecent: () => void;
   rheoStage?: RheoStage | null;
   onCancelRheo?: () => void;
+  onCancelLocal?: () => void;
 };
 
 export function AskScreen({
@@ -48,8 +49,10 @@ export function AskScreen({
   onOpenRecent,
   rheoStage,
   onCancelRheo,
+  onCancelLocal,
 }: AskScreenProps) {
   const [voiceBusy, setVoiceBusy] = useState(false);
+  const [showPlaces, setShowPlaces] = useState(false);
   const inputBusy = busy !== null || voiceBusy;
   const hasEnoughSituation = situation.trim().length >= 12;
   const canLookAround = hasEnoughSituation && !inputBusy;
@@ -59,9 +62,7 @@ export function AskScreen({
     <View style={styles.screen}>
       <View style={styles.headerRow}>
         <RheoBrand />
-        {recentCount > 0 ? (
-          <AppButton disabled={inputBusy} label={`Recent (${recentCount})`} onPress={onOpenRecent} variant="quiet" />
-        ) : null}
+        <AppButton disabled={inputBusy} label={recentCount ? `Recent (${recentCount})` : 'Recent'} onPress={onOpenRecent} variant="quiet" />
       </View>
       <Text style={styles.title}>What are you trying to work out?</Text>
       <Text style={styles.intro}>
@@ -75,11 +76,26 @@ export function AskScreen({
         value={situation}
       />
 
+      {message ? <Text accessibilityLiveRegion="polite" style={styles.message}>{message}</Text> : null}
+      {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
+      <AppButton
+        disabled={busy === 'rheo' ? !onCancelRheo : busy === 'location' || busy === 'local' ? !onCancelLocal : !canAsk || inputBusy}
+        label={busy === 'rheo' ? 'Stop' : busy === 'location' || busy === 'local' ? 'Stop search' : busy === 'storage' ? 'Saving...' : 'Ask Rheo'}
+        onPress={busy === 'rheo' ? () => onCancelRheo?.() : busy === 'location' || busy === 'local' ? () => onCancelLocal?.() : onAskRheo}
+        variant="primary"
+      />
+      {busy === 'rheo' ? (
+        <Text accessibilityLiveRegion="polite" style={styles.loadingText}>
+          {rheoStage === 'wording' ? 'Making the wording clear...' : rheoStage === 'options' ? 'Finding three ways forward...' : 'Thinking about your question...'}
+        </Text>
+      ) : null}
+      {!hasEnoughSituation ? <Text style={styles.hint}>Say or write a little more so Rheo has enough context.</Text> : null}
+
       <View style={styles.localPanel}>
         <View style={styles.localCopy}>
-          <Text style={styles.panelTitle}>Local context</Text>
+          <Text style={styles.panelTitle}>Nearby places (optional)</Text>
           <Text style={styles.panelText}>
-            Share your approximate area with the place-search service to find nearby possibilities. Results are evidence to check.
+            Share your approximate area to find nearby places. You will still need to check that they suit you.
           </Text>
         </View>
         <View style={styles.buttonRow}>
@@ -90,7 +106,7 @@ export function AskScreen({
             variant="secondary"
           />
           {showLocalStatus ? (
-            <AppButton disabled={inputBusy} label="Remove" onPress={onRemoveLocalContext} variant="quiet" />
+            <AppButton disabled={inputBusy} label="Remove area" onPress={() => { setShowPlaces(false); onRemoveLocalContext(); }} variant="quiet" />
           ) : null}
         </View>
       </View>
@@ -116,6 +132,9 @@ export function AskScreen({
 
       {localContext ? (
         <View style={styles.section}>
+          <AppButton label={showPlaces ? 'Hide nearby results' : `Nearby results (${localContext.candidates.length})`}
+            expanded={showPlaces} onPress={() => setShowPlaces(!showPlaces)} variant="quiet" />
+          {showPlaces ? <>
           <View>
             <Text style={styles.sectionTitle}>Possibilities to check</Text>
             <Text style={styles.sectionNote}>
@@ -124,36 +143,19 @@ export function AskScreen({
             </Text>
           </View>
           {localContext.candidates.length === 0 ? (
-            <Text style={styles.emptyText}>No real local candidates came back from the configured provider. You can still ask Rheo without them.</Text>
+            <Text style={styles.emptyText}>No nearby places were found. You can still ask Rheo.</Text>
           ) : (
             localContext.candidates.map((candidate) => (
               <LocalCandidateCard candidate={candidate} key={candidate.id} />
             ))
           )}
+          {localContext.attribution ? <Text style={styles.attribution}>{localContext.attribution}</Text> : null}
+          </> : null}
           {localContext.warnings.map((warning) => (
             <Text key={warning} style={styles.warningText}>{warning}</Text>
           ))}
-          {localContext.attribution ? <Text style={styles.attribution}>{localContext.attribution}</Text> : null}
         </View>
       ) : null}
-
-      {message ? <Text accessibilityLiveRegion="polite" style={styles.message}>{message}</Text> : null}
-      {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
-
-      <AppButton
-        disabled={busy === 'rheo' ? !onCancelRheo : !canAsk || inputBusy}
-        label={busy === 'rheo' ? 'Stop' : busy === 'storage' ? 'Saving...' : 'Ask Rheo'}
-        onPress={busy === 'rheo' ? () => onCancelRheo?.() : onAskRheo}
-        variant="primary"
-      />
-      {busy === 'rheo' ? (
-        <View style={styles.section}>
-          <Text accessibilityLiveRegion="polite" style={styles.loadingText}>
-            {rheoStage === 'wording' ? 'Making the wording clear...' : rheoStage === 'options' ? 'Finding three ways forward...' : 'Thinking about your question...'}
-          </Text>
-        </View>
-      ) : null}
-      {!hasEnoughSituation ? <Text style={styles.hint}>Say or write a little more so Rheo has enough context.</Text> : null}
     </View>
   );
 }
@@ -171,9 +173,9 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.ink,
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '700',
-    lineHeight: 38,
+    lineHeight: 32,
   },
   intro: {
     color: colors.body,
@@ -181,10 +183,10 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
   localPanel: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
+    borderTopWidth: 1,
+    borderColor: colors.border,
     gap: spacing.md,
-    padding: spacing.lg,
+    paddingTop: spacing.lg,
   },
   localCopy: {
     gap: spacing.xs,

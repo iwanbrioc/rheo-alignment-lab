@@ -7,8 +7,11 @@ import type { DecisionSession } from '../types/decision';
 import { describeChoice, getChosenAction } from '../utils/decisionSession';
 import { formatDateTime } from '../utils/format';
 import { chosenPreparationStep, latestPreparation, preparationStatus, preparationTasks } from '../utils/preparation';
+import type { DecisionSaveState } from '../services/decisionSave';
 
 type ConfirmationScreenProps = {
+  saveStatus?: DecisionSaveState['status'];
+  busy?: boolean;
   session: DecisionSession;
   storageMessage: string | null;
   onBackToRecommendation: () => void;
@@ -18,6 +21,8 @@ type ConfirmationScreenProps = {
 };
 
 export function ConfirmationScreen({
+  saveStatus = 'saved',
+  busy = false,
   session,
   storageMessage,
   onBackToRecommendation,
@@ -32,13 +37,15 @@ export function ConfirmationScreen({
     <View style={styles.screen}>
       <View style={styles.headerRow}>
         <RheoBrand compact />
-        <Text style={styles.eyebrow}>SAVED LOCALLY</Text>
+        <AppButton disabled={busy} label="Back to options" onPress={onBackToRecommendation} variant="quiet" />
       </View>
-      <Text style={styles.title}>Decision noted</Text>
-      <Text style={styles.intro}>This alpha keeps the record on this device so you can revisit or delete it.</Text>
+      <Text accessibilityRole="header" style={styles.title}>{saveStatus === 'failed' ? 'Not saved yet' : saveStatus === 'saving' ? 'Saving your choice...' : 'Your choice is saved'}</Text>
+      <Text style={styles.intro}>{saveStatus === 'failed' || saveStatus === 'saving'
+        ? 'Keep this screen open until your decision is saved.'
+        : 'Saved on this device. You can return to it in Recent.'}</Text>
 
       <View style={styles.summary}>
-        <Text style={styles.label}>Predicament</Text>
+        <Text style={styles.label}>Your question</Text>
         <Text style={styles.body}>{session.situation}</Text>
 
         {session.areaLabel ? (
@@ -62,14 +69,13 @@ export function ConfirmationScreen({
         <View style={styles.buttonColumn}>
           <Text style={styles.choice}>{preparation ? preparationStatus(preparation) : 'Let Rheo help you get ready'}</Text>
           <Text style={styles.body}>Rheo can check public websites and write a draft. You check the text before anything is shared.</Text>
-          <AppButton label={preparation || !chosenPreparationStep(session) ? 'View prepared work' : 'Prepare this step'} onPress={onPrepare} />
+          <AppButton disabled={busy || saveStatus === 'failed'} label={preparation || !chosenPreparationStep(session) ? 'View prepared work' : 'Prepare this step'} onPress={onPrepare} />
         </View>
       ) : null}
 
       <View style={styles.buttonColumn}>
-        <AppButton label="Return to recommendation" onPress={onBackToRecommendation} />
-        <AppButton label="Start another decision" onPress={onStartAnother} variant="primary" />
-        <AppButton label="Delete this decision" onPress={onDelete} variant="danger" />
+        <AppButton disabled={busy} label="Start another decision" onPress={onStartAnother} variant="primary" />
+        <AppButton disabled={busy} label="Delete this decision" onPress={onDelete} variant="danger" />
       </View>
     </View>
   );

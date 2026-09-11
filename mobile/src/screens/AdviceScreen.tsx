@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ActionCard } from '../components/ActionCard';
 import { AppButton } from '../components/AppButton';
@@ -9,6 +9,7 @@ import type { LocalContextSnapshot } from '../types/localContext';
 import { getActionLabel } from '../utils/decisionSession';
 
 type AdviceScreenProps = {
+  busy?: boolean;
   situation: string;
   areaLabel: string | null;
   localContext: LocalContextSnapshot | null;
@@ -27,6 +28,7 @@ type AdviceScreenProps = {
 };
 
 export function AdviceScreen({
+  busy = false,
   situation,
   areaLabel,
   localContext,
@@ -43,24 +45,29 @@ export function AdviceScreen({
   onChooseNotYet,
   onBackToAsk,
 }: AdviceScreenProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(choice?.kind === 'recommended' ? choice.actionId : null);
+  const [showQuestion, setShowQuestion] = useState(false);
   return (
     <View style={styles.screen}>
-      <RheoBrand compact />
+      <View style={styles.headerRow}>
+        <RheoBrand compact />
+        <AppButton disabled={busy} label="Back to question" onPress={onBackToAsk} variant="quiet" />
+      </View>
+      <Text accessibilityRole="header" style={styles.title}>Three ways forward</Text>
+      <AppButton label={showQuestion ? 'Hide your question' : 'Your question'} expanded={showQuestion}
+        onPress={() => setShowQuestion(!showQuestion)} variant="quiet" />
+      {showQuestion ? (
       <View style={styles.contextPanel}>
-        <Text style={styles.eyebrow}>YOUR PREDICAMENT</Text>
+        <Text style={styles.eyebrow}>YOUR QUESTION</Text>
         <Text style={styles.situation}>{situation}</Text>
         {areaLabel ? <Text style={styles.area}>Area used: {areaLabel}</Text> : null}
         {localContext ? (
           <Text style={styles.area}>
-            Local evidence: {localContext.candidates.length} {localContext.candidates.length === 1 ? 'possibility' : 'possibilities'} to check
+            Nearby results: {localContext.candidates.length} to check
           </Text>
         ) : null}
       </View>
-
-      <View>
-        <Text style={styles.title}>Three ways forward</Text>
-        <Text style={styles.intro}>Rheo can show options, but the choice stays with you.</Text>
-      </View>
+      ) : null}
 
       <View style={styles.cards}>
         {recommendation.language?.status === 'original' ? (
@@ -73,23 +80,25 @@ export function AdviceScreen({
             key={action.id}
             onChoose={onChooseRecommended}
             selected={choice?.kind === 'recommended' && choice.actionId === action.id}
+            expanded={expandedId === action.id}
+            disabled={busy}
+            onToggle={() => setExpandedId(expandedId === action.id ? null : action.id)}
           />
         ))}
       </View>
 
       <View style={styles.choicePanel}>
-        <Text style={styles.choiceTitle}>What will you actually do?</Text>
-        <Text style={styles.choiceText}>
-          Pick one recommendation, write your own action, or leave this open for now.
-        </Text>
+        <Text accessibilityRole="header" style={styles.choiceTitle}>What will you actually do?</Text>
         <View style={styles.choiceRow}>
           <AppButton
             label="Something else"
+            disabled={busy}
             onPress={onShowCustomChoice}
             selected={customChoiceVisible || choice?.kind === 'custom'}
           />
           <AppButton
             label="Not yet"
+            disabled={busy}
             onPress={onChooseNotYet}
             selected={choice?.kind === 'not_yet'}
           />
@@ -99,6 +108,7 @@ export function AdviceScreen({
             <TextInput
               accessibilityLabel="Something else you will actually do"
               multiline
+              editable={!busy}
               onChangeText={onCustomChoiceTextChange}
               onSubmitEditing={Keyboard.dismiss}
               placeholder="Write the action you will actually take..."
@@ -109,7 +119,7 @@ export function AdviceScreen({
               value={customChoiceText}
             />
             <AppButton
-              disabled={!customChoiceText.trim()}
+              disabled={busy || !customChoiceText.trim()}
               label="Save this action"
               onPress={onSaveCustomChoice}
               variant="primary"
@@ -126,12 +136,12 @@ export function AdviceScreen({
       {message ? <Text accessibilityLiveRegion="polite" style={styles.message}>{message}</Text> : null}
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
 
-      <AppButton label="Back to question" onPress={onBackToAsk} variant="quiet" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  headerRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   screen: {
     gap: spacing.lg,
   },
@@ -161,9 +171,9 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.ink,
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: '700',
-    lineHeight: 36,
+    lineHeight: 32,
   },
   intro: {
     color: colors.body,
@@ -175,10 +185,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   choicePanel: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
+    borderTopWidth: 1,
+    borderColor: colors.border,
     gap: spacing.md,
-    padding: spacing.lg,
+    paddingTop: spacing.lg,
   },
   choiceTitle: {
     color: colors.ink,

@@ -46,12 +46,18 @@ From the repository root, run the Rheo server in one terminal:
 
 ```bash
 export RHEO_MODEL_PROVIDER=openai
-export OPENAI_MODEL=gpt-5.6
+export OPENAI_MODEL=gpt-5.4-mini
 export OPENAI_API_KEY='YOUR_KEY'
-npm run start:v0.9
+node mobile/start_rheo.mjs
 ```
 
 Never commit the API key or put it in an Expo public environment variable.
+
+The product launcher defaults to `gpt-5.4-mini`, while respecting an explicit
+`OPENAI_MODEL` override. It imports the existing decision server without changing
+its prompts, schemas or research defaults. Model metadata stays in each new
+recommendation. Existing saved answers are unchanged. From `mobile/`, the same
+launcher is available as `npm run server:rheo`.
 
 In another terminal run local context in safe fixture mode:
 
@@ -128,12 +134,44 @@ sequential, so these are per-step limits, not a 90-second total.
 
 Stopping the phone's request cannot retract data already sent or guarantee the
 existing decision server stops its provider request or billing. No automatic retry
-is added. The configured main model and frozen decision engine remain unchanged.
+is added. The frozen decision engine remains unchanged. The mobile launcher uses
+the faster model explicitly; a smaller model can reduce depth on difficult questions.
 
 On 10 September 2026, one synthetic question took 83.102 seconds with `gpt-5.6`
 and 23.285 seconds on a separate `gpt-5.4-mini` test server, including simpler wording.
 This is a single comparison, not a benchmark or guarantee of speed or answer quality.
-Changing the main model remains an explicit deployment choice via `OPENAI_MODEL`.
+After the usability changes, the same synthetic test took 19.318 seconds with the
+new mobile default and wording prompt. These individual runs are not a benchmark
+or a quality guarantee. `OPENAI_MODEL` remains an explicit deployment override.
+
+### Usability and recovery
+
+Ask Rheo appears before the optional nearby search and results. **Stop search**
+lets you continue without your area; stopped lookups cannot later attach results.
+The local network request has a 20-second limit. The underlying foreground GPS
+request may finish after Stop, but its result is ignored and no later search starts.
+
+The three options initially show their titles. **Read this option** opens the full
+action, reason and conditions before **Choose this** becomes available. No part of
+the saved recommendation is removed or rewritten when expanding or choosing.
+The question can be expanded separately. **Something else** and **Not yet** remain
+below the compact overview, and Back controls are at the top of the main screens.
+
+Failed saves say **Not saved yet** and offer **Try saving again**, preserving the
+exact answer and choice without another AI request. Leaving a failed save asks for
+confirmation. Saved history is always reachable, with Retry if it cannot be read.
+Deletion asks for confirmation and explicitly includes any saved research/drafts.
+History states the existing 20-decision limit. No additional storage or permissions
+were added; unsaved work still exists only in memory until a save succeeds.
+
+The fixed light theme now always uses a dark status bar, including when the phone
+is in dark mode. These changes add no dependency. `smoke_usability.mjs` covers save
+failures, retry, duplicate writes, deletion, history recovery, local cancellation,
+collapsed/expanded options and primary-button ordering. Device checks are still
+needed for physical keyboards, screen readers and Android navigation.
+In the iOS simulator, changing the system text size while an existing screen was
+open left stale text bounds. Reloading restored correct wrapping at the larger
+size. Live text-size changes still need a separate fix and physical-device check.
 
 ### Voice input
 

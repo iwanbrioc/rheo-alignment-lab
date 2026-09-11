@@ -25,8 +25,13 @@ async function withTimeout<T>(operation: Promise<T>, milliseconds: number, messa
   }
 }
 
-export async function getDecisionLocation(): Promise<DecisionLocation> {
+export async function getDecisionLocation(signal?: AbortSignal): Promise<DecisionLocation> {
+  const checkActive = () => {
+    if (signal?.aborted) throw Object.assign(new Error('Location search stopped.'), { name: 'AbortError' });
+  };
+  checkActive();
   const permission = await Location.requestForegroundPermissionsAsync();
+  checkActive();
   if (permission.status !== 'granted') {
     throw new Error('Location permission was not granted. Rheo can still work without local context.');
   }
@@ -34,12 +39,14 @@ export async function getDecisionLocation(): Promise<DecisionLocation> {
   if (!await Location.hasServicesEnabledAsync()) {
     throw new Error('Location services are off. Turn them on or continue without local context.');
   }
+  checkActive();
 
   const current = await withTimeout(
     Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
     20_000,
     'Your location was not available in time. Try again or continue without local context.',
   );
+  checkActive();
   const latitude = roundNeighbourhood(current.coords.latitude);
   const longitude = roundNeighbourhood(current.coords.longitude);
 
@@ -57,6 +64,7 @@ export async function getDecisionLocation(): Promise<DecisionLocation> {
   } catch {
     // Reverse geocoding is useful UI context but not required for nearby search.
   }
+  checkActive();
 
   return {
     // Deliberately reduce precision before coordinates leave the device.

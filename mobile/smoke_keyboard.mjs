@@ -49,6 +49,7 @@ function loadComponent(file) {
       };
       if (name === 'expo-file-system' || name === 'expo-image' || name.endsWith('.svg')) return {};
       if (name.endsWith('/services/voiceSession')) return { VoiceSession: class {} };
+      if (name.endsWith('/services/decisionSave')) return loadComponent('./src/services/decisionSave.ts');
       if (name.endsWith('/theme')) return { colors: {}, radii: {}, spacing: {} };
       if (name.endsWith('/utils/decisionSession')) return { createLocalId: () => 'test-decision' };
       if (name.endsWith('/components/AppButton')) return { AppButton: 'AppButton' };

@@ -3,35 +3,47 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { RecommendationAction } from '../types/decision';
 import { colors, radii, spacing } from '../theme';
 import { getActionLabel } from '../utils/decisionSession';
+import { AppButton } from './AppButton';
 
 type ActionCardProps = {
   action: RecommendationAction;
   index: number;
   selected?: boolean;
   onChoose?: (actionId: string) => void;
+  expanded?: boolean;
+  disabled?: boolean;
+  onToggle?: () => void;
 };
 
-export function ActionCard({ action, index, selected = false, onChoose }: ActionCardProps) {
+export function ActionCard({ action, index, selected = false, onChoose, expanded = false, disabled = false, onToggle }: ActionCardProps) {
   return (
     <View style={[styles.card, selected && styles.selected]}>
       <Text style={styles.kicker}>{index + 1}. {getActionLabel(action.kind)}</Text>
-      <Text style={styles.title}>{action.title}</Text>
+      <Text accessibilityRole="header" style={styles.title}>{action.title}</Text>
+      <AppButton label={expanded ? 'Hide details' : 'Read this option'} accessibilityLabel={`${expanded ? 'Hide details for' : 'Read'}: ${action.title}`}
+        expanded={expanded} disabled={disabled} onPress={() => onToggle?.()} variant="quiet" />
+      {expanded ? <>
       <Text style={styles.action}>{action.action}</Text>
       {action.whyThisAction ? <Text style={styles.body}>{action.whyThisAction}</Text> : null}
       {action.falsifierOrChangeSignal ? (
-        <Text style={styles.reconsider}>Reconsider if: {action.falsifierOrChangeSignal}</Text>
+        <View>
+          <Text style={styles.reconsider}>When to rethink</Text>
+          <Text style={styles.reconsider}>{action.falsifierOrChangeSignal}</Text>
+        </View>
       ) : null}
       {onChoose ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Choose ${getActionLabel(action.kind)}`}
-          accessibilityState={{ selected }}
+          accessibilityState={{ selected, disabled }}
+          disabled={disabled}
           onPress={() => onChoose(action.id)}
           style={({ pressed }) => [styles.chooseButton, pressed && styles.pressed]}
         >
           <Text style={styles.chooseText}>{selected ? 'Chosen' : 'Choose this'}</Text>
         </Pressable>
       ) : null}
+      </> : null}
     </View>
   );
 }
@@ -47,7 +59,6 @@ const styles = StyleSheet.create({
   },
   selected: {
     borderColor: colors.primary,
-    borderWidth: 2,
   },
   kicker: {
     color: colors.muted,

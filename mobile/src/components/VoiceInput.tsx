@@ -160,7 +160,7 @@ export function VoiceInput({ value, onChangeText, onBusyChange, disabled = false
             <AppButton label={state.phase === 'transcribing' ? 'Cancel' : 'Discard recording'} onPress={() => { void session.cancel(); }} variant="quiet" />
           ) : null}
           <Text style={styles.privacy}>
-            Only records after you tap. Use recording sends the clip to OpenAI for transcription. Rheo then deletes its temporary copy; a crash can leave cached audio.
+            Tap to record. Use recording sends audio to OpenAI to turn it into text. Rheo deletes its copy, but a crash can leave audio on this device.
           </Text>
         </View>
       ) : null}

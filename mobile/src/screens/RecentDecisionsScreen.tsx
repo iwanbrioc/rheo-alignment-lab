@@ -9,6 +9,8 @@ import { compactText, formatDateTime } from '../utils/format';
 import { latestPreparation, preparationStatus } from '../utils/preparation';
 
 type RecentDecisionsScreenProps = {
+  busy?: boolean;
+  onRetry?: () => void;
   sessions: DecisionSession[];
   storageMessage: string | null;
   onOpen: (session: DecisionSession) => void;
@@ -17,6 +19,8 @@ type RecentDecisionsScreenProps = {
 };
 
 export function RecentDecisionsScreen({
+  busy = false,
+  onRetry,
   sessions,
   storageMessage,
   onOpen,
@@ -27,15 +31,16 @@ export function RecentDecisionsScreen({
     <View style={styles.screen}>
       <View style={styles.headerRow}>
         <RheoBrand compact />
-        <Text style={styles.eyebrow}>LOCAL HISTORY</Text>
+        <AppButton disabled={busy} label="Back to question" onPress={onBack} variant="quiet" />
       </View>
-      <Text style={styles.title}>Recent decisions</Text>
-      <Text style={styles.intro}>Saved only on this device. Delete anything you do not want kept here.</Text>
+      <Text accessibilityRole="header" style={styles.title}>Recent decisions</Text>
+      <Text style={styles.intro}>Only the latest 20 decisions are kept on this device. A new decision replaces the oldest, including its drafts.</Text>
 
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
+      {storageMessage ? <AppButton disabled={busy} label="Retry" onPress={() => onRetry?.()} /> : null}
 
       {sessions.length === 0 ? (
-        <Text style={styles.empty}>No saved decisions yet.</Text>
+        <Text style={styles.empty}>{storageMessage ? 'Your saved decisions are unavailable right now.' : 'No saved decisions yet.'}</Text>
       ) : (
         <View style={styles.list}>
           {sessions.map((session) => (
@@ -45,15 +50,14 @@ export function RecentDecisionsScreen({
               <Text style={styles.choice}>{compactText(describeChoice(session), 96)}</Text>
               {latestPreparation(session) ? <Text style={styles.choice}>{preparationStatus(latestPreparation(session)!)}</Text> : null}
               <View style={styles.buttonRow}>
-                <AppButton label="Open" onPress={() => onOpen(session)} />
-                <AppButton label="Delete" onPress={() => onDelete(session.id)} variant="danger" />
+                <AppButton disabled={busy} label="Open" onPress={() => onOpen(session)} variant="primary" />
+                <AppButton disabled={busy} label="Delete" onPress={() => onDelete(session.id)} variant="quiet" />
               </View>
             </View>
           ))}
         </View>
       )}
 
-      <AppButton label="Back to new decision" onPress={onBack} variant="quiet" />
     </View>
   );
 }

@@ -8,12 +8,13 @@ const LOCAL_CONTEXT_API_URL = process.env.EXPO_PUBLIC_LOCAL_CONTEXT_API_URL || '
 export async function fetchLocalContext(
   decisionText: string,
   location: DecisionLocation,
+  signal?: AbortSignal,
 ): Promise<LocalContextSnapshot> {
   const response = await postJson<LocalContextApiResponse>(LOCAL_CONTEXT_API_URL, '/api/local-context', {
     decisionText,
     location,
     radiusM: 5000,
-  });
+  }, { signal, timeoutMs: 20_000 });
 
   return toLocalContextSnapshot(response);
 }

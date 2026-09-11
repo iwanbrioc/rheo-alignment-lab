@@ -5,11 +5,12 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "server:rheo": "node start_rheo.mjs",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_brand.mjs && node smoke_preparation.mjs && node smoke_requests.mjs",
+    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_brand.mjs && node smoke_preparation.mjs && node smoke_requests.mjs && node smoke_usability.mjs",
     "doctor": "npx expo-doctor@latest"
   },
   "dependencies": {

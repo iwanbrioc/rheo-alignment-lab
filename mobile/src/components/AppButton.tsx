@@ -8,6 +8,7 @@ type AppButtonProps = {
   accessibilityLabel?: string;
   disabled?: boolean;
   selected?: boolean;
+  expanded?: boolean;
   variant?: 'primary' | 'secondary' | 'quiet' | 'danger';
 };
 
@@ -17,6 +18,7 @@ export function AppButton({
   accessibilityLabel,
   disabled = false,
   selected = false,
+  expanded,
   variant = 'secondary',
 }: AppButtonProps) {
   const isPrimary = variant === 'primary';
@@ -27,7 +29,7 @@ export function AppButton({
     <Pressable
       accessibilityLabel={accessibilityLabel || label}
       accessibilityRole="button"
-      accessibilityState={{ disabled, selected }}
+      accessibilityState={{ disabled, selected, ...(expanded === undefined ? {} : { expanded }) }}
       disabled={disabled}
       onPress={() => {
         Keyboard.dismiss();
