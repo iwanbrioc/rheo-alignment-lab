@@ -7,6 +7,8 @@
     "start": "node server_v0_9.mjs",
     "start:v0.6": "node server_v0_6.mjs",
     "start:v0.9": "node server_v0_9.mjs",
+    "start:experimental": "node experiments/rheo-v0.10/server.mjs",
+    "smoke:experimental": "node experiments/rheo-v0.10/smoke.mjs",
     "smoke": "node evaluation/smoke_v0_3.mjs",
     "smoke:v0.4": "node evaluation/flow-v0.4/smoke_v0_4.mjs",
     "smoke:v0.5": "node evaluation/interview-v0.5/smoke_v0_5.mjs",
@@ -24,5 +26,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0"
   }
 }

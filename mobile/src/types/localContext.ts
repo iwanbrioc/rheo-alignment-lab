@@ -1,3 +1,5 @@
+import type { AreaContextEvidence } from './experimental';
+
 export type LocalContextApiCandidate = {
   id: string;
   name: string;
@@ -33,6 +35,8 @@ export type LocalContextCandidate = {
 };
 
 export type LocalContextSnapshot = {
+  // Reserved for a future sourced provider; no area-level data is fetched in this iteration.
+  areaEvidence?: AreaContextEvidence[];
   provider: string;
   attribution: string | null;
   retrievedAt: string;

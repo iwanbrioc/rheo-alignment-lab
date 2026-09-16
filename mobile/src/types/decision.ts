@@ -1,5 +1,6 @@
 import type { LocalContextSnapshot } from './localContext';
 import type { PreparationTask } from './preparation';
+import type { DistributionalEffect, OutcomeReview } from './experimental';
 
 export type ActionKind = 'smallest_release' | 'learning_action' | 'generative_action';
 
@@ -22,6 +23,9 @@ export type RecommendationAction = {
   displacedCosts?: string[];
   irreversibilityCaution?: string;
   assumptions?: string[];
+  agency?: { relationship: 'same_horizon' | 'different_horizon' | 'unresolved'; systemChangeNeeded: string };
+  accessCheck?: { usableNow: true; basis: string; ifUnavailable: string };
+  distributionalEffect?: DistributionalEffect;
 };
 
 export type RecommendationMeta = {
@@ -73,4 +77,6 @@ export type DecisionSession = {
   choice: DecisionChoice | null;
   researchArm: ResearchArm;
   preparations?: PreparationTask[];
+  outcomes?: OutcomeReview[];
+  previousDecisionId?: string;
 };

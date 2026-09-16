@@ -25,6 +25,21 @@ export function ActionCard({ action, index, selected = false, onChoose, expanded
       {expanded ? <>
       <Text style={styles.action}>{action.action}</Text>
       {action.whyThisAction ? <Text style={styles.body}>{action.whyThisAction}</Text> : null}
+      {action.accessCheck ? <>
+        <Text style={styles.body}>{action.accessCheck.basis}</Text>
+        <Text style={styles.body}>{action.accessCheck.ifUnavailable}</Text>
+      </> : null}
+      {action.prediction && action.accessCheck ? <>
+        <Text style={styles.reconsider}>What to look for</Text>
+        <Text style={styles.body}>{action.prediction.observableSignal} {action.prediction.reviewHorizon}</Text>
+      </> : null}
+      {action.distributionalEffect ? <>
+        <Text style={styles.reconsider}>Who carries the work</Text>
+        <Text style={styles.body}>{action.distributionalEffect.whoBearsBurden} {action.distributionalEffect.displacedBurden}</Text>
+        <Text style={styles.body}>{action.distributionalEffect.compensatingForSystemFailure}</Text>
+      </> : null}
+      {action.agency ? <Text style={styles.body}>{action.agency.systemChangeNeeded}</Text> : null}
+      {action.accessCheck && action.irreversibilityCaution ? <Text style={styles.reconsider}>{action.irreversibilityCaution}</Text> : null}
       {action.falsifierOrChangeSignal ? (
         <View>
           <Text style={styles.reconsider}>When to rethink</Text>

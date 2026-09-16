@@ -16,9 +16,16 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Allow Rheo to record a short voice note when you tap the microphone. You choose whether to send it for transcription.",
+          "microphonePermission": "Allow Rheo to use the microphone when you tap Speak or record a voice note.",
           "enableBackgroundRecording": false,
           "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow Rheo to use the microphone when you tap Speak or record a voice note.",
+          "speechRecognitionPermission": "Allow Rheo to turn your speech into text as you talk. Your audio may be sent to Apple for speech recognition."
         }
       ],
       "expo-image",

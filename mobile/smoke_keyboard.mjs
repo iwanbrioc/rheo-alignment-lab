@@ -22,6 +22,7 @@ const native = {
   Text: 'Text',
   TextInput: 'TextInput',
   Pressable: 'Pressable',
+  Platform: { OS: 'ios' },
 };
 
 function loadComponent(file) {
@@ -39,6 +40,7 @@ function loadComponent(file) {
     module,
     exports: module.exports,
     require: (name) => {
+      if (name.endsWith('/utils/experimental')) return loadComponent('./src/utils/experimental.ts');
       if (name === 'react') return react;
       if (name === 'react-native') return native;
       if (name === 'react-native-safe-area-context') return { SafeAreaProvider: 'SafeAreaProvider', SafeAreaView: 'SafeAreaView', initialWindowMetrics: null };
@@ -49,6 +51,7 @@ function loadComponent(file) {
       };
       if (name === 'expo-file-system' || name === 'expo-image' || name.endsWith('.svg')) return {};
       if (name.endsWith('/services/voiceSession')) return { VoiceSession: class {} };
+      if (name.endsWith('/services/dictationSession')) return { DictationSession: class {} };
       if (name.endsWith('/services/decisionSave')) return loadComponent('./src/services/decisionSave.ts');
       if (name.endsWith('/theme')) return { colors: {}, radii: {}, spacing: {} };
       if (name.endsWith('/utils/decisionSession')) return { createLocalId: () => 'test-decision' };
@@ -92,10 +95,12 @@ const saving = AskScreen({ situation: 'Public test question', busy: 'storage', c
 assert.equal(findNode(saving, 'AppButton', (props) => props.label === 'Saving...').props.disabled, true,
   'saving a completed answer must not offer cancellation of an already finished request');
 
-const { VoiceInput } = loadComponent('./src/components/VoiceInput.tsx');
+const { RecordedVoiceInput } = loadComponent('./src/components/RecordedVoiceInput.tsx');
+const { LiveVoiceInput } = loadComponent('./src/components/LiveVoiceInput.tsx');
 const { AdviceScreen } = loadComponent('./src/screens/AdviceScreen.tsx');
 const inputs = [
-  findNode(VoiceInput({ value: 'I need help finding work.', onBusyChange: () => {} }), 'TextInput'),
+  findNode(RecordedVoiceInput({ value: 'I need help finding work.', onBusyChange: () => {} }), 'TextInput'),
+  findNode(LiveVoiceInput({ value: 'I need help finding work.', onBusyChange: () => {} }), 'TextInput'),
   findNode(AdviceScreen({ recommendation: { actions: [] }, customChoiceVisible: true, customChoiceText: '' }), 'TextInput'),
 ];
 for (const input of inputs) {

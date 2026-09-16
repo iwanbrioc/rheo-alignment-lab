@@ -8,6 +8,10 @@ import { AskScreen } from './src/screens/AskScreen';
 import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
 import { RecentDecisionsScreen } from './src/screens/RecentDecisionsScreen';
 import { PreparationScreen } from './src/screens/PreparationScreen';
+import { PathwaysScreen } from './src/screens/PathwaysScreen';
+import { OutcomeReviewScreen } from './src/screens/OutcomeReviewScreen';
+import { experimentalFlow } from './src/utils/experimental';
+import type { OutcomeReview } from './src/types/experimental';
 import { fetchLocalContext } from './src/services/localContextApi';
 import { askRheo, type RheoStage } from './src/services/rheoApi';
 import {
@@ -24,10 +28,11 @@ import type { LocalContextSnapshot } from './src/types/localContext';
 import type { PreparationTask } from './src/types/preparation';
 import {
   createLocalId,
+  describeChoice,
   sanitizeDecisionSessionForStorage,
 } from './src/utils/decisionSession';
 
-type Screen = 'ask' | 'advice' | 'confirmation' | 'recent' | 'preparation';
+type Screen = 'ask' | 'advice' | 'confirmation' | 'recent' | 'preparation' | 'pathways' | 'review';
 type BusyState = 'location' | 'local' | 'rheo' | 'storage' | null;
 
 const MIN_SITUATION_LENGTH = 12;
@@ -38,11 +43,16 @@ function errorMessage(error: unknown, fallback: string): string {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('ask');
+  const scroll = useRef<ScrollView>(null);
+  const [pathwaySeed, setPathwaySeed] = useState<{ need: string; nextStep: string } | null>(null);
+  const [pathwayReturn, setPathwayReturn] = useState<'ask' | 'confirmation'>('ask');
   const [situation, setSituation] = useState('');
   const [sessionId, setSessionId] = useState(() => createLocalId('decision'));
   const [createdAt, setCreatedAt] = useState(() => new Date().toISOString());
   const [updatedAt, setUpdatedAt] = useState(createdAt);
   const [preparations, setPreparations] = useState<PreparationTask[]>([]);
+  const [outcomes, setOutcomes] = useState<OutcomeReview[]>([]);
+  const [previousDecisionId, setPreviousDecisionId] = useState<string | undefined>();
   const [preparationSession, setPreparationSession] = useState<DecisionSession | null>(null);
   const [location, setLocation] = useState<DecisionLocation | null>(null);
   const [areaLabel, setAreaLabel] = useState<string | null>(null);
@@ -91,7 +101,9 @@ export default function App() {
     choice: nextChoice,
     researchArm: null,
     preparations,
-  }), [areaLabel, createdAt, localContext, preparations, sessionId, trimmedSituation, updatedAt]);
+    outcomes,
+    previousDecisionId,
+  }), [areaLabel, createdAt, localContext, preparations, outcomes, previousDecisionId, sessionId, trimmedSituation, updatedAt]);
 
   const currentSession = useMemo(() => {
     if (!recommendation) return null;
@@ -131,6 +143,8 @@ export default function App() {
     setCreatedAt(new Date().toISOString());
     setUpdatedAt(new Date().toISOString());
     setPreparations([]);
+    setOutcomes([]);
+    setPreviousDecisionId(undefined);
     setPreparationSession(null);
     setSituation(initialText);
     setLocation(null);
@@ -251,7 +265,8 @@ export default function App() {
       rheoRequest.current = null;
       setBusy('storage');
       setRecommendation(nextRecommendation);
-      const session = buildCurrentSession(nextRecommendation, null, new Date().toISOString());
+      setOutcomes([]);
+      const session = { ...buildCurrentSession(nextRecommendation, null, new Date().toISOString()), outcomes: [] };
       await persistSession(session);
       setScreen('advice');
     } catch (error) {
@@ -347,6 +362,8 @@ export default function App() {
     setCreatedAt(session.createdAt);
     setUpdatedAt(session.updatedAt);
     setPreparations(session.preparations || []);
+    setOutcomes(session.outcomes || []);
+    setPreviousDecisionId(session.previousDecisionId);
     setSituation(session.situation);
     setLocation(null);
     setAreaLabel(session.areaLabel);
@@ -365,6 +382,7 @@ export default function App() {
     <SafeAreaView style={styles.root}>
       <StatusBar style="dark" />
       <ScrollView
+        ref={scroll}
         key={screen}
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustKeyboardInsets
@@ -386,6 +404,7 @@ export default function App() {
             onAskRheo={handleAskRheo}
             onLookAround={handleLookAround}
             onOpenRecent={() => { setScreen('recent'); void refreshHistory(); }}
+            onOpenPathways={() => { void leaveDecision(() => { setPathwaySeed(null); setPathwayReturn('ask'); setScreen('pathways'); }); }}
             onRemoveLocalContext={handleRemoveLocalContext}
             onSituationChange={handleSituationChange}
             recentCount={recentSessions.length}
@@ -404,8 +423,7 @@ export default function App() {
             localContext={localContext}
             message={message}
             onBackToAsk={() => { void leaveDecision(() => {
-              setMessage(null);
-              setScreen('ask');
+              beginFreshDecision(situation);
             }); }}
             onChooseNotYet={handleChooseNotYet}
             onChooseRecommended={handleChooseRecommended}
@@ -426,6 +444,12 @@ export default function App() {
             onDelete={handleDeleteCurrentDecision}
             onStartAnother={() => { void leaveDecision(() => beginFreshDecision()); }}
             onPrepare={() => { setPreparationSession(currentSession); setScreen('preparation'); }}
+            onReview={experimentalFlow(currentSession.recommendation?.flow) ? () => setScreen('review') : undefined}
+            onExplorePathway={() => {
+              setPathwaySeed({ need: currentSession.situation.slice(0, 1500),
+                nextStep: currentSession.choice && currentSession.choice.kind !== 'not_yet' ? describeChoice(currentSession).slice(0, 1500) : '' });
+              setPathwayReturn('confirmation'); setScreen('pathways');
+            }}
             session={currentSession}
             storageMessage={storageMessage}
           />
@@ -443,6 +467,16 @@ export default function App() {
             }}
           />
         ) : null}
+
+        {screen === 'pathways' ? <PathwaysScreen seed={pathwaySeed}
+          backLabel={pathwayReturn === 'confirmation' ? 'Back to choice' : 'Back to question'}
+          onViewChange={() => scroll.current?.scrollTo({ y: 0, animated: false })}
+          onBack={() => setScreen(pathwayReturn)} /> : null}
+
+        {screen === 'review' && currentSession ? <OutcomeReviewScreen session={currentSession}
+          onBack={() => setScreen('confirmation')}
+          onSaved={(saved) => { setOutcomes(saved.outcomes || []); setUpdatedAt(saved.updatedAt); void refreshHistory(); }}
+          onNewDecision={(saved) => { handleOpenSession(saved); void refreshHistory(); }} /> : null}
 
         {screen === 'recent' ? (
           <RecentDecisionsScreen

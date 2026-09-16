@@ -10,7 +10,7 @@ function load(file, mocks) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true,
   } });
   vm.runInNewContext(outputText, { module, exports: module.exports, AbortController, Error, SyntaxError,
-    process: { env: {} }, setTimeout, clearTimeout, require: (name) => {
+    process: { env: { EXPO_PUBLIC_RHEO_ENGINE: 'v0.9' } }, setTimeout, clearTimeout, require: (name) => {
       if (name in mocks) return mocks[name];
       throw new Error(`Unexpected import ${name}`);
     } });
@@ -53,6 +53,7 @@ const shared = { '../utils/decisionSession': { createLocalId: () => 'test-id', r
 function pipeline({ provider = 'openai', onRequest = () => {}, onWording = () => {} } = {}) {
   const paths = []; let formatted = 0;
   const api = load('./src/services/rheoApi.ts', { ...shared,
+    './experimentalApi': { askExperimental: () => { throw new Error('Legacy smoke must use the legacy engine.'); } },
     './http': { postJson: async (_base, path, _body, options) => {
       paths.push(path); onRequest(path, options);
       return path.endsWith('flow') ? { provider, flow: { checked: true } } : { provider, actionSet: { actions } };

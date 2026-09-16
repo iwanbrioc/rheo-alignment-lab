@@ -18,6 +18,8 @@ type ConfirmationScreenProps = {
   onStartAnother: () => void;
   onDelete: () => void;
   onPrepare: () => void;
+  onExplorePathway?: () => void;
+  onReview?: () => void;
 };
 
 export function ConfirmationScreen({
@@ -29,6 +31,8 @@ export function ConfirmationScreen({
   onStartAnother,
   onDelete,
   onPrepare,
+  onExplorePathway,
+  onReview,
 }: ConfirmationScreenProps) {
   const chosenAction = getChosenAction(session);
   const preparation = latestPreparation(session);
@@ -74,6 +78,8 @@ export function ConfirmationScreen({
       ) : null}
 
       <View style={styles.buttonColumn}>
+        {onReview ? <AppButton disabled={busy || saveStatus === 'failed'} label={session.outcomes?.length ? 'View or add a review' : 'Record what happened'} onPress={onReview} /> : null}
+        {onExplorePathway ? <AppButton disabled={busy || saveStatus === 'failed'} label="Explore a pathway" onPress={onExplorePathway} /> : null}
         <AppButton disabled={busy} label="Start another decision" onPress={onStartAnother} variant="primary" />
         <AppButton disabled={busy} label="Delete this decision" onPress={onDelete} variant="danger" />
       </View>

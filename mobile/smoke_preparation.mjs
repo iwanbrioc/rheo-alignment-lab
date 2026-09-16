@@ -33,7 +33,7 @@ function loader(overrides = {}) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React, esModuleInterop: true },
     });
     vm.runInNewContext(outputText, {
-      module, exports: module.exports, AbortController, URL, Error, Date, setTimeout, clearTimeout, process: { env: {} },
+      module, exports: module.exports, AbortController, URL, Error, Date, setTimeout, clearTimeout, process: { env: { EXPO_PUBLIC_RHEO_ENGINE: 'v0.9' } },
       require: (name) => {
         if (name in overrides) return overrides[name];
         if (name.endsWith('preparation_contract.mjs')) return contract;

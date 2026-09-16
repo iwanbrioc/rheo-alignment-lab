@@ -34,7 +34,7 @@ export function RecentDecisionsScreen({
         <AppButton disabled={busy} label="Back to question" onPress={onBack} variant="quiet" />
       </View>
       <Text accessibilityRole="header" style={styles.title}>Recent decisions</Text>
-      <Text style={styles.intro}>Only the latest 20 decisions are kept on this device. A new decision replaces the oldest, including its drafts.</Text>
+      <Text style={styles.intro}>Only the latest 20 decisions are kept on this device. A new decision replaces the oldest, including its drafts and reviews.</Text>
 
       {storageMessage ? <Text accessibilityLiveRegion="polite" style={styles.storageMessage}>{storageMessage}</Text> : null}
       {storageMessage ? <AppButton disabled={busy} label="Retry" onPress={() => onRetry?.()} /> : null}
@@ -46,8 +46,10 @@ export function RecentDecisionsScreen({
           {sessions.map((session) => (
             <View key={session.id} style={styles.row}>
               <Text style={styles.date}>{formatDateTime(session.updatedAt)}</Text>
+              {session.previousDecisionId ? <Text style={styles.choice}>New options after a review</Text> : null}
               <Text style={styles.situation}>{compactText(session.situation, 96)}</Text>
               <Text style={styles.choice}>{compactText(describeChoice(session), 96)}</Text>
+              {session.outcomes?.length ? <Text style={styles.choice}>{session.outcomes.length} {session.outcomes.length === 1 ? 'review saved' : 'reviews saved'}</Text> : null}
               {latestPreparation(session) ? <Text style={styles.choice}>{preparationStatus(latestPreparation(session)!)}</Text> : null}
               <View style={styles.buttonRow}>
                 <AppButton disabled={busy} label="Open" onPress={() => onOpen(session)} variant="primary" />

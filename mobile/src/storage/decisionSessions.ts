@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { DecisionSession } from '../types/decision';
 import type { PreparationTask } from '../types/preparation';
+import type { OutcomeReview } from '../types/experimental';
+import { validOutcomeReview } from '../utils/experimental';
 import { preparationChoiceKey, preparationTasks } from '../utils/preparation';
 import {
   parseDecisionSessions,
@@ -63,6 +65,26 @@ export async function deleteDecisionSession(id: string): Promise<void> {
     const stored = await readAll();
     const next = stored.filter((session) => session.id !== id);
     await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(next));
+  });
+}
+
+export async function saveOutcomeReview(sessionId: string, review: OutcomeReview): Promise<DecisionSession> {
+  return writeInOrder(async () => {
+    const sessions = await readAll();
+    const session = sessions.find((item) => item.id === sessionId);
+    if (!session || !validOutcomeReview(review) || review.recommendationId !== session.recommendation?.id) {
+      throw new Error('The saved decision changed or was deleted. The review was not attached.');
+    }
+    const previous = session.outcomes || [];
+    const existing = previous.find((item) => item.id === review.id);
+    if (existing) {
+      if (JSON.stringify(existing) !== JSON.stringify(review)) throw new Error('A saved review cannot be overwritten.');
+      return session;
+    }
+    if (previous.length >= 20) throw new Error('This decision already has twenty reviews. Start a new decision for more.');
+    const updated = sanitizeDecisionSessionForStorage({ ...session, outcomes: [...previous, review], updatedAt: review.createdAt });
+    await AsyncStorage.setItem(STORAGE_KEY, serializeDecisionSessions(sessions.map((item) => item.id === sessionId ? updated : item)));
+    return updated;
   });
 }
 

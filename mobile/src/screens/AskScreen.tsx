@@ -28,6 +28,7 @@ type AskScreenProps = {
   onRemoveLocalContext: () => void;
   onAskRheo: () => void;
   onOpenRecent: () => void;
+  onOpenPathways?: () => void;
   rheoStage?: RheoStage | null;
   onCancelRheo?: () => void;
   onCancelLocal?: () => void;
@@ -47,6 +48,7 @@ export function AskScreen({
   onRemoveLocalContext,
   onAskRheo,
   onOpenRecent,
+  onOpenPathways,
   rheoStage,
   onCancelRheo,
   onCancelLocal,
@@ -64,6 +66,7 @@ export function AskScreen({
         <RheoBrand />
         <AppButton disabled={inputBusy} label={recentCount ? `Recent (${recentCount})` : 'Recent'} onPress={onOpenRecent} variant="quiet" />
       </View>
+      {onOpenPathways ? <AppButton label="My pathways" disabled={inputBusy} onPress={onOpenPathways} variant="quiet" /> : null}
       <Text style={styles.title}>What are you trying to work out?</Text>
       <Text style={styles.intro}>
         Your words, your decision. Location is optional.

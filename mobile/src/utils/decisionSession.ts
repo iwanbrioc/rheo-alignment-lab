@@ -9,6 +9,7 @@ import type {
   LocalContextCandidate,
   LocalContextSnapshot,
 } from '../types/localContext';
+import { validOutcomeReview } from './experimental';
 
 export const ACTION_KIND_LABELS: Record<ActionKind, string> = {
   smallest_release: 'Do the smallest useful thing',
@@ -133,6 +134,8 @@ export function parseDecisionSessions(raw: string | null): DecisionSession[] {
       && typeof maybe.situation === 'string'
       && typeof maybe.locationUsed === 'boolean'
       && isValidResearchArm(maybe.researchArm)
+      && (maybe.outcomes === undefined || (Array.isArray(maybe.outcomes) && maybe.outcomes.length <= 20
+        && maybe.outcomes.every((review) => validOutcomeReview(review) && review.recommendationId === maybe.recommendation?.id)))
     );
   });
 }
@@ -165,6 +168,7 @@ export function withSituationChanged(
     choice: null,
     researchArm: null,
     preparations: [],
+    outcomes: [],
   });
 }
 

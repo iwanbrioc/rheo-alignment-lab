@@ -7,6 +7,8 @@ import { colors, radii, spacing } from '../theme';
 import type { DecisionChoice, RecommendationSnapshot } from '../types/decision';
 import type { LocalContextSnapshot } from '../types/localContext';
 import { getActionLabel } from '../utils/decisionSession';
+import { experimentalFlow } from '../utils/experimental';
+import { ShapingSummary } from '../components/ShapingSummary';
 
 type AdviceScreenProps = {
   busy?: boolean;
@@ -47,12 +49,14 @@ export function AdviceScreen({
 }: AdviceScreenProps) {
   const [expandedId, setExpandedId] = useState<string | null>(choice?.kind === 'recommended' ? choice.actionId : null);
   const [showQuestion, setShowQuestion] = useState(false);
+  const flow = experimentalFlow(recommendation.flow);
   return (
     <View style={styles.screen}>
       <View style={styles.headerRow}>
         <RheoBrand compact />
         <AppButton disabled={busy} label="Back to question" onPress={onBackToAsk} variant="quiet" />
       </View>
+      {flow ? <ShapingSummary flow={flow} /> : null}
       <Text accessibilityRole="header" style={styles.title}>Three ways forward</Text>
       <AppButton label={showQuestion ? 'Hide your question' : 'Your question'} expanded={showQuestion}
         onPress={() => setShowQuestion(!showQuestion)} variant="quiet" />

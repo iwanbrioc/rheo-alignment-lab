@@ -62,6 +62,7 @@ function load(file, overrides = {}) {
         getChosenAction: () => actions[0], describeChoice: () => 'Read for ten minutes', getActionLabel: (kind) => kind };
       if (name.endsWith('/utils/preparation')) return { latestPreparation: () => null, chosenPreparationStep: () => 'Read', preparationTasks: () => [] };
       if (name.endsWith('/utils/format')) return { formatDateTime: () => 'Test date', compactText: (value) => value };
+      if (name.endsWith('/utils/experimental')) return load('./src/utils/experimental.ts');
       if (name.endsWith('/theme')) return { colors: {}, spacing: {}, radii: {} };
       const component = name.split('/').at(-1);
       return { [component]: component };

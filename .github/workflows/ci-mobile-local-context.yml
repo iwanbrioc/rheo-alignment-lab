@@ -5,13 +5,18 @@ on:
     branches:
       - mobile-rheo-geolocated-context
       - mobile-rheo-alpha-v0.2
+      - 'codex/rheo-v0.10-*'
     paths:
       - 'mobile/**'
+      - 'experiments/rheo-v0.10/**'
+      - 'package*.json'
       - 'docs/MOBILE_LOCAL_CONTEXT_ARCHITECTURE.md'
       - '.github/workflows/ci-mobile-local-context.yml'
   pull_request:
     paths:
       - 'mobile/**'
+      - 'experiments/rheo-v0.10/**'
+      - 'package*.json'
       - 'docs/MOBILE_LOCAL_CONTEXT_ARCHITECTURE.md'
   workflow_dispatch:
 
@@ -26,6 +31,10 @@ jobs:
       - name: Install mobile dependencies
         working-directory: mobile
         run: npm ci --no-audit --no-fund
+      - name: Install experimental server dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Experimental and unchanged v0.9 contracts
+        run: npm run smoke:experimental && npm run smoke:v0.9
       - name: Mobile fixture and session smokes
         working-directory: mobile
         run: npm run smoke:local

@@ -1,26 +1,29 @@
-# Rheo mobile v0.2 - geolocated decision loop
+# Rheo mobile alpha - v0.10 experimental reasoning
 
 This is an Expo/React Native alpha for testing whether optional local context helps Rheo reveal practical pathways that would otherwise remain invisible.
 
-It is **not** part of the v1.1 confirmatory benchmark and lives on a separate product branch.
+This branch is `codex/rheo-v0.10-upstream-hypotheses`. It is **not** part of any confirmatory benchmark. Frozen v0.9 and v1.x research remain unchanged. See [experimental architecture](../experiments/rheo-v0.10/README.md) and [private pathways](../docs/MOBILE_PRIVATE_PATHWAYS.md).
 
 ## What works in this slice
 
-- speak a short voice note by default, or type a decision/predicament;
+- use tap-to-start live dictation in a native development build, an explicitly uploaded voice note in Expo Go, or type;
 - optionally ask Rheo to look around using foreground location;
 - reduce coordinates to neighbourhood precision before they leave the device;
 - search for a bounded set of decision-relevant local possibilities;
 - display those possibilities as evidence to check, with provenance, retrieval time and uncertainty;
-- pass the local evidence, without raw coordinates, into the existing v0.9 Rheo flow/action pipeline;
+- pass the local evidence, without raw coordinates, into the separate v0.10 experimental decision endpoint (v0.9 remains selectable);
 - receive three ordinary-language action options;
 - explicitly choose a recommended action, write another action or choose not yet;
 - save the recommendation/choice record locally on device;
 - revisit and delete recent local decision sessions;
 - remove local context and continue without it.
+- distinguish possible causes from what you can influence and what needs someone else's action;
+- record what actually happened, then explicitly ask for a new map without rewriting the old advice;
+- keep private pathways with optional gifts, practical limits and personal check-ins.
 
 The app can also prepare a chosen step: check public sources and write an unsent
-message or checklist, after a separate approval. New live answers use a simple-English
-wording pass. Both features are product-only; the frozen decision engine is unchanged.
+message or checklist, after a separate approval. Experimental answers request simple
+English directly; the older v0.9 mode retains its separate wording pass.
 
 There is intentionally no background tracking and no map yet.
 
@@ -28,17 +31,18 @@ There is intentionally no background tracking and no map yet.
 
 - Node.js 22.13 or newer for Expo SDK 57;
 - Expo-compatible iOS/Android simulator or Expo Go/development build;
-- the existing Rheo v0.9 server;
+- the version-matched Rheo server (v0.10 on this branch);
 - the prototype local-context server.
 
 ## Install
 
 ```bash
+npm ci
 cd mobile
-npm install
+npm ci
 ```
 
-The repository includes a mobile `package-lock.json`; CI uses `npm ci`.
+The root lockfile installs Ajv for the experimental server. The mobile lockfile installs Expo dependencies; CI installs both.
 
 ## Run the servers
 
@@ -48,14 +52,18 @@ From the repository root, run the Rheo server in one terminal:
 export RHEO_MODEL_PROVIDER=openai
 export OPENAI_MODEL=gpt-5.4-mini
 export OPENAI_API_KEY='YOUR_KEY'
+export RHEO_ENGINE=v0.10
+# For a physical phone on a trusted LAN only:
+export HOST=0.0.0.0
 node mobile/start_rheo.mjs
 ```
 
 Never commit the API key or put it in an Expo public environment variable.
 
 The product launcher defaults to `gpt-5.4-mini`, while respecting an explicit
-`OPENAI_MODEL` override. It imports the existing decision server without changing
-its prompts, schemas or research defaults. Model metadata stays in each new
+`OPENAI_MODEL` override. It starts the isolated experimental server by default.
+Set `RHEO_ENGINE=v0.9` AND `EXPO_PUBLIC_RHEO_ENGINE=v0.9` to use the older app pipeline;
+root `npm run start:v0.9` remains unchanged. Model metadata stays in each new
 recommendation. Existing saved answers are unchanged. From `mobile/`, the same
 launcher is available as `npm run server:rheo`.
 
@@ -85,7 +93,7 @@ Job and skills predicaments search for employment agencies, colleges and librari
 
 ```bash
 cd mobile
-npm start
+EXPO_PUBLIC_RHEO_ENGINE=v0.10 npm run start:go
 ```
 
 The default API URLs are:
@@ -98,10 +106,11 @@ On a physical phone, `localhost` means the phone itself. Point the app at the co
 ```bash
 export EXPO_PUBLIC_RHEO_API_URL='http://192.168.1.20:8080'
 export EXPO_PUBLIC_LOCAL_CONTEXT_API_URL='http://192.168.1.20:8081'
-npm start
+export EXPO_PUBLIC_RHEO_ENGINE=v0.10
+npm run start:go
 ```
 
-These public variables contain server addresses only, never secrets.
+These public variables contain server addresses and a version selector only, never secrets. Restart Expo and reload the app after changing them. The v0.10 server binds only to loopback unless `HOST` is explicitly set; do not expose these unauthenticated alpha servers to the internet.
 
 ### iPhone simulator
 
@@ -124,6 +133,13 @@ npm run doctor
 ```
 
 ### Waiting for an answer
+
+**v0.10:** one model request produces the map and three options together. The server
+has an 80-second deadline; the client has a 90-second deadline. Stop aborts the
+connection and the server's provider request, but cannot retract data or guarantee
+that provider billing stops. Invalid output is rejected, with a recoverable message;
+there is no automatic paid retry. Outcome revisions also require a separate tap.
+The following timing notes describe the older v0.9 pipeline, not a v0.10 benchmark.
 
 The Ask button becomes **Stop** while Rheo works. A short status reports the actual
 step: understanding the question, finding three options, then simplifying the wording.
@@ -174,6 +190,19 @@ open left stale text bounds. Reloading restored correct wrapping at the larger
 size. Live text-size changes still need a separate fix and physical-device check.
 
 ### Voice input
+
+**Native live dictation:** `npm run ios` or `npm run android` creates the native build
+from the existing Expo project; then use `npm run start:dev`. `expo-speech-recognition`
+and `expo-dev-client` support the earlier requested live speech-to-text flow. Words
+appear while speaking, with no saved Rheo audio file or transcription upload step.
+Apple or the Android speech provider may receive audio as you speak. Permission and
+an explicit tap are required; backgrounding stops dictation. This is not an offline
+or on-device-only promise. Text remains editable and Ask is separate. Denial never
+blocks typing. Native dictation still needs physical-device verification: the local
+Xcode installation lacks the platform required to complete this native build.
+
+**Expo Go fallback:** Expo Go lacks that native module and keeps the existing voice
+note path described below. No new Expo project was created.
 
 The question screen starts with **Speak**, without opening the keyboard or microphone.
 Tap the microphone, grant foreground microphone access, then stop recording. Clips stop
@@ -319,6 +348,23 @@ No new dependency was needed for these features. Expo was patched from 57.0.20 t
 and tests. GPS, voice input and the approved lotus artwork are unchanged.
 
 ## Privacy and storage assumptions in v0.2
+
+Experimental additions: hypotheses may contain sensitive inferences about work,
+money, care, relationships and power. They remain provisional and are stored only
+with the local recommendation snapshot. Up to 20 append-only outcome reviews per
+decision are saved locally; only an explicit **Ask Rheo with this update** sends the
+selected review, earlier hypotheses/choice/prediction, original question and saved
+local context to the AI provider. Revised advice is a new decision linked to its
+predecessor. Deleting one decision does not delete separately saved later decisions
+or private pathways. The existing 20-decision history limit still applies, so an
+older predecessor can be evicted. There is no complete longitudinal archive.
+
+Private pathways use a separate local store (50 records, 30 check-ins each), with
+no silent eviction. Only their four reviewed input fields are sent when explicitly
+requesting an AI suggestion, never private check-ins, GPS or decision history.
+They are not an encrypted network or a shared resource directory. Free-text inputs
+can still contain identifying details or written coordinates; field stripping is
+not automatic redaction. Avoid sensitive real-world testing on this alpha.
 
 - location is opt-in and foreground only;
 - latitude/longitude are rounded to three decimal places on-device;

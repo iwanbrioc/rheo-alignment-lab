@@ -4,11 +4,13 @@ import { getLocalAffordanceContext } from './local_context_v0_1.mjs';
 import { createVoiceHandler } from './voice_transcription.mjs';
 import { createPreparationHandler, preparationEnabled } from './preparation_agent.mjs';
 import { createPlainLanguageHandler } from './plain_language.mjs';
+import { createPathwayHandler, pathwayEnabled } from './pathway_planner.mjs';
 
 const PORT = Number(process.env.LOCAL_CONTEXT_PORT || 8081);
 const handleVoice = createVoiceHandler();
 const handlePreparation = createPreparationHandler();
 const handlePlainLanguage = createPlainLanguageHandler();
+const handlePathway = createPathwayHandler();
 
 function json(res, status, body) {
   const text = JSON.stringify(body);
@@ -38,6 +40,12 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return json(res,204,{});
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
+    if (req.method === 'POST' && url.pathname === '/api/pathway-plan') {
+      return await handlePathway(req, res, json);
+    }
+    if (req.method === 'GET' && url.pathname === '/api/pathway-plan/health') {
+      return json(res, 200, { enabled: pathwayEnabled(), capability: 'pathway-possibility-v1', externalActions: false });
+    }
     if (req.method === 'POST' && url.pathname === '/api/plain-actions') {
       return await handlePlainLanguage(req, res, json);
     }

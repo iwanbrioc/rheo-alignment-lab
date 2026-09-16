@@ -1,0 +1,10 @@
+export type PathwayBrief = { need: string; gift: string; enablers: string; limits: string };
+export type PathwayPlan = { nextStep: string; why: string; check: string; care: string; stopIf: string; couldRemain: string };
+export type PathwaySuggestion = { plan: PathwayPlan; provider: 'openai'; model: string; createdAt: string; kind: 'possibility' };
+export const PATHWAY_CONSENT: 'pathway-possibility-v1';
+export const PATHWAY_FIELDS: (keyof PathwayBrief)[];
+export const PLAN_FIELDS: (keyof PathwayPlan)[];
+export const PLAN_SCHEMA: object;
+export function validatePathwayRequest(value: unknown): PathwayBrief & { consent: typeof PATHWAY_CONSENT };
+export function validatePathwayPlan(value: unknown): PathwayPlan;
+export function validatePathwayResult(value: unknown): PathwaySuggestion;

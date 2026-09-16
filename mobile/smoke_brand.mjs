@@ -74,6 +74,7 @@ function load(file) {
   vm.runInNewContext(outputText, {
     module, exports: module.exports,
     require: (name) => {
+      if (name.endsWith('/utils/experimental')) return load('./src/utils/experimental.ts');
       if (name === 'react') return react;
       if (name === 'react-native') return native;
       if (name === 'react-native-svg') return { __esModule: true, default: 'Svg', G: 'G', Path: 'Path' };

@@ -8,6 +8,7 @@ import type { LocalContextSnapshot } from '../types/localContext';
 import { createLocalId, removeCoordinateFields } from '../utils/decisionSession';
 import { postJson } from './http';
 import { plainLanguageActions } from './plainLanguage';
+import { askExperimental } from './experimentalApi';
 
 const RHEO_API_URL = process.env.EXPO_PUBLIC_RHEO_API_URL || 'http://localhost:8080';
 export type RheoStage = 'understanding' | 'options' | 'wording';
@@ -63,6 +64,10 @@ export async function askRheo(
   options: { signal?: AbortSignal; onStage?: (stage: RheoStage) => void } = {},
 ): Promise<RecommendationSnapshot> {
   checkActive(options.signal);
+  if (process.env.EXPO_PUBLIC_RHEO_ENGINE !== 'v0.9') {
+    options.onStage?.('understanding');
+    return askExperimental(decisionText, localContext, { ...options, areaLabel: location?.areaLabel });
+  }
   const caseId = createLocalId('mobile-case');
   const cleanedLocalContext = localContext
     ? removeCoordinateFields(localContext)

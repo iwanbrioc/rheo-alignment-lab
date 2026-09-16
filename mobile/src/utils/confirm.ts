@@ -5,7 +5,7 @@ export function confirmDiscardUnsaved(): Promise<boolean> {
 }
 
 export function confirmDeleteDecision(): Promise<boolean> {
-  return confirm('Delete this decision?', 'This also deletes its saved research and drafts from this device. This cannot be undone.', 'Delete');
+  return confirm('Delete this decision?', 'This also deletes its saved research, drafts and outcome reviews from this device. Separate pathways and later decisions are kept. This cannot be undone.', 'Delete');
 }
 
 function confirm(title: string, message: string, label: string): Promise<boolean> {
