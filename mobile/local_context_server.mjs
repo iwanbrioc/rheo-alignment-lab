@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import http from 'node:http';
+import { pathToFileURL } from 'node:url';
 import { getLocalAffordanceContext } from './local_context_v0_1.mjs';
 import { createVoiceHandler } from './voice_transcription.mjs';
 import { createPreparationHandler, preparationEnabled } from './preparation_agent.mjs';
 import { createPlainLanguageHandler } from './plain_language.mjs';
 import { createPathwayHandler, pathwayEnabled } from './pathway_planner.mjs';
 
-const PORT = Number(process.env.LOCAL_CONTEXT_PORT || 8081);
+export function createLocalContextServer() {
 const handleVoice = createVoiceHandler();
 const handlePreparation = createPreparationHandler();
 const handlePlainLanguage = createPlainLanguageHandler();
@@ -36,10 +37,10 @@ async function readJsonBody(req, max = 200_000) {
   catch { throw Object.assign(new Error('invalid JSON'), { code:'invalid_json' }); }
 }
 
-const server = http.createServer(async (req,res) => {
+return http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return json(res,204,{});
-  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'POST' && url.pathname === '/api/pathway-plan') {
       return await handlePathway(req, res, json);
     }
@@ -75,7 +76,11 @@ const server = http.createServer(async (req,res) => {
     return json(res,status,{ error:e.message,errorCode:e.code || 'local_context_error' });
   }
 });
+}
 
-server.listen(PORT, () => {
-  console.log(`Rheo local-context prototype listening on http://localhost:${PORT} (provider=${process.env.LOCAL_CONTEXT_PROVIDER || 'fixture'})`);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const PORT = Number(process.env.LOCAL_CONTEXT_PORT || 8081);
+  createLocalContextServer().listen(PORT, () => {
+    console.log(`Rheo local-context prototype listening on http://localhost:${PORT} (provider=${process.env.LOCAL_CONTEXT_PROVIDER || 'fixture'})`);
+  });
+}

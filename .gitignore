@@ -9,6 +9,14 @@ coverage/
 .expo/
 mobile/.expo/
 mobile/.smoke-build/
+mobile/private-beta/private/
+mobile/dist/
+mobile/artifacts/
+*.ipa
+*.apk
+*.aab
+*.jks
+*.keystore
 
 # Historical Corpus v2 private material. This repository is public.
 private-unseen-cases/

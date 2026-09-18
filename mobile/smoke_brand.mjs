@@ -28,6 +28,11 @@ const splash = config.plugins.find((plugin) => Array.isArray(plugin) && plugin[0
 assert.equal(splash.backgroundColor, brand.background);
 assert.equal(splash.resizeMode, 'contain');
 assert.equal(splash.imageWidth, 200);
+assert.equal(config.plugins.find((plugin) => Array.isArray(plugin) && plugin[0] === 'expo-status-bar')[1].style, 'dark');
+for (const file of ['./assets/voice-icons/mic.svg', './assets/voice-icons/square.svg']) {
+  const icon = await parseStringPromise(read(file));
+  assert.equal(icon.svg.$.stroke, '#ffffff', 'native SVG decoders need an explicit contrasting stroke');
+}
 
 for (const [file, opaque] of [[config.icon, true], [config.android.adaptiveIcon.foregroundImage, false], [splash.image, false]]) {
   const png = await parsePng(read(file));
@@ -102,7 +107,10 @@ for (const width of [40, 56]) {
   assert.ok(Math.abs(lotus.props.width / lotus.props.height - 320 / 224) < 1e-12);
   assert.equal(lotus.props.preserveAspectRatio, 'xMidYMid meet');
   assert.equal(lotus.props.accessibilityLabel, 'Rheo lotus');
-  for (const path of findAll(lotus, 'Path')) assert.equal(path.props.d, brand.lotusPath);
+  for (const path of findAll(lotus, 'Path')) {
+    assert.equal(path.props.d, brand.lotusPath);
+    assert.equal(path.props.vectorEffect, undefined, 'Android must apply the same transform to both strokes');
+  }
 }
 for (const compact of [false, true]) {
   const lockup = components.RheoBrand({ compact });

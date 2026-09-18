@@ -11,6 +11,7 @@ function load(file, mocks) {
   } });
   vm.runInNewContext(outputText, { module, exports: module.exports, AbortController, Error, SyntaxError,
     process: { env: { EXPO_PUBLIC_RHEO_ENGINE: 'v0.9' } }, setTimeout, clearTimeout, require: (name) => {
+      if (name === './betaAccess' && mocks['expo/fetch']) return { authenticatedFetch: mocks['expo/fetch'].fetch };
       if (name in mocks) return mocks[name];
       throw new Error(`Unexpected import ${name}`);
     } });

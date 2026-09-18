@@ -22,8 +22,8 @@ export function RheoLotus({ width = 56, decorative = false }: RheoLotusProps) {
     >
       <G transform={brand.lotusTransform} fill="none" stroke={brand.background} strokeLinecap="round" strokeLinejoin="round">
         <Path d={brand.lotusPath} strokeWidth={6.5} opacity={0.11} />
-        {/* An optical stroke weight keeps the original geometry legible at header size. */}
-        <Path d={brand.lotusPath} strokeWidth={0.85} vectorEffect="non-scaling-stroke" />
+        {/* Keep a 0.85-point stroke without Android's non-scaling-stroke transform offset. */}
+        <Path d={brand.lotusPath} strokeWidth={0.85 * 320 / width} />
       </G>
     </Svg>
   );

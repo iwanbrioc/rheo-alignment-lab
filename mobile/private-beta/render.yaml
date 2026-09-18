@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: rheo-private-beta
+    runtime: node
+    plan: 0.5c-512mb
+    region: frankfurt
+    branch: codex/rheo-v0.10-upstream-hypotheses
+    buildCommand: npm ci --omit=dev --no-audit --no-fund
+    startCommand: node mobile/private-beta/server.mjs
+    healthCheckPath: /api/health
+    autoDeployTrigger: 'off'
+    numInstances: 1
+    disk:
+      name: private-test-limits
+      mountPath: /var/data/rheo
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: RHEO_BETA_USAGE_FILE
+        value: /var/data/rheo/usage.json
+      - key: RHEO_BETA_INVITES
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: RHEO_MODEL_PROVIDER
+        value: openai
+      - key: OPENAI_MODEL
+        value: gpt-5.4-mini
+      - key: RHEO_AGENT_PROVIDER
+        value: openai
+      - key: RHEO_PATHWAY_PROVIDER
+        value: openai
+      - key: RHEO_VOICE_PROVIDER
+        value: openai
+      - key: LOCAL_CONTEXT_PROVIDER
+        value: fixture

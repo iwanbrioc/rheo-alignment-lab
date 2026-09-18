@@ -2,6 +2,11 @@
 
 This is an Expo/React Native alpha for testing whether optional local context helps Rheo reveal practical pathways that would otherwise remain invisible.
 
+Own-phone builds and the separate authenticated Render service are being prepared:
+see [private phone test setup](../docs/MOBILE_PRIVATE_BETA.md). Development still
+supports the trusted-LAN workflow below; internal preview builds require HTTPS and
+an individual access code. Packaging the app does not make AI or local search offline.
+
 This branch is `codex/rheo-v0.10-upstream-hypotheses`. It is **not** part of any confirmatory benchmark. Frozen v0.9 and v1.x research remain unchanged. See [experimental architecture](../experiments/rheo-v0.10/README.md) and [private pathways](../docs/MOBILE_PRIVATE_PATHWAYS.md).
 
 ## What works in this slice

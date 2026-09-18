@@ -1,5 +1,5 @@
 import { File } from 'expo-file-system';
-import { fetch } from 'expo/fetch';
+import { authenticatedFetch as fetch } from './betaAccess';
 
 const VOICE_API_URL = process.env.EXPO_PUBLIC_LOCAL_CONTEXT_API_URL || 'http://localhost:8081';
 

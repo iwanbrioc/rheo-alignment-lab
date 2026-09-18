@@ -1,0 +1,26 @@
+{
+  "cli": { "version": ">= 19.1.0", "appVersionSource": "remote", "promptToConfigurePushNotifications": false },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "environment": "development",
+      "env": { "EXPO_PUBLIC_RHEO_ENGINE": "v0.10" }
+    },
+    "development-simulator": {
+      "extends": "development",
+      "ios": { "simulator": true }
+    },
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_RHEO_ENGINE": "v0.10", "EXPO_PUBLIC_RHEO_PRIVATE_BETA": "true" },
+      "android": { "buildType": "apk" }
+    },
+    "preview-simulator": {
+      "extends": "preview",
+      "ios": { "simulator": true }
+    }
+  }
+}

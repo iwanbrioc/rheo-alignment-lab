@@ -22,6 +22,7 @@ import {
 import { colors } from './src/theme';
 import { DecisionSave, type DecisionSaveState } from './src/services/decisionSave';
 import { SaveNotice } from './src/components/SaveNotice';
+import { BetaAccessPanel } from './src/components/BetaAccessPanel';
 import { confirmDeleteDecision, confirmDiscardUnsaved } from './src/utils/confirm';
 import type { DecisionChoice, DecisionSession, RecommendationSnapshot } from './src/types/decision';
 import type { LocalContextSnapshot } from './src/types/localContext';
@@ -391,6 +392,7 @@ export default function App() {
         keyboardShouldPersistTaps="handled"
       >
         <SaveNotice state={saveState} onRetry={() => { void retrySave(); }} />
+        {screen === 'ask' ? <BetaAccessPanel disabled={busy !== null || saveState.status === 'saving'} /> : null}
         {screen === 'ask' ? (
           <AskScreen
             areaLabel={areaLabel}

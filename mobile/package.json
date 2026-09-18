@@ -12,7 +12,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_dictation.mjs && node smoke_brand.mjs && node smoke_preparation.mjs && node smoke_requests.mjs && node smoke_usability.mjs && node smoke_pathways.mjs && node smoke_pathway_ui.mjs && node smoke_experimental.mjs",
+    "smoke:local": "node smoke_local_context.mjs && node smoke_location.mjs && node smoke_decision_sessions.mjs && node smoke_keyboard.mjs && node smoke_voice.mjs && node smoke_dictation.mjs && node smoke_brand.mjs && node smoke_preparation.mjs && node smoke_requests.mjs && node smoke_usability.mjs && node smoke_pathways.mjs && node smoke_pathway_ui.mjs && node smoke_experimental.mjs && node smoke_private_beta.mjs",
+    "smoke:beta": "node smoke_private_beta.mjs",
     "doctor": "npx expo-doctor@latest"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "expo-file-system": "~57.0.7",
     "expo-image": "~57.0.5",
     "expo-location": "~57.0.18",
+    "expo-secure-store": "~57.0.4",
     "expo-speech-recognition": "^57.0.0",
     "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.0",

@@ -10,7 +10,12 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Rheo to use your location while you are making a decision so it can look for nearby practical options."
+          "locationWhenInUsePermission": "Allow Rheo to use your location while you are making a decision so it can look for nearby practical options.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "motionUsagePermission": false,
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
         }
       ],
       [
@@ -30,6 +35,7 @@
       ],
       "expo-image",
       "expo-asset",
+      ["expo-status-bar", { "style": "dark" }],
       [
         "expo-splash-screen",
         {
@@ -38,7 +44,8 @@
           "imageWidth": 200,
           "resizeMode": "contain"
         }
-      ]
+      ],
+      ["expo-secure-store", { "faceIDPermission": false }]
     ],
     "ios": {
       "supportsTablet": true,
@@ -50,6 +57,12 @@
         "foregroundImage": "./assets/brand/adaptive-icon.png",
         "backgroundColor": "#0D2328"
       }
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "94482de9-a319-413d-a0ce-d9ec44d675f3"
+      }
+    },
+    "owner": "rheocracy"
   }
 }

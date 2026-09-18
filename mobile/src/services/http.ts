@@ -1,4 +1,4 @@
-import { fetch } from 'expo/fetch';
+import { authenticatedFetch as fetch } from './betaAccess';
 
 type RequestOptions = { signal?: AbortSignal; timeoutMs?: number };
 

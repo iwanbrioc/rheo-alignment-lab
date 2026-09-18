@@ -1,0 +1,24 @@
+# The native build needs the mobile project only. Do not upload research or server secrets.
+/*
+!/mobile
+!/mobile/**
+!/package.json
+!/package-lock.json
+!/.gitignore
+!/.easignore
+**/node_modules/
+**/.env
+**/.env.*
+**/.DS_Store
+**/.expo/
+**/.smoke-build/
+/mobile/ios
+/mobile/android
+/mobile/dist
+/mobile/artifacts
+/mobile/private-beta
+**/*.ipa
+**/*.apk
+**/*.aab
+**/*.jks
+**/*.keystore

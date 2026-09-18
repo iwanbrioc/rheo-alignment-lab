@@ -35,6 +35,7 @@ function loader(overrides = {}) {
     vm.runInNewContext(outputText, {
       module, exports: module.exports, AbortController, URL, Error, Date, setTimeout, clearTimeout, process: { env: { EXPO_PUBLIC_RHEO_ENGINE: 'v0.9' } },
       require: (name) => {
+        if (name === './betaAccess' && overrides['expo/fetch']) return { authenticatedFetch: overrides['expo/fetch'].fetch };
         if (name in overrides) return overrides[name];
         if (name.endsWith('preparation_contract.mjs')) return contract;
         if (name.endsWith('plain_language_contract.mjs')) return plain;

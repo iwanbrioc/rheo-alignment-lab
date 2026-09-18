@@ -1,4 +1,4 @@
-import { fetch } from 'expo/fetch';
+import { authenticatedFetch as fetch } from './betaAccess';
 import { displayActions, validatePlainActions } from '../../plain_language_contract.mjs';
 import type { RecommendationAction, RecommendationSnapshot } from '../types/decision';
 

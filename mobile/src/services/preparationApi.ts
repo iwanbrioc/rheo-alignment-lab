@@ -1,4 +1,4 @@
-import { fetch } from 'expo/fetch';
+import { authenticatedFetch as fetch } from './betaAccess';
 import { PREPARATION_CONSENT, validatePreparationRequest, validatePreparationResult } from '../../preparation_contract.mjs';
 import type { PreparationResult } from '../types/preparation';
 
