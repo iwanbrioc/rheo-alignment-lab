@@ -11,6 +11,8 @@ import { authenticate, createBudget, digestCode, parseInvites } from './private-
 import { createBetaServer } from './private-beta/server.mjs';
 
 const { validateBuildEnvironment } = createRequire(import.meta.url)('./build-config.cjs');
+const appConfig = JSON.parse(readFileSync(new URL('./app.json', import.meta.url), 'utf8')).expo;
+assert.equal(appConfig.ios.config.usesNonExemptEncryption, false);
 const code = `rb1_${'a'.repeat(43)}`;
 const otherCode = `rb1_${'b'.repeat(43)}`;
 const invites = parseInvites(JSON.stringify([code, otherCode].map((value) => ({ hash: digestCode(value), expiresAt: '2099-01-01T00:00:00.000Z' }))));

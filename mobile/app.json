@@ -49,7 +49,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "org.rheo.mobile"
+      "bundleIdentifier": "org.rheo.mobile",
+      "config": { "usesNonExemptEncryption": false }
     },
     "android": {
       "package": "org.rheo.mobile",

@@ -94,9 +94,21 @@ From `mobile/`:
 
 ```bash
 npx eas-cli@latest device:create
-npx eas-cli@latest build --platform ios --profile preview
-npx eas-cli@latest build --platform android --profile preview
+npx eas-cli@latest env:exec preview 'npx eas-cli@latest build --platform ios --profile preview'
+npx eas-cli@latest env:exec preview 'npx eas-cli@latest build --platform android --profile preview'
 ```
+
+`env:exec` loads the hosted addresses before EAS first evaluates the private app
+configuration. Without it, the HTTPS guard can correctly stop the command before
+EAS has loaded its remote environment. Do not weaken that guard or use dummy URLs.
+For iPhone registration, choose Website and open the resulting link in Safari on
+the iPhone, not on the Mac. The iPhone must appear as an enabled `IPHONE` in
+`eas device:list` before creating its ad hoc profile.
+
+The iOS configuration declares `usesNonExemptEncryption: false` for the current
+app's platform HTTPS and Keychain/SecureStore use. No custom encryption library is
+bundled. This follows [Expo's SecureStore configuration guidance](https://docs.expo.dev/versions/latest/sdk/securestore/#exempting-encryption-prompt);
+reassess this declaration if encryption features change.
 
 These commands can use build quota and signing credentials. Review account, device
 registration and costs before starting. Do not use `--auto-submit`.
