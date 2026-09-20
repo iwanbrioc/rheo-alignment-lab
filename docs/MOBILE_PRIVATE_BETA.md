@@ -19,6 +19,10 @@ before signing; TestFlight will require a later store-signed build.
 
 ## Render deployment
 
+The existing test service is now deployed. Continue with it rather than creating
+another paid service; see the dated hosted-test report below. The setup instructions
+in this section describe provisioning a service from scratch.
+
 Use the separate Blueprint at `mobile/private-beta/render.yaml`, not the existing
 root `render.yaml`. It creates **rheo-private-beta**, leaves the existing website
 and DNS alone, disables automatic deployments, and runs one instance with a 1 GB
@@ -141,7 +145,7 @@ This build is not suitable for surveillance-sensitive, conflict-zone or crisis u
 
 ## Verification on 17 September 2026
 
-Preparation is complete locally; deployment and private distribution are **not** complete.
+Historical status on 17 September: preparation is complete locally; deployment and private distribution are **not** complete.
 The EAS project is linked. No Render service, paid cloud build, store submission,
 real invitation or new AI request was created during this preparation. The branch
 has not been pushed or merged. Render email verification and hosting-cost approval
@@ -201,3 +205,97 @@ signed physical installs, live voice/GPS on real phones, screen-reader/large-tex
 coverage and the access notice on a final private build. Access UI and transport
 failure/cancellation cases have automated smoke coverage. Live local search remains
 disabled in the proposed hosted configuration until its provider is deliberately set.
+
+## Hosted tests on 19-20 September 2026
+
+Render service `rheo-private-beta` is live at
+`https://rheo-private-beta.onrender.com`. Service ID:
+`srv-dan73ngae00c73do8lhg`. Initial deployment
+`dep-dan73ogae00c73do8qn0` built commit `22c2099` from
+`codex/rheo-v0.10-upstream-hypotheses` in 34.9 seconds.
+The branch was pushed, not merged. The outgoing credential-pattern/private-file
+check covered 204 text blobs; frozen research was unchanged.
+
+The user approved the base hosting cost: USD 7/month for 0.5 CPU / 512 MB,
+plus USD 0.25/month for a 1 GB disk. Taxes, extra usage and OpenAI usage are separate.
+The service is in Frankfurt, with auto-deploy off and its disk mounted at
+`/var/data/rheo`. Render's onboarding placed it in the default project/environment;
+the "Production" dashboard label does not make this an approved production release.
+It was created through the dashboard using the Blueprint's settings, not linked as
+a managed Blueprint. Do not import the Blueprint to create a second paid service.
+
+The first deployment used fixture providers. The user then entered an OpenAI key
+directly in Render. Decision, preparation, pathway and voice providers are now set
+to `openai`, with `OPENAI_MODEL=gpt-5.4-mini`; local context remains `fixture`.
+A private invitation was generated in the ignored `mobile/private-beta/private/`
+folder with owner-only file permissions. Render's environment stores only its hash
+and expiry. Its raw code was sent only as a Bearer credential to the owned HTTPS
+API during authenticated tests, not committed or bundled. The invitation expires
+on 2 October 2026. Do not commit or share the invitation file publicly.
+
+Hosted HTTPS checks all passed:
+
+| Check | HTTP result |
+| --- | --- |
+| Health: `ok`, `privateBeta`, expected version | 200 |
+| Decision without authentication | 401 |
+| Invalid invitation | 401 |
+| Valid invitation access check | 200 |
+| Browser-origin request | 403 |
+| Unlisted legacy route | 404 |
+| Wrong method | 405 |
+| Wrong content type | 415 |
+| Oversized request | 413 |
+| Authenticated fixture decision, three actions | 200 |
+| Authenticated local context, zero fabricated candidates | 200 |
+
+These initial probes used made-up text and test coordinates, not personal questions
+or device GPS. They consumed two request units. After redeployment and one failed
+provider request, the mounted ledger contained three units for 19 September and
+one invitation. This verified that the original counts survived a hosted restart.
+
+Deployment `dep-danc8jjbc2fs73dtvc7g` on 19 September enabled the OpenAI providers
+and succeeded in 31.6 seconds. Its first AI probe returned HTTP 502 in 0.2 seconds:
+the saved key contained extra lines/text. Only format booleans were inspected on
+the server. The remaining appended shell command was removed in the Render editor
+on 20 September. Deployment `dep-danscnoae00c739t6r3g` then succeeded in 37.6 seconds,
+still using commit `22c2099`.
+
+Two made-up decision requests then returned HTTP 200 with provider `openai`:
+
+- First response: 15.278 seconds. The one-off verification script incorrectly sent
+  the transport metadata to the strict decision validator and exited 1; this was a
+  test-script error, not an HTTP failure. Server-side decision validation had passed.
+- Corrected verification: 29.442 seconds, model `gpt-5.4-mini`, three distinct action
+  kinds, full decision validation passed, `researchUsable: false`. Health remained
+  HTTP 200 and a decision without authentication remained HTTP 401. Script exit 0.
+
+These two successful calls can incur OpenAI charges and each consumed one request
+unit on 20 September. There were no automatic retries. Preparation, pathway and
+voice providers have not received hosted live tests. The key was briefly visible
+in dashboard tool output during setup: replace/revoke it before inviting testers.
+It was not written to source, EAS configuration or an app bundle.
+
+Both public endpoint variables were set in the EAS project's `preview` environment
+to the Render origin. No API key or invitation was sent to EAS. A preview-simulator
+archive inspection exited 0 and an audit of its 104 files confirmed that the app
+was included and research, private server files, environment files, native build
+folders and the actual invitation code were excluded. No cloud build or store
+submission was started.
+
+Expo Doctor identified three newly available compatible patch versions. Updated
+`expo` to `~57.0.24`, `expo-asset` to `~57.0.18` and `expo-location` to `~57.0.19`,
+with their lockfile dependencies; no new package was added. Checks after updating:
+
+| Check | Result |
+| --- | --- |
+| `npm run typecheck` | Exit 0; no TypeScript errors |
+| `npm run smoke:local` | Exit 0; all 14 scripts passed, with 16 PASS summaries |
+| `npm run doctor` | Exit 0; 21/21 checks passed, no issues detected |
+| `npm audit --omit=dev --json` | Exit 1; 11 moderate findings, zero high/critical |
+
+The existing audit chain and incompatible suggested fixes remain as described in
+the earlier report. The native compile/screenshots above predate these patch
+updates; no new native compilation is claimed. Live place search, signed physical
+installs, real-phone voice/GPS, accessibility QA and key rotation remain outstanding.
+Hosting is working, but this is not yet an installable private phone release.
