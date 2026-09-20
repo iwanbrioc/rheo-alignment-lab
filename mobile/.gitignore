@@ -1,3 +1,6 @@
 # Native projects are generated from app.json and the locked dependencies.
 /ios/
 /android/
+
+# EAS may initialise Git in this folder instead of the repository root.
+/.expo/
