@@ -4,6 +4,26 @@ This is a small, non-sensitive test, not a public release or a high-risk deploym
 It reuses the existing Expo project and canonical brand. No store submission, cloud
 sync, user accounts, telemetry, background location or mesh networking is added.
 
+## Current status: 21 September 2026
+
+Signed private builds are ready to install, with the hosted Render endpoint bundled:
+
+- [iPhone: version 0.2.0, build 2](https://expo.dev/accounts/rheocracy/projects/rheo-mobile/builds/eebf41fa-af40-473f-bcaf-3ad1b5b22434)
+- [Android: version 0.2.0, build 3](https://expo.dev/accounts/rheocracy/projects/rheo-mobile/builds/efe355bf-7487-4e6b-a332-4165234b9509)
+
+Open the iPhone link in Safari on the registered iPhone. Expo downloads require a
+signed-in account with access to `@rheocracy/rheo-mobile`; anonymous downloads are
+disabled. Android build 3 replaces the earlier build 2. Neither app needs the Mac,
+Metro or Expo Go to run. New AI answers still need internet and the hosted server.
+
+The app asks for a private invitation code, not an OpenAI key. Give each tester their
+code privately. The owner's existing invitation expires on 2 October 2026.
+
+Physical-phone installation and testing have not yet been verified. Live nearby
+place search is still disabled, and saved notes remain unencrypted. Use only made-up
+or non-sensitive information for this test. The dated sections below retain earlier
+results; the final signed-build report supersedes their outstanding build blockers.
+
 ## Three separate things
 
 - A **development build** includes native dictation but still uses Metro on a computer.
@@ -311,3 +331,90 @@ the earlier report. The native compile/screenshots above predate these patch
 updates; no new native compilation is claimed. Live place search, signed physical
 installs, real-phone voice/GPS, accessibility QA and key rotation remain outstanding.
 Hosting is working, but this is not yet an installable private phone release.
+
+## Signed builds verified on 20-21 September 2026
+
+Both final builds use commit `0190aaa921219c2cca226b379b36721d82abf177` on
+`codex/rheo-v0.10-upstream-hypotheses`. The branch was pushed, not merged. Render
+continues to run `22c2099`; the later changes are mobile configuration and documentation
+and do not require a server redeployment. No new Expo project was created.
+
+| Platform | Build ID | Version / build | Result |
+| --- | --- | --- | --- |
+| iOS | `eebf41fa-af40-473f-bcaf-3ad1b5b22434` | 0.2.0 / 2 | FINISHED; cloud Doctor 21/21 passed |
+| Android | `efe355bf-7487-4e6b-a332-4165234b9509` | 0.2.0 / 3 | FINISHED; cloud Doctor 21/21 passed |
+
+The iPhone was verified as enabled in Expo and included in the ad hoc provisioning
+profile. It is the only device in that profile; the registered Mac was not selected.
+The signed app's profile expires on 20 September 2027. Apple's first certificate
+creation attempt returned a generic Bad Request; a later normal EAS retry succeeded.
+No certificates were revoked and no signing SDK was modified. The cause of the first
+error was not established. Apple login and phone registration are no longer blockers.
+
+Builds used the existing EAS Free plan. No paid Expo plan or store submission was
+enabled. The previously approved Render and OpenAI costs remain separate. The
+project's unauthenticated internal-download setting was turned off and verified;
+the app's invitation code is a separate access check.
+
+### Changes needed for signing and cloud checks
+
+- `mobile/app.json`: explicitly declares the current exempt/platform encryption use.
+- `mobile/smoke_private_beta.mjs`: checks that declaration remains in place.
+- `mobile/.gitignore`: adds `/.expo/` for EAS workers that initialise Git inside the
+  mobile folder rather than at the repository root.
+- This document: records the environment-loading build commands, registration,
+  install links and verification results.
+
+No dependencies were added for these changes. The first Android build
+`24ccc650-f8a3-479b-a2f3-4d5e219a9864` compiled successfully but reported 20/21 Doctor
+checks because its isolated Git root did not ignore `.expo`. The root ignore and
+upload rules already excluded local Expo state; it was not uploaded. The mobile
+ignore rule was verified in a fresh isolated Git repository, and replacement Android
+build 3 passed all 21 cloud checks. Use the replacement link above.
+
+### Final package inspection
+
+The downloaded IPA and replacement APK are in ignored `mobile/artifacts/` with
+owner-only file permissions. Neither artifact is committed.
+
+- iOS: `codesign --verify --deep --strict` exited 0. Bundle ID, version, signing team
+  and the single registered iPhone matched. The app is not debug-signed. The signed
+  configuration disallows arbitrary HTTP and local-network transport exceptions,
+  declares no background-location mode and preserves the encryption declaration.
+- Android: package `org.rheo.mobile`, version 0.2.0 and version code 3 matched.
+  Backup is disabled. No background-location, overlay, external-storage or biometric
+  permission is declared. The bundled JavaScript is present.
+- Both packages contain the real HTTPS Render origin and do not contain the actual
+  invitation code. The bundled JavaScript contains no API-key-shaped string. These
+  targeted inspections are not a claim of a full security audit.
+
+Privacy is unchanged: SecureStore protects only the access code; saved decisions and
+pathways use unencrypted AsyncStorage. Location remains optional, foreground-only
+and rounded before transmission. No analytics, background tracking or cloud sync was
+added. A private download link does not make this suitable for high-risk use.
+
+### Final checks
+
+Checks rerun on 21 September from `mobile/`:
+
+| Check | Result |
+| --- | --- |
+| `npm run typecheck` | Exit 0; no TypeScript errors |
+| `npm run smoke:local` | Exit 0; all 14 scripts passed, with 16 PASS summaries |
+| `npm run doctor` | Exit 0; 21/21 checks passed, no issues detected |
+| Final EAS build logs, both platforms | FINISHED; 21/21 cloud Doctor checks passed |
+| Replacement Android package inspection | Exit 0; manifest, bundle and invitation-exclusion checks passed |
+
+After the user confirmed key rotation, a fresh made-up hosted decision request
+returned HTTP 200 in 28.19 seconds, using provider `openai` and model `gpt-5.4-mini`.
+All three actions passed full decision validation. It used no personal text or GPS,
+consumed one request unit and can incur OpenAI charges. Revocation of the old key was
+not independently audited. No key was added to EAS, source or the app bundles.
+
+Remaining checks: install/cold launch on physical iOS and Android phones, the first-run
+access screen, real-phone voice/GPS, keyboard and accessibility checks, and the full
+save/reopen/delete flow. Hosted live preparation, pathway and voice requests are also
+untested. Local context remains `fixture`, so it returns no invented nearby places.
+The existing 11 moderate dependency findings remain; no high/critical findings were
+reported in the earlier audit. There are no new screenshots of these signed builds;
+the simulator screenshots above are historical, not evidence of physical testing.
