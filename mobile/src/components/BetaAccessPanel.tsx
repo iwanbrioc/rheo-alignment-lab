@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AppState, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppState, Modal, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from './AppButton';
 import { RheoBrand } from './RheoBrand';
 import { hasBetaAccess, privateBeta, removeBetaAccess, saveBetaAccess } from '../services/betaAccess';
@@ -43,8 +43,10 @@ export function BetaAccessPanel({ disabled = false }: { disabled?: boolean }) {
   return <>
     <AppButton label="Private test access" variant="quiet" disabled={disabled} onPress={() => setVisible(true)} />
     <Modal visible={visible} animationType="slide" onRequestClose={close}>
+      {/* A native modal has its own window, outside the app's safe-area provider. */}
+      <SafeAreaProvider style={styles.root}>
       <SafeAreaView style={styles.root}>
-        <ScrollView contentContainerStyle={styles.content} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+        <ScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <RheoBrand />
           <Text accessibilityRole="header" style={styles.title}>Private test access</Text>
           <Text style={styles.body}>This is an early test. Rheo can be wrong. Use made-up or non-sensitive situations for now.</Text>
@@ -61,6 +63,7 @@ export function BetaAccessPanel({ disabled = false }: { disabled?: boolean }) {
           <AppButton label="Back to Rheo" disabled={busy} onPress={close} />
         </ScrollView>
       </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   </>;
 }

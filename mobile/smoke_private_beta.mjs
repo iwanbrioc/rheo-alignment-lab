@@ -156,7 +156,7 @@ const panelOutput = ts.transpileModule(readFileSync(new URL('./src/components/Be
 vm.runInNewContext(panelOutput, { module: panelModule, exports: panelModule.exports, Error, AbortController, setTimeout, clearTimeout, require: (name) => {
   if (name === 'react') return react;
   if (name === 'react-native') return { Modal: 'Modal', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View', StyleSheet: { create: (s) => s }, AppState: { addEventListener: (_event, fn) => { background = fn; return { remove() {} }; } } };
-  if (name === 'react-native-safe-area-context') return { SafeAreaView: 'SafeAreaView' };
+  if (name === 'react-native-safe-area-context') return { SafeAreaProvider: 'SafeAreaProvider', SafeAreaView: 'SafeAreaView' };
   if (name === '../theme') return { colors: {} };
   if (name === './AppButton') return { AppButton: 'AppButton' };
   if (name === './RheoBrand') return { RheoBrand: 'RheoBrand' };
@@ -170,7 +170,20 @@ const render = () => { cursor = 0; effects = []; return panelModule.exports.Beta
 const button = (tree, label) => nodes(tree).find((node) => node.props.label === label)?.props;
 const tick = () => new Promise(setImmediate);
 let tree = render(); const cleanups = effects.map((effect) => effect()); await tick(); tree = render();
-assert.equal(nodes(tree).find((node) => node.type === 'Modal').props.visible, true);
+const modal = nodes(tree).find((node) => node.type === 'Modal');
+assert.equal(modal.props.visible, true);
+const modalProvider = modal.props.children[0];
+assert.equal(modalProvider.type, 'SafeAreaProvider', 'native modal needs its own safe-area provider');
+assert.equal(modalProvider.props.initialMetrics, undefined, 'reopened modal must measure its current window');
+assert.equal(modalProvider.props.style.flex, 1);
+const modalSafeArea = modalProvider.props.children[0];
+assert.equal(modalSafeArea.type, 'SafeAreaView', 'access content must stay inside all safe-area edges');
+const modalScroll = modalSafeArea.props.children[0];
+assert.equal(modalScroll.type, 'ScrollView');
+assert.equal(modalScroll.props.contentInsetAdjustmentBehavior, 'never', 'do not double the safe-area padding');
+assert.equal(modalScroll.props.contentContainerStyle.padding, 24, 'keep breathing room below the system safe area');
+assert.equal(modalScroll.props.automaticallyAdjustKeyboardInsets, true);
+assert.equal(modalScroll.props.keyboardShouldPersistTaps, 'handled');
 assert.equal(saves, 0); assert.ok(button(tree, 'Back to Rheo'));
 button(tree, 'Back to Rheo').onPress(); tree = render();
 assert.equal(nodes(tree).find((node) => node.type === 'Modal').props.visible, false);
