@@ -106,7 +106,7 @@ export async function getLocalAffordanceContext(body = {}) {
       areaLabel,
       searchQueries,
       candidates: [],
-      warnings: ['Local-context fixture mode returns no real places. Configure a provider before treating local context as evidence.']
+      warnings: ['Nearby place search is not connected yet. You can still ask Rheo without it.']
     };
   }
   if (provider !== 'nominatim') throw Object.assign(new Error(`Unsupported LOCAL_CONTEXT_PROVIDER: ${provider}`), { code: 'local_provider_configuration' });
@@ -117,7 +117,7 @@ export async function getLocalAffordanceContext(body = {}) {
       areaLabel,
       searchQueries: [],
       candidates: [],
-      warnings: ['No decision-relevant local search category could be derived from this first-stage query planner. Rheo should proceed without local-place evidence.']
+      warnings: ['Rheo could not match your question to a nearby-place search. You can still ask Rheo without local results.']
     };
   }
   const candidates = [];
@@ -143,7 +143,7 @@ export async function getLocalAffordanceContext(body = {}) {
         longitude: rLon,
         source: 'OpenStreetMap / Nominatim',
         sourceUrl: `https://www.openstreetmap.org/?mlat=${encodeURIComponent(rLat)}&mlon=${encodeURIComponent(rLon)}#map=17/${encodeURIComponent(rLat)}/${encodeURIComponent(rLon)}`,
-        whyRelevant: `Matched the decision-relevant local search “${query}”. Presence does not establish quality, availability or reciprocal viability.`
+        whyRelevant: `Listed for “${query}”. Check that it offers what you need.`
       });
       if (candidates.length >= 9) break;
     }
@@ -157,8 +157,8 @@ export async function getLocalAffordanceContext(body = {}) {
     searchQueries,
     candidates: candidates.slice(0,9),
     warnings: [
-      'Local place results are search evidence, not endorsements. Opening hours, accessibility, capacity and suitability may be stale or unknown.',
-      'This adapter is intended for low-volume prototyping only; use a production-grade or self-hosted provider before public scale.'
+      'These are places to check, not recommendations. Opening hours, access, availability and suitability may be out of date or unknown.',
+      'This search is limited and may miss nearby places.'
     ]
   };
 }
