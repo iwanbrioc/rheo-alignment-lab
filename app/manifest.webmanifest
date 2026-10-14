@@ -1,16 +1,1 @@
-{
-  "name": "Rheo — Reciprocal Wellbeing Guide",
-  "short_name": "Rheo",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#f3efe6",
-  "theme_color": "#f3efe6",
-  "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}
+{"name":"Rheo · Pathways to thrive","short_name":"Rheo","start_url":"./index.html","scope":"./","display":"standalone","background_color":"#f7f7ef","theme_color":"#0d2328","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}

@@ -1,0 +1,1 @@
+{"name":"rheo-trust-mesh","private":true,"version":"0.3.0","scripts":{"test":"node --test app/tests/*.test.mjs","check":"node --check app/mesh-engine.mjs && node --check app/mesh-store.mjs && node --check app/mesh-transport.mjs && node --check app/mesh-ui.mjs && node --check app/sw.js"},"engines":{"node":">=20"}}

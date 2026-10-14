@@ -1,194 +1,34 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f3efe6" />
-  <meta name="description" content="Rheo — an experimental Reciprocal Wellbeing mapping guide." />
-  <title>Rheo — Reciprocal Wellbeing Guide</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d2328"><meta name="description" content="Rheo: a shared map of trusted possibilities for thriving together.">
+<title>Rheo · Pathways to thrive</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="mesh.css">
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <div class="brand">Rheo</div>
-      <div class="tagline">Experimental Reciprocal Wellbeing decision guide</div>
-    </div>
-    <button class="ghost" id="savedBtn" type="button">Saved cases</button>
-  </header>
-
-  <main class="shell">
-    <section class="card hero" id="homeView">
-      <div class="eyebrow">Research prototype v0.2 · Reciprocal Wellbeing · Rheocracy</div>
-      <h1>What is happening?</h1>
-      <p class="lead">Describe a real situation. Rheo helps separate observation from interpretation, map relevant restrictions in reciprocal flow, surface missing perspectives and displaced costs, and turn the working map into an actionable SMEAC.</p>
-      <label for="openingContext">Your situation</label>
-      <textarea id="openingContext" rows="8" placeholder="Describe what has happened, what decision you face, and why it matters."></textarea>
-      <div class="row">
-        <button class="primary" id="startBtn" type="button">Start mapping</button>
-        <button class="secondary" id="exampleBtn" type="button">Load example</button>
-      </div>
-      <div class="notice">
-        <strong>This is not an authority or assessment.</strong> Rheo begins from one narrator's account unless other evidence is supplied. It does not calculate a Reciprocal Wellbeing score, diagnose people, or replace professional, emergency, medical, legal, safeguarding or financial advice.
-      </div>
-    </section>
-
-    <section id="wizardView" class="hidden">
-      <nav class="progress" aria-label="Progress">
-        <button data-step="1">1 Context</button>
-        <button data-step="2">2 Evidence</button>
-        <button data-step="3">3 Horizons</button>
-        <button data-step="4">4 Contractions</button>
-        <button data-step="5">5 Time & viability</button>
-        <button data-step="6">6 Moves</button>
-        <button data-step="7">7 SMEAC</button>
-      </nav>
-
-      <section class="card step" data-step-panel="1">
-        <div class="eyebrow">Step 1 · Context</div>
-        <h2>Start with the situation, not a verdict</h2>
-        <div class="grid two">
-          <div>
-            <label>Situation as you currently see it</label>
-            <textarea id="context" rows="7"></textarea>
-          </div>
-          <div>
-            <label>What matters most to you here?</label>
-            <textarea id="whatMatters" rows="7" placeholder="What are you trying to protect, change, or make possible?"></textarea>
-          </div>
-          <div>
-            <label>Who is affected or absent from this account?</label>
-            <textarea id="stakeholders" rows="5" placeholder="People in the room, people not in the room, future participants, communities, living systems..."></textarea>
-          </div>
-          <div>
-            <label>What is missing or disputed?</label>
-            <textarea id="uncertainties" rows="5" placeholder="Missing records, unheard accounts, unknown motives, causal uncertainty..."></textarea>
-          </div>
-        </div>
-        <div class="grid three">
-          <div><label>Decision horizon</label><input id="decisionHorizon" placeholder="e.g. 2 weeks" /></div>
-          <div><label>Consequence / recovery horizon</label><input id="recoveryHorizon" placeholder="e.g. trust may take 12 months to rebuild" /></div>
-          <div><label>Urgency</label><select id="urgency"><option>Low</option><option selected>Medium</option><option>High</option><option>Immediate</option></select></div>
-        </div>
-        <div class="promptbox"><strong>Temporal check:</strong> A short decision deadline does not shorten the recovery time of the system affected by the decision.</div>
-      </section>
-
-      <section class="card step hidden" data-step-panel="2">
-        <div class="eyebrow">Step 2 · Epistemic provenance</div>
-        <h2>What kind of claim is each important statement?</h2>
-        <p>Fluent summaries can quietly turn interpretation into fact. Keep consequential propositions attached to their source.</p>
-        <div id="evidenceLedger"></div>
-        <button class="secondary" id="addEvidenceBtn" type="button">Add statement</button>
-        <div class="promptbox" id="singleNarratorNotice"><strong>Single-narrator warning:</strong> At present this map is built only from the account entered here. That does not make it false, but it limits what can safely be concluded about absent people's motives or disputed events.</div>
-      </section>
-
-      <section class="step hidden" data-step-panel="3">
-        <div class="card">
-          <div class="eyebrow">Step 3 · The seven horizons</div>
-          <h2>Where does restriction appear?</h2>
-          <p>These are lenses, not scores. Mark only what is relevant. A restriction can appear in one horizon while being generated elsewhere.</p>
-        </div>
-        <div id="horizonCards"></div>
-      </section>
-
-      <section class="card step hidden" data-step-panel="4">
-        <div class="eyebrow">Step 4 · Working contraction & power</div>
-        <h2>Form a hypothesis that can be wrong</h2>
-        <div id="contractionSuggestions" class="suggestions"></div>
-        <label>Working contraction hypothesis</label>
-        <textarea id="primaryContraction" rows="5" placeholder="The restriction appears in… and may be maintained by… Evidence is currently limited by…"></textarea>
-        <label>What observation would make this interpretation wrong?</label>
-        <textarea id="disconfirmingEvidence" rows="4"></textarea>
-        <label>Whose account or local knowledge could materially change the map?</label>
-        <textarea id="missingPerspective" rows="4"></textarea>
-
-        <div class="selfImplication">
-          <label><input type="checkbox" id="narratorImplicated" /> The working map materially implicates my own actions, assumptions, incentives, or omissions.</label>
-          <small>This event is logged separately in the research prototype so later attrition is not mistaken for evidence that agreeable advice works better.</small>
-        </div>
-
-        <hr />
-        <h3>Power / safety gate</h3>
-        <p class="muted">These are uncertainty flags, not diagnoses. If safety, coercion or constrained exit may be involved, dialogue and relationship preservation are not default goals.</p>
-        <div class="grid three" id="powerGrid">
-          <div><label>Fear / retaliation</label><select id="fearRetaliation"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Constrained exit</label><select id="constrainedExit"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Surveillance / controlling behaviour</label><select id="surveillanceControl"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Material dependency</label><select id="materialDependence"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Major power asymmetry</label><select id="powerAsymmetry"><option>Unknown</option><option>No indication</option><option>Possible</option><option>Present</option></select></div>
-          <div><label>Safety uncertainty notes</label><textarea id="safetyNotes" rows="3"></textarea></div>
-        </div>
-        <div class="notice hidden" id="safetyGateNotice"><strong>Safety gate active:</strong> Do not use relationship recovery time as an argument for continued exposure to danger or coercion. Increased dialogue, disclosure, mediation or confrontation should not be assumed safe.</div>
-      </section>
-
-      <section class="card step hidden" data-step-panel="5">
-        <div class="eyebrow">Step 5 · Time, regeneration and viability</div>
-        <h2>Constrain irreversibility, not emergence</h2>
-        <div class="grid two">
-          <div><label>What could be permanently or disproportionately foreclosed?</label><textarea id="foreclose" rows="6" placeholder="Safety, habitat, trust, legitimacy, health, relationship, future options..."></textarea></div>
-          <div><label>What needs time or conditions to regenerate?</label><textarea id="regenerate" rows="6" placeholder="Attention, trust, energy, biodiversity, expertise, goodwill..."></textarea></div>
-          <div><label>Possible viability floor</label><textarea id="viabilityFloor" rows="5" placeholder="A threshold that should not be crossed because feedback may arrive too late or recovery may become impossible."></textarea></div>
-          <div><label>Full-trajectory concern</label><textarea id="trajectoryConcern" rows="5" placeholder="Could a plan cause severe early damage that later improvement would disguise? What drawdown or threshold crossing matters?"></textarea></div>
-        </div>
-        <div class="promptbox"><strong>Temporal direction:</strong> Does a proposed constraint preserve future possibility, or merely preserve the existing order?</div>
-      </section>
-
-      <section class="card step hidden" data-step-panel="6">
-        <div class="eyebrow">Step 6 · Possible moves</div>
-        <h2>Increase affordance before imposing behaviour</h2>
-        <p>Generate several possible moves. A locally successful move can still fail if somebody outside the immediate frame pays the cost.</p>
-        <div id="moves"></div>
-        <button class="secondary" id="addMoveBtn" type="button">Add another move</button>
-        <hr />
-        <div class="grid two">
-          <div><label>Administration / logistics</label><textarea id="admin" rows="5" placeholder="People, time, money, permissions, information, dependencies, practical support..."></textarea></div>
-          <div><label>Command / signal</label><textarea id="commandSignal" rows="5" placeholder="Who decides? Who must be consulted? What must be monitored? When will the map be reviewed?"></textarea></div>
-        </div>
-      </section>
-
-      <section class="card step hidden" data-step-panel="7">
-        <div class="eyebrow">Step 7 · Actionable report</div>
-        <h2>Rheocratic SMEAC</h2>
-        <p class="muted">A working map, not a verdict. Act, observe, revise.</p>
-        <div id="smeacOutput" class="report"></div>
-        <div class="row">
-          <button class="primary" id="saveBtn" type="button">Save case</button>
-          <button class="secondary" id="exportMdBtn" type="button">Export Markdown</button>
-          <button class="secondary" id="exportJsonBtn" type="button">Export JSON</button>
-          <button class="ghost" id="exportResearchBtn" type="button">Export research log</button>
-        </div>
-        <hr />
-        <div class="followup">
-          <h3>Outcome review</h3>
-          <p>Outcome data are stored separately from the live guide. Do not turn these observations into a single hidden "Rheo success" reward.</p>
-          <label>What actually happened?</label><textarea id="actualOutcome" rows="5"></textarea>
-          <label>What did the original map miss?</label><textarea id="mapMissed" rows="4"></textarea>
-          <label>What new affordance appeared or disappeared?</label><textarea id="newAffordance" rows="4"></textarea>
-          <label>What changed in resources, dialogue, creativity, curiosity, participation or capacity?</label><textarea id="systemChanges" rows="4"></textarea>
-          <label>Who, if anyone, paid a cost that the original plan did not account for?</label><textarea id="thirdPartyCost" rows="4"></textarea>
-          <button class="secondary" id="saveOutcomeBtn" type="button">Save outcome review separately</button>
-        </div>
-      </section>
-
-      <div class="wizardControls">
-        <button class="ghost" id="backBtn" type="button">Back</button>
-        <button class="primary" id="nextBtn" type="button">Next</button>
-      </div>
-    </section>
-
-    <section id="savedView" class="card hidden">
-      <div class="row spread">
-        <div><div class="eyebrow">Casebook</div><h2>Saved cases</h2></div>
-        <button class="ghost" id="closeSavedBtn" type="button">Close</button>
-      </div>
-      <div id="savedCases"></div>
-      <div class="notice">Prototype storage is local to this browser only. No data are uploaded anywhere.</div>
-    </section>
-  </main>
-
-  <footer>Rheo v0.2 research prototype · No aggregate RWB score · provenance-aware</footer>
-  <script src="app.js"></script>
-  <script>if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script>
-</body>
-</html>
+<header class="topbar"><a class="brand" href="./" aria-label="Rheo home"><img src="lotus.svg" alt="" width="46" height="34"><span>rheo<span class="brand-sub">PATHWAYS TO THRIVE</span></span></a><nav aria-label="Main"><button data-view="explore" class="nav active" aria-current="page">Explore</button><button data-view="pathways" class="nav">Pathways</button><button data-view="mesh" class="nav">Mesh & trust</button></nav><span class="device-state"><i></i>On this device</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow">Reciprocal wellbeing · A living map</p><h1>Possibility lives<br><em>between us.</em></h1><p class="lead">Find what helps you thrive. Share what you can make possible.<br class="desktop"> Care for the people and places that sustain it.</p></div><div class="intro-actions"><button class="primary" id="add-offer">＋ Add a possibility</button><button class="quiet" id="location-button">◎ Use my location</button><span id="location-status" class="small">Location stays on your device.</span></div></section>
+<div id="demo-banner" class="demo-banner" hidden><span><strong>Illustrative map</strong> · Fictional opportunities near Llandysul, Wales. No real services or endorsements.</span><button id="leave-demo" class="text-button">Return to my map</button></div>
+<div id="storage-warning" class="warning" hidden></div>
+<section id="explore-view" aria-label="Explore possibilities">
+<div class="toolbar"><div class="segmented" id="categories" aria-label="Filter by pathway"></div><label class="search"><span class="sr-only">Search possibilities</span><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a place, skill, possibility…"></label></div>
+<div class="workspace"><div class="map-column"><div class="map-shell"><div class="map-heading"><span id="map-title">Your local possibilities</span><span class="map-caption">GPS coordinate map</span></div><svg id="map" viewBox="0 0 800 580" role="img" aria-label="A coordinate map of opportunities; no street or terrain information"></svg><div class="map-bottom"><span id="map-scale"></span><span>＋ Resources · ○ Relationships · ◇ Possibilities</span></div><div class="map-empty" id="map-empty"><span class="empty-symbol">✧</span><h2>Begin where you are.</h2><p>A shared tool. A place to gather. A skill to pass on.<br>Your first possibility can open a pathway.</p><button id="show-demo" class="secondary">Explore an illustrative map ↗</button></div></div><div class="principle"><span class="principle-icon">↻</span><div><strong>More possibility. More life.</strong><p>Trust grows through experience. Every pathway includes the care that keeps it possible.</p></div></div></div>
+<aside class="list-column"><div class="list-heading"><h2>Within reach</h2><span id="result-count" class="small"></span></div><p class="small" id="sort-note">Available pathways first. Distance when you choose a location.</p><div id="offers"></div></aside></div>
+</section>
+<section id="pathways-view" hidden><div class="section-heading"><p class="eyebrow">Needs · Meaning · Reciprocity</p><h2>From possibility to participation.</h2><p>Choose a pathway to see what is available, what needs agreement, and what you can help make possible.</p></div><div id="pathway-groups" class="pathway-grid"></div><div class="horizon-panel"><h3>Seven horizons, one living system</h3><p>RWB provides lenses for care and reflection. There is no wellbeing score, and no prescribed order for finding meaning.</p><div id="horizons" class="horizon-grid"></div></div></section>
+<section id="mesh-view" hidden><div class="section-heading"><p class="eyebrow">Distributed information · Situated trust</p><h2>Your map travels with you.</h2><p>The rules run on your device. Shared records can move between people without an AI service or a central database.</p></div><div class="mesh-grid"><article class="panel"><div class="panel-icon">⌁</div><h3>Exchange a shared map</h3><p>Export only records you chose to share. Transfer the file directly, then import it on another device. Signatures are checked before records are merged.</p><div class="actions"><button id="export" class="primary">Export shared records</button><label class="secondary file-label">Import a map<input id="import" type="file" accept=".json,application/json"></label></div><p class="small" id="exchange-count"></p><details><summary>What sharing means</summary><p>Exported information can be copied and relayed. Share only locations and details you have permission to distribute. Withdrawing a record signals a change when peers reconnect; it cannot erase copies already held elsewhere.</p></details></article>
+<article class="panel"><div class="panel-icon">◉</div><h3>Bluetooth bridge</h3><p id="bluetooth-status">Checking browser support…</p><div class="actions"><button id="connect" class="secondary">Connect a bridge</button><button id="send" class="quiet" disabled>Send shared map</button><button id="disconnect" class="quiet" hidden>Disconnect</button></div><p class="small">Requires a peripheral implementing the Rheo GATT protocol. This browser does not advertise or relay a background phone-to-phone mesh.</p><details><summary>The next transport layer</summary><p>Native phone relays will use the same signed packets with discovery, bounded forwarding and reconnect recovery. The bridge interface is implemented here; native relay hardware is not included in this version.</p></details></article>
+<article class="panel"><div class="panel-icon">⟡</div><h3>Trust has a context</h3><p>Confirm a particular opportunity, skill or care commitment. An endorsement belongs to a specific revision and expires. A signature identifies its source; it does not establish that the claim is true.</p><p class="small">Device fingerprint</p><code id="fingerprint"></code><p class="small">This device’s signing key stays in browser storage. Losing that storage loses this identity. Exported maps do not back up the key.</p><button id="my-records" class="text-button">View my contributions →</button></article>
+<article class="panel"><div class="panel-icon">↗</div><h3>Rules you can inspect</h3><p>Availability comes first, then distance. Expiry, capacity, dependency conflicts and consent remain visible. Popularity and trust totals never determine a person’s worth or access to basic help.</p><details><summary>How pathways are evaluated</summary><ul><li>Expired, paused, empty or conflicting opportunities need renewal or repair.</li><li>Missing dependencies block a pathway; unresolved enabling conditions require confirmation.</li><li>Consent remains necessary even when endorsements exist.</li><li>Participation records describe experience; they never spend or mint trust.</li><li>No Self remains an unscored lens.</li></ul></details><a href="guide/index.html" class="text-button">Open the preserved v0.2 research guide ↗</a></article></div><section class="panel contributions"><h3>People you trust in context</h3><p class="small">Private to this device. A familiar name is a label you assign after checking a fingerprint with the person; the app does not verify their identity.</p><div id="relationships"></div></section><section class="panel contributions" id="contributions"><h3>Your contributions</h3><div id="contribution-list"></div></section><div class="privacy-row"><p class="small">Your private map and location remain in this browser. No analytics, AI calls or external map tiles.</p><button id="clear" class="text-button danger">Erase this device’s Rheo data</button></div></section>
+</main>
+<footer><span>rheo <span class="footer-dot">·</span> Thriving together within the living world.</span><span>v0.3 · Local-first field prototype</span></footer>
+<dialog id="detail-dialog" class="detail-dialog"><div class="dialog-top"><span class="eyebrow">Situated possibility</span><button class="close" data-close aria-label="Close details">×</button></div><div id="detail-content"></div></dialog>
+<dialog id="offer-dialog"><div class="dialog-top"><span class="eyebrow">Make something possible</span><button class="close" data-close aria-label="Close form">×</button></div><h2 id="offer-form-title">Add a possibility</h2><form id="offer-form"><input name="recordId" type="hidden"><label>What becomes possible?<input name="title" required maxlength="100" placeholder="Learn to repair a bicycle"></label><label>Describe the invitation<textarea name="description" required maxlength="2000" rows="3" placeholder="What can someone do here, with whom, and how?"></textarea></label><div class="form-grid"><label>Pathway<select name="category" id="form-category"></select></label><label>Steward or group<input name="steward" required maxlength="120" placeholder="Who can agree access?"></label></div><label>Place label<input name="place" required maxlength="120" placeholder="Community workshop entrance"></label><div class="form-grid"><label>Latitude<input name="lat" required type="number" min="-90" max="90" step="any" placeholder="52.04"></label><label>Longitude<input name="lon" required type="number" min="-180" max="180" step="any" placeholder="-4.31"></label></div><button id="form-location" class="text-button" type="button">Use my current coordinates</button><label>what3words label <span class="optional">optional</span><input name="w3w" maxlength="120" placeholder="word.word.word"></label><p class="small">GPS coordinates locate the point. A supplied what3words label is stored as entered; it is not resolved or verified.</p><div class="form-grid"><label>Access<select name="access"><option value="ask">Ask the steward first</option><option value="open">Open under the stated conditions</option></select></label><label>Places or uses available<input name="capacity" type="number" required min="0" max="10000" value="1"></label><label>Availability valid until<input name="expires" type="datetime-local" required></label><label>Status<select name="status"><option value="active">Active</option><option value="paused">Paused</option></select></label></div><label>Access conditions & how to join<textarea name="conditions" required maxlength="2000" rows="2" placeholder="Meeting time, permission, accessibility and contact arrangements"></textarea></label><label>What sustains this possibility?<textarea name="care" required maxlength="2000" rows="2" placeholder="Restock materials, respect quiet hours, care for habitat…"></textarea></label><label>Meaning or contribution<textarea name="purpose" required maxlength="2000" rows="2" placeholder="What could this help someone care for, learn or contribute?"></textarea></label><label>Still needed <span class="optional">one enabling condition per line; optional</span><textarea name="needs" maxlength="2000" rows="2" placeholder="Someone to open the workshop"></textarea></label><label>Depends on another mapped possibility <span class="optional">optional</span><select id="dependencies" name="dependencies" multiple size="3"></select></label><label>Sharing<select name="visibility"><option value="private">Private · only on this device</option><option value="shared">Shared · included in offline and Bluetooth exchange</option></select></label><p class="small">Share only details you have permission to distribute. Your device signs the record; this does not verify its contents.</p><p class="form-error" id="offer-error" role="alert"></p><button class="primary" type="submit">Save possibility</button></form></dialog>
+<dialog id="record-dialog"><div class="dialog-top"><span class="eyebrow">Trust through experience</span><button class="close" data-close aria-label="Close record form">×</button></div><h2 id="record-title">Add a contextual record</h2><form id="record-form"><label id="scope-label">Context<select name="scope"><option value="availability">Availability at this place</option><option value="care">Care & replenishment</option><option value="skill">Skill in this activity</option></select></label><label id="verdict-label">Observation<select name="verdict"><option value="confirmed">I can confirm this claim</option><option value="concern">I have a concern</option></select></label><label id="result-label" hidden>Experience<select name="result"><option value="participated">I participated</option><option value="repaired">I helped repair or replenish</option><option value="unavailable">It was unavailable</option></select></label><label>What did you directly experience?<textarea name="note" required maxlength="2000" rows="4" placeholder="Describe the context, date and limits of what you know."></textarea></label><label id="trust-expiry-label">Valid until<input name="expires" type="datetime-local" required></label><p id="record-sharing" class="small"></p><p class="form-error" id="record-error" role="alert"></p><button class="primary" type="submit">Save signed record</button></form></dialog>
+<dialog id="relationship-dialog"><div class="dialog-top"><span class="eyebrow">Your contextual trust</span><button class="close" data-close aria-label="Close trust form">×</button></div><h2>Recognise a person in context</h2><form id="relationship-form"><input name="actor" type="hidden"><input name="recordId" type="hidden"><p id="relationship-fingerprint" class="small"></p><label>Name you recognise<input name="name" maxlength="120" required></label><label>I trust their judgement about<select name="scope"><option value="availability">Availability at this place</option><option value="care">Care & replenishment</option><option value="skill">Skill in this activity</option></select></label><label>Review this trust by<input name="expires" type="datetime-local" required></label><p class="small">Compare the full fingerprint with the person through a channel you already trust. This relationship stays on your device, applies only in the chosen context, and never grants access or bypasses consent.</p><p id="relationship-error" class="form-error" role="alert"></p><button type="submit" class="primary">Save local relationship</button></form></dialog>
+<dialog id="confirm-dialog"><div class="dialog-top"><span class="eyebrow">Your choice</span><button class="close" data-close aria-label="Cancel">×</button></div><h2 id="confirm-title"></h2><p id="confirm-description"></p><div class="actions"><button class="quiet" data-close>Cancel</button><button id="confirm-action" class="primary">Continue</button></div></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<script type="module" src="mesh-ui.mjs"></script>
+</body></html>

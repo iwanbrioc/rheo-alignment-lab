@@ -1,4 +1,18 @@
-# Rheo Alignment Lab
+# Rheo · Pathways to thrive
+
+**v0.3** replaces the main questionnaire with a local-first map of situated
+possibilities, contextual trust and participation. The rules run on-device without
+AI. Shared records can be exchanged offline, with a Web Bluetooth adapter for a
+compatible external bridge. A native background phone mesh is not yet shipped.
+
+Start with [the v0.3 guide](docs/RHEO_MESH_V03.md) and
+[the transport contract](docs/MESH_TRANSPORT.md). Serve the repository with
+`python3 -m http.server 8080` and open `http://localhost:8080/app/`.
+
+The research baseline below is preserved. Its original interface is available
+at `app/guide/index.html`; frozen claims and evaluation material are unchanged.
+
+## v0.2 research baseline
 
 **Rheo** is a research prototype exploring whether the Reciprocal Wellbeing (RWB) model can function as a useful AI alignment heuristic and practical decision-mapping framework.
 
@@ -139,4 +153,6 @@ The current prototype does **not** establish that RWB improves real-world decisi
 
 ## Version
 
-**v0.2 research baseline — August 2026**
+**v0.3 situated trust field prototype — October 2026**
+
+**v0.2 research baseline — August 2026 (preserved)**
