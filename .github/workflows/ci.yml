@@ -22,6 +22,10 @@ jobs:
           node --check app/app-analysis.js
           node --check app/app-report.js
           node --check app/sw.js
+      - name: Check local mesh engine and signed exchange
+        run: |
+          npm run check
+          npm test
       - name: Check evaluation harness
         run: python -m py_compile evaluation/harness.py
       - name: Parse JSON files

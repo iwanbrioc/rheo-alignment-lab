@@ -28,3 +28,12 @@ This version integrates the first adversarial review cycle into the Rheo researc
 ### Research status
 
 No claim of validated decision support or alignment improvement is made at this stage.
+
+## v0.3 — 2026-10-14
+
+- Replace the main questionnaire with a local-first situated affordance map.
+- Add signed contextual claims, private scoped relationships and participation records.
+- Add explicit pathway conditions, expiry, dependency handling and concurrent-edit resolution.
+- Add verified portable exchange and a Web Bluetooth GATT bridge adapter.
+- Preserve the v0.2 guide, public branding and frozen research artifacts.
+- Include core and desktop/mobile integration checks; native BLE relay hardware remains unverified.
