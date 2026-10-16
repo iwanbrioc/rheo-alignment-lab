@@ -1,4 +1,12 @@
-# Rheo · Pathways to thrive
+# Rheo Mesh · The Living Map
+
+**v0.4 digital proof of concept (October 2026).** The main browser app is now an entirely **fictional, sandbox-first** Living Map of portals overlaid on a schematic prevailing road network and parallel foot/cycle network. It includes an Open Space Time/Space Matrix and personal itinerary, imagined emergence between portals, a simulated curator pathway, an in-memory offline exchange between three devices, and a Tithe Pot simulator with conditional tapering. The map is **not** geographical navigation; there is no real money, cryptoasset, Bluetooth relay, donor or live community data.
+
+Start with [the v0.4 demonstration and limitations](docs/RHEO_V04.md). Serve the repository using `python3 -m http.server 8080` and open `http://localhost:8080/app/`. No dependency installation is required for the static demonstration. Run `npm run check` and `npm test` with Node 20+.
+
+The preceding signed-record v0.3 field prototype remains at [app/legacy.html](app/legacy.html); its [specification](docs/RHEO_MESH_V03.md), Bluetooth bridge documentation, the [v0.2 research guide](app/guide/index.html), and frozen evaluation files have been preserved.
+
+---
 
 **v0.3** replaces the main questionnaire with a local-first map of situated
 possibilities, contextual trust and participation. The rules run on-device without
