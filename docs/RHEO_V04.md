@@ -5,12 +5,12 @@ Status: **fictional sandbox**. This is a public, explanatory experience; it is N
 ## Open the demonstration
 
 Serve the repository root on localhost or HTTPS:
-\`\`\`sh
+```sh
 python3 -m http.server 8080
-\`\`\`
-Visit \`http://localhost:8080/app/\`. No build, accounts, backend, paid services, external maps, analytics, currency or radio connection are required for the v0.4 experience. All demonstration state is in memory; reload or **Reset** discards it.
+```
+Visit `http://localhost:8080/app/`. No build, accounts, backend, paid services, external maps, analytics, currency or radio connection are required for the v0.4 experience. All demonstration state is in memory; reload or **Reset** discards it.
 
-The preceding signed-record field prototype remains at \`/app/legacy.html\`. The frozen guide and evaluation remain in \`/app/guide/\`, \`/evaluation/\` and \`/research/\`. No research changes have been made.
+The preceding signed-record field prototype remains at `/app/legacy.html`. The frozen guide and evaluation remain in `/app/guide/`, `/evaluation/` and `/research/`. No research changes have been made.
 
 ## Five demonstrable interfaces
 
@@ -32,15 +32,15 @@ The preceding signed-record field prototype remains at \`/app/legacy.html\`. The
 
 ## Development and tests
 
-\`\`\`sh
+```sh
 npm run check
 npm test
 python3 scripts/smoke_public_site.py
-\`\`\`
+```
 
-The deterministic sandbox engine is in \`app/living-engine.mjs\`, fictional data in \`app/living-data.mjs\`, the interface in \`app/living-ui.mjs\` and \`app/living.css\`, and its unit tests in \`app/tests/living-engine.test.mjs\`.
+The deterministic sandbox engine is in `app/living-engine.mjs`, fictional data in `app/living-data.mjs`, the interface in `app/living-ui.mjs` and `app/living.css`, and its unit tests in `app/tests/living-engine.test.mjs`.
 
-The historical signed-record tests remain in \`app/tests/mesh-engine.test.mjs\`. The old browser QA is still available using \`node scripts/test_mesh_browser.cjs\` with an existing Playwright/Chromium installation. It now targets \`/app/legacy.html\`.
+The historical signed-record tests remain in `app/tests/mesh-engine.test.mjs`. The old browser QA is still available using `node scripts/test_mesh_browser.cjs` with an existing Playwright/Chromium installation. It now targets `/app/legacy.html`.
 
 ## What must happen before an analogue pilot
 
