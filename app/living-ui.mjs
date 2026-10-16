@@ -109,7 +109,9 @@ function renderMatrix(){
 }
 function eligibleStatus(){
   const cur={innerCompleted:$("inner-done").checked,outerCompleted:$("outer-done").checked,readinessApproved:$("ready-done").checked};
-  $("qualification").textContent=curatorEligible(cur)?"Fictional curator ready to steward portals. This is not a credential.":"The fictional curator has not completed the two pathways and review. Participation remains open.";
+  const ready=curatorEligible(cur);
+  $("qualification").textContent=ready?"Fictional curator ready to steward portals. This is not a credential.":"The fictional curator has not completed the two pathways and review. Participation remains open; only the Curator Studio portal proposal is restricted.";
+  $("portal-form").querySelector('button[type="submit"]').disabled=!ready;
 }
 function renderStudio(){
   eligibleStatus();
@@ -184,6 +186,7 @@ $("clear-path").addEventListener("click",()=>{day.clear();renderMatrix();});
 $("portal-form").addEventListener("submit",event=>{
   event.preventDefault();const f=event.currentTarget.elements;
   const name=f.name.value.trim(), invitation=f.invitation.value.trim();if(!name||!invitation)return;
+  if(!curatorEligible({innerCompleted:$("inner-done").checked,outerCompleted:$("outer-done").checked,readinessApproved:$("ready-done").checked}))return;
   const n=++added,id="new-"+n;
   const x=170+(n*157)%580,y=170+(n*113)%320;
   portals.push({id,x,y,name,kind:f.kind.value,icon:icons[f.kind.value],steward:"Fictional community",invitation,needs:"Agree access and ongoing stewardship",care:"Ask permission; care cannot be assumed"});
