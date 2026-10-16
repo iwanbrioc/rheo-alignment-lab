@@ -3,7 +3,9 @@ const assert=require("node:assert/strict");
 const {chromium}=require(process.env.RHEO_PLAYWRIGHT||"playwright");
 const base=process.env.RHEO_TEST_URL||"http://127.0.0.1:8080/app/";
 (async()=>{
-  const browser=await chromium.launch({headless:true,executablePath:process.env.RHEO_CHROMIUM||"/usr/bin/chromium",args:["--no-sandbox"]});
+  const launch={headless:true,args:["--no-sandbox"]};
+  if(process.env.RHEO_CHROMIUM)launch.executablePath=process.env.RHEO_CHROMIUM;
+  const browser=await chromium.launch(launch);
   const errors=[];
   try{
     const desktop=await browser.newPage({viewport:{width:1440,height:920}});
