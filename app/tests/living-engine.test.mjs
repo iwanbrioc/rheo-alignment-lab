@@ -63,7 +63,7 @@ test("fictional device meeting is local, bounded to participants, and idempotent
 test("encounters cannot disseminate private records or self-connect",()=>{
  const source=[{id:"A",events:[{id:"secret",public:false},{id:"shared",public:true}]},{id:"B",events:[]}];
  const merged=encounter(source,"A","B");
- assert.deepEqual(merged[0].events.map(e=>e.id),["shared"]);
+ assert.deepEqual(merged[0].events.map(e=>e.id),["secret","shared"]);
  assert.deepEqual(merged[1].events.map(e=>e.id),["shared"]);
  assert.throws(()=>encounter(source,"A","A"),/different/);
 });
