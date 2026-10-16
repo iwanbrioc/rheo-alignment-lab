@@ -1,4 +1,4 @@
-const CACHE = 'rheo-mesh-v0.4.0';
+const CACHE = 'rheo-mesh-v0.4.1';
 const ASSETS = ['./', './index.html', './legacy.html', './living.css', './living-data.mjs', './living-engine.mjs', './living-ui.mjs', './mesh.css', './mesh-engine.mjs', './mesh-store.mjs', './mesh-transport.mjs', './mesh-ui.mjs', './mesh-demo.mjs', './manifest.webmanifest', './icon.svg', './lotus.svg', './guide/index.html', './guide/styles.css', './guide/app.js', './guide/app-core.js', './guide/app-analysis.js', './guide/app-report.js'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS))));
 self.addEventListener('activate', event => event.waitUntil(Promise.all([
