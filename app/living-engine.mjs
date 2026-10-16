@@ -74,6 +74,9 @@ export function encounter(devices,a,b) {
   if(!devices.some(d=>d.id===a)||!devices.some(d=>d.id===b)) throw new Error("Unknown simulated device.");
   const x=devices.find(d=>d.id===a),y=devices.find(d=>d.id===b);
   const union=new Map([...x.events,...y.events].filter(e=>e.public===true).map(e=>[e.id,e]));
-  const events=[...union.values()].sort((m,n)=>m.id.localeCompare(n.id));
-  return devices.map(d=>d.id===a||d.id===b?{...d,events:events.slice()}: {...d,events:d.events.slice()});
+  const shared=[...union.values()].sort((m,n)=>m.id.localeCompare(n.id));
+  return devices.map(d=>{
+    const retainedPrivate=d.events.filter(e=>e.public!==true);
+    return (d.id===a||d.id===b)?{...d,events:[...retainedPrivate,...shared]}:{...d,events:d.events.slice()};
+  });
 }
