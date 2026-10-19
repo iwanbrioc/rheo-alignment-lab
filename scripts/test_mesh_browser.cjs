@@ -1,7 +1,7 @@
 /** Integration QA; requires an existing Playwright + Chromium installation. */
 const assert = require('node:assert/strict');
 const { chromium } = require(process.env.RHEO_PLAYWRIGHT || 'playwright');
-const base = process.env.RHEO_TEST_URL || 'http://127.0.0.1:8080/app/';
+const base = process.env.RHEO_TEST_URL || 'http://127.0.0.1:8080/app/v03.html';
 async function ready(page) { await page.goto(base); await page.waitForFunction(() => document.querySelector('#fingerprint').textContent.length > 20); }
 async function create(page, title, visibility = 'shared') {
   await page.getByRole('button', {name:'Add a possibility'}).click();
