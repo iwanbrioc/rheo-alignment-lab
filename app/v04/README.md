@@ -40,3 +40,14 @@ This prototype is additive under `app/v04/`. It does not alter the frozen Rheo e
 ## Matrix and My Path
 
 The matrix displays **times × spaces linked to portals**, with nine fictional activities. A user may propose a session and add/remove sessions from their own optional path. The schedule is local-only and represents no booking or confirmed availability. Existing v0.4 files without `sessions`/`myPath` import as empty matrices; reset to load illustrative sessions.
+
+## Updating a previously opened website
+
+`/app/` now leads to the current v0.4 interface. The earlier signed trust map
+remains at `/app/v03.html`, using its original IndexedDB records and signing key.
+The v0.4 local data store is also unchanged. Neither update erases user data.
+
+Both service workers revalidate mutable app files online and fall back to their
+own caches offline. They remove only their own older shell caches; the v0.3
+worker no longer deletes the v0.4 worker's cache. Existing tabs can be refreshed
+after an update without clearing website data or reinstalling the app.
