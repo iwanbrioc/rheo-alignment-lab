@@ -5,6 +5,8 @@ import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Keyboard,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -35,6 +37,7 @@ import {
 import { emptyMesh, loadMesh, sampleState, saveMesh } from "./storage";
 import { pickMesh, shareMesh } from "./fileExchange";
 import { Button, Card, Choice, Field, palette, styles } from "./ui";
+import { Home } from "./Home";
 import { Mycelium } from "./Mycelium";
 import { GeographicMap } from "./GeographicMap";
 import { useMeshSync } from "./sync/useMeshSync";
@@ -43,7 +46,7 @@ import { Matrix } from "./Matrix";
 import { PortalForm } from "./PortalForm";
 import { ConnectionForm, SessionForm } from "./RelationshipForms";
 
-type Tab = "mycelium" | "portals" | "matrix" | "exchange";
+type Tab = "home" | "mycelium" | "portals" | "matrix" | "exchange";
 type Form = "portal" | "connection" | "session" | null;
 export default function MeshApp() {
   return (
@@ -60,7 +63,7 @@ function Contents() {
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
-    [tab, setTab] = useState<Tab>("mycelium"),
+    [tab, setTab] = useState<Tab>("home"),
     [form, setForm] = useState<Form>(null),
     [editing, setEditing] = useState<Portal | null>(null),
     [selected, setSelected] = useState<string | null>(null),
@@ -68,7 +71,17 @@ function Contents() {
     [position, setPosition] = useState<Coordinate | null>(null),
     [query, setQuery] = useState(""),
     [category, setCategory] = useState<string>("All"),
-    [tokenInput, setTokenInput] = useState("");
+    [tokenInput, setTokenInput] = useState(""),
+    [managePortal, setManagePortal] = useState(false);
+  const mainScroll = useRef<ScrollView>(null),
+    detailScroll = useRef<ScrollView>(null);
+  useEffect(() => {
+    setManagePortal(false);
+    detailScroll.current?.scrollTo({ y: 0, animated: false });
+  }, [selected]);
+  useEffect(() => {
+    mainScroll.current?.scrollTo({ y: 0, animated: false });
+  }, [tab]);
   const current = useRef<MeshState | null>(null),
     locked = useRef(false),
     locating = useRef(false);
@@ -149,7 +162,7 @@ function Contents() {
     }
   }
   async function replaceWithSample() {
-    const area = position ?? await locate();
+    const area = position ?? (await locate());
     await commit(() => sampleState());
     setTab("mycelium");
     setSelected(null);
@@ -278,7 +291,10 @@ function Contents() {
                 myPath: s.myPath.filter((id) => ids.has(id)),
               };
             })
-              .then(async () => { await sync.clear(true); setSelected(null); })
+              .then(async () => {
+                await sync.clear(true);
+                setSelected(null);
+              })
               .catch(notify);
           },
         },
@@ -330,7 +346,6 @@ function Contents() {
         accessibilityLabel={"Inspect " + p.name}
         onPress={() => {
           setSelected(p.id);
-          setTab("mycelium");
         }}
       >
         <Card
@@ -376,62 +391,17 @@ function Contents() {
         <Text
           style={{ fontFamily: "Georgia", fontSize: 32, color: palette.ink }}
         >
-          rheo{" "}
-          <Text style={{ fontFamily: "System", fontSize: 11 }}>
-            MESH / V0.4
-          </Text>
+          rheo
         </Text>
-        <Text style={styles.small}>Local first · No AI</Text>
+        <Text style={styles.small}>
+          {sync.status.active ? "Nearby sharing on" : "Works offline"}
+        </Text>
       </View>
       <ScrollView
+        ref={mainScroll}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.content}
       >
-        <Text style={styles.eyebrow}>A LIVING COMMONS</Text>
-        <Text style={styles.title}>Possibility lives{"\n"}between us.</Text>
-        <Text style={styles.body}>
-          Discover portals. Grow relationships. Shape a day of learning, care
-          and contribution.
-        </Text>
-        <View style={styles.row}>
-          <Button
-            label="＋ Create a portal"
-            disabled={busy}
-            onPress={() => {
-              setEditing(null);
-              setForm("portal");
-            }}
-          />
-          <Button
-            secondary
-            label="Grow a connection"
-            disabled={busy || state.portals.length < 2}
-            onPress={() => setForm("connection")}
-          />
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginVertical: 14 }}
-        >
-          <View style={styles.row}>
-            {(
-              [
-                ["mycelium", "Mycelium"],
-                ["portals", "Portals"],
-                ["matrix", "Time / Space"],
-                ["exchange", "Mesh & data"],
-              ] as const
-            ).map(([id, label]) => (
-              <Choice
-                key={id}
-                label={label}
-                selected={tab === id}
-                onPress={() => setTab(id)}
-              />
-            ))}
-          </View>
-        </ScrollView>
         {message ? (
           <View style={styles.notice}>
             <Text accessibilityLiveRegion="polite" style={styles.body}>
@@ -440,8 +410,43 @@ function Contents() {
             <Button secondary label="Dismiss" onPress={() => setMessage("")} />
           </View>
         ) : null}
+        {tab === "home" && (
+          <Home
+            state={state}
+            position={position}
+            onLocate={() => {
+              void locate();
+            }}
+            onSelect={(id) => {
+              Keyboard.dismiss();
+              setSelected(id);
+            }}
+            onNearby={() => setTab("exchange")}
+            onOffer={() => {
+              setEditing(null);
+              setForm("portal");
+            }}
+          />
+        )}
         {tab === "mycelium" && (
           <>
+            <Text style={styles.h2}>Your local map</Text>
+            <View style={[styles.row, { marginBottom: 12 }]}>
+              <Button
+                secondary
+                label="Add a resource"
+                onPress={() => {
+                  setEditing(null);
+                  setForm("portal");
+                }}
+              />
+              <Button
+                secondary
+                label="Connect resources"
+                disabled={busy || state.portals.length < 2}
+                onPress={() => setForm("connection")}
+              />
+            </View>
             <View style={[styles.row, { marginBottom: 12 }]}>
               <Choice
                 label="Network"
@@ -469,103 +474,6 @@ function Contents() {
                   void locate();
                 }}
               />
-            )}
-            {selectedPortal && (
-              <Card>
-                <Text style={styles.eyebrow}>
-                  {selectedPortal.category} ·{" "}
-                  {selectedPortal.demo ? "ILLUSTRATIVE" : "PORTAL"}
-                </Text>
-                <Text style={styles.h2}>{selectedPortal.name}</Text>
-                <Text style={styles.body}>{selectedPortal.description}</Text>
-                <Text style={styles.small}>
-                  Steward: {selectedPortal.steward || "Not supplied"}
-                  {selectedPortal.location
-                    ? `\n${selectedPortal.location.latitude}, ${selectedPortal.location.longitude}`
-                    : "\nNo geographic position supplied."}
-                </Text>
-                {selectedPortal.received && (
-                  <Text style={styles.small}>
-                    Received information does not prove source, consent,
-                    accuracy or availability.
-                  </Text>
-                )}
-                <Text style={styles.h3}>What flows here</Text>
-                {portalConnections(state, selectedPortal.id).map((l) => (
-                  <Text key={l.id} style={styles.body}>
-                    ↔ {l.relation}
-                  </Text>
-                ))}
-                {!portalConnections(state, selectedPortal.id).length && (
-                  <Text style={styles.body}>No connections recorded yet.</Text>
-                )}
-                <Button
-                  secondary
-                  disabled={busy}
-                  label={
-                    selectedPortal.shareable
-                      ? "Make this portal private"
-                      : "Allow sharing this portal and its location"
-                  }
-                  onPress={() => {
-                    const next = !selectedPortal.shareable;
-                    const save = () => {
-                      void commit((s) => ({
-                        ...s,
-                        portals: s.portals.map((p) =>
-                          p.id === selectedPortal.id
-                            ? { ...p, shareable: next }
-                            : p,
-                        ),
-                      })).catch(notify);
-                    };
-                    if (next)
-                      Alert.alert(
-                        "Allow this portal to be shared?",
-                        "The shared record includes any coordinates and steward label. Only share details you have permission to distribute.",
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Allow sharing", onPress: save },
-                        ],
-                      );
-                    else save();
-                  }}
-                />
-                <Button
-                  secondary
-                  disabled={busy || !selectedPortal.shareable}
-                  label="Share a manual text token"
-                  onPress={() => {
-                    void shareToken(selectedPortal);
-                  }}
-                />
-                <Text style={styles.small}>
-                  This manual fallback omits GPS and the steward label.
-                  Automatic nearby data exchange is under Mesh &amp; data.
-                </Text>
-                {!selectedPortal.demo && (
-                  <Button
-                    secondary
-                    disabled={busy}
-                    label="Edit portal / map position"
-                    onPress={() => {
-                      setEditing(selectedPortal);
-                      setForm("portal");
-                    }}
-                  />
-                )}
-                <Button
-                  secondary
-                  disabled={busy}
-                  label="Remove portal"
-                  onPress={() => removePortal(selectedPortal)}
-                />
-                <Button
-                  secondary
-                  label="Close details"
-                  onPress={() => setSelected(null)}
-                />
-              </Card>
             )}
             <Text style={styles.h2}>Within the mycelium</Text>
             {visible.slice(0, 12).map(portalCard)}
@@ -642,8 +550,8 @@ function Contents() {
               <Text style={styles.small}>
                 Use Files, AirDrop or another channel you choose. Imports never
                 silently overwrite conflicting records. Received information
-                remains unverified. Nearby sharing runs while Rheo is open;
-                your saved map stays available when the radios are paused.
+                remains unverified. Nearby sharing runs while Rheo is open; your
+                saved map stays available when the radios are paused.
               </Text>
             </Card>
             <Card>
@@ -703,7 +611,7 @@ function Contents() {
             </Card>
           </>
         )}
-        {!state.portals.length && (
+        {tab === "mycelium" && !state.portals.length && (
           <Card>
             <Text style={styles.h3}>Begin where you are.</Text>
             <Text style={styles.body}>
@@ -717,47 +625,112 @@ function Contents() {
             />
           </Card>
         )}
-        <Text style={styles.small}>
-          Trust grows through relationships and experience, not a score.
-          Participation and essential help do not require a coin balance.
-        </Text>
-        <View style={styles.row}>
-          <Button
-            secondary
-            disabled={busy}
-            label="Preview sample around me"
-            onPress={sample}
-          />
-          <Button
-            secondary
-            disabled={busy}
-            label="Erase local mesh"
-            onPress={() =>
-              Alert.alert(
-                "Erase this local mesh?",
-                "This deletes this mesh and My Path from this device. Your earlier Rheo decisions and keychain are unaffected. Back up first if needed.",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  {
-                    text: "Erase mesh",
-                    style: "destructive",
-                    onPress: () => {
-                      void commit(() => emptyMesh())
-                        .then(async () => { await sync.clear(true); setSelected(null); })
-                        .catch(notify);
+        {tab === "exchange" && (
+          <Text style={styles.small}>
+            Trust grows through relationships and experience, not a score.
+            Participation and essential help do not require a coin balance.
+          </Text>
+        )}
+        {tab === "exchange" && (
+          <View style={styles.row}>
+            <Button
+              secondary
+              disabled={busy}
+              label="Preview sample around me"
+              onPress={sample}
+            />
+            <Button
+              secondary
+              disabled={busy}
+              label="Erase local mesh"
+              onPress={() =>
+                Alert.alert(
+                  "Erase this local mesh?",
+                  "This deletes this mesh and My Path from this device. Your earlier Rheo decisions and keychain are unaffected. Back up first if needed.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Erase mesh",
+                      style: "destructive",
+                      onPress: () => {
+                        void commit(() => emptyMesh())
+                          .then(async () => {
+                            await sync.clear(true);
+                            setSelected(null);
+                          })
+                          .catch(notify);
+                      },
                     },
-                  },
-                ],
-              )
-            }
-          />
-        </View>
+                  ],
+                )
+              }
+            />
+          </View>
+        )}
       </ScrollView>
+      <View
+        style={{
+          flexDirection: "row",
+          borderTopWidth: 1,
+          borderColor: palette.line,
+          backgroundColor: palette.paper,
+          paddingVertical: 8,
+        }}
+      >
+        {(
+          [
+            ["home", "Find"],
+            ["mycelium", "Map"],
+            ["matrix", "My day"],
+            ["exchange", "Nearby"],
+          ] as const
+        ).map(([id, label]) => (
+          <Pressable
+            key={id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: tab === id }}
+            onPress={() => {
+              Keyboard.dismiss();
+              setTab(id);
+            }}
+            style={{
+              flex: 1,
+              minHeight: 52,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: tab === id ? "700" : "500",
+                color: tab === id ? palette.ink : palette.muted,
+              }}
+            >
+              {label}
+            </Text>
+            {tab === id && (
+              <View
+                style={{
+                  height: 3,
+                  width: 20,
+                  borderRadius: 2,
+                  backgroundColor: palette.green,
+                  marginTop: 6,
+                }}
+              />
+            )}
+          </Pressable>
+        ))}
+      </View>
       <Modal
-        visible={form !== null}
+        visible={form !== null || Boolean(selectedPortal)}
         animationType="slide"
         onRequestClose={() => {
-          if (!busy) setForm(null);
+          if (!busy) {
+            if (form) setForm(null);
+            else setSelected(null);
+          }
         }}
       >
         <SafeAreaView style={styles.screen}>
@@ -766,15 +739,194 @@ function Contents() {
             behavior={Platform.OS === "ios" ? "padding" : undefined}
           >
             <ScrollView
+              ref={detailScroll}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.content}
             >
               <Button
                 secondary
                 disabled={busy}
-                label="Close"
-                onPress={() => setForm(null)}
+                label={form ? "Cancel" : "Back"}
+                onPress={() => {
+                  if (form) setForm(null);
+                  else setSelected(null);
+                }}
               />
+              {message ? (
+                <Text accessibilityLiveRegion="polite" style={styles.small}>
+                  {message}
+                </Text>
+              ) : null}
+              {form === null && (
+                <>
+                  {selectedPortal && (
+                    <Card>
+                      <Text style={styles.eyebrow}>
+                        {selectedPortal.category} ·{" "}
+                        {selectedPortal.demo ? "ILLUSTRATIVE" : "PORTAL"}
+                      </Text>
+                      <Text style={styles.h2}>{selectedPortal.name}</Text>
+                      <Text style={styles.body}>
+                        {selectedPortal.description}
+                      </Text>
+                      <Text selectable style={styles.body}>
+                        Host / contact:{" "}
+                        {selectedPortal.steward || "Not supplied"}
+                        {selectedPortal.location
+                          ? `\n${selectedPortal.location.latitude}, ${selectedPortal.location.longitude}`
+                          : "\nNo geographic position supplied."}
+                      </Text>
+                      {selectedPortal.received && (
+                        <Text style={styles.small}>
+                          Received information does not prove source, consent,
+                          accuracy or availability.
+                        </Text>
+                      )}
+                      {/^\+?[0-9][0-9 ()-]{6,20}$/.test(
+                        selectedPortal.steward.trim(),
+                      ) && (
+                        <Button
+                          label="Call host"
+                          onPress={() => {
+                            void Linking.openURL(
+                              "tel:" +
+                                selectedPortal.steward.replace(/[^+0-9]/g, ""),
+                            ).catch(notify);
+                          }}
+                        />
+                      )}
+                      {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                        selectedPortal.steward.trim(),
+                      ) && (
+                        <Button
+                          label="Email host"
+                          onPress={() => {
+                            void Linking.openURL(
+                              "mailto:" +
+                                encodeURIComponent(
+                                  selectedPortal.steward.trim(),
+                                ),
+                            ).catch(notify);
+                          }}
+                        />
+                      )}
+                      {selectedPortal.location && (
+                        <Button
+                          secondary
+                          label="View location on map"
+                          onPress={() => {
+                            setTab("mycelium");
+                            setMode("map");
+                            setSelected(null);
+                          }}
+                        />
+                      )}
+                      <Text style={styles.body}>
+                        Availability and safe access are not confirmed. Contact
+                        the host before relying on this resource.
+                      </Text>
+                      <Text style={styles.h3}>Connected resources</Text>
+                      {portalConnections(state, selectedPortal.id).map((l) => (
+                        <Button
+                          key={l.id}
+                          secondary
+                          label={`${state.portals.find((p) => p.id === (l.from === selectedPortal.id ? l.to : l.from))?.name || "Related resource"} · ${l.relation}`}
+                          onPress={() =>
+                            setSelected(
+                              l.from === selectedPortal.id ? l.to : l.from,
+                            )
+                          }
+                        />
+                      ))}
+                      {!portalConnections(state, selectedPortal.id).length && (
+                        <Text style={styles.body}>
+                          No connections recorded yet.
+                        </Text>
+                      )}
+                      <Button
+                        secondary
+                        label={
+                          managePortal
+                            ? "Hide management options"
+                            : "Manage this portal"
+                        }
+                        onPress={() => setManagePortal(!managePortal)}
+                      />
+                      {managePortal && (
+                        <>
+                          <Button
+                            secondary
+                            disabled={busy}
+                            label={
+                              selectedPortal.shareable
+                                ? "Make this portal private"
+                                : "Allow sharing this portal and its location"
+                            }
+                            onPress={() => {
+                              const next = !selectedPortal.shareable;
+                              const save = () => {
+                                void commit((s) => ({
+                                  ...s,
+                                  portals: s.portals.map((p) =>
+                                    p.id === selectedPortal.id
+                                      ? { ...p, shareable: next }
+                                      : p,
+                                  ),
+                                })).catch(notify);
+                              };
+                              if (next)
+                                Alert.alert(
+                                  "Allow this portal to be shared?",
+                                  "The shared record includes any coordinates and steward label. Only share details you have permission to distribute.",
+                                  [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Allow sharing", onPress: save },
+                                  ],
+                                );
+                              else save();
+                            }}
+                          />
+                          <Button
+                            secondary
+                            disabled={busy || !selectedPortal.shareable}
+                            label="Share a manual text token"
+                            onPress={() => {
+                              void shareToken(selectedPortal);
+                            }}
+                          />
+                          <Text style={styles.small}>
+                            This manual fallback omits GPS and the steward
+                            label. Automatic nearby data exchange is under Mesh
+                            &amp; data.
+                          </Text>
+                          {!selectedPortal.demo && (
+                            <Button
+                              secondary
+                              disabled={busy}
+                              label="Edit portal / map position"
+                              onPress={() => {
+                                setEditing(selectedPortal);
+                                setForm("portal");
+                              }}
+                            />
+                          )}
+                          <Button
+                            secondary
+                            disabled={busy}
+                            label="Remove portal"
+                            onPress={() => removePortal(selectedPortal)}
+                          />
+                        </>
+                      )}
+                      <Button
+                        secondary
+                        label="Done"
+                        onPress={() => setSelected(null)}
+                      />
+                    </Card>
+                  )}
+                </>
+              )}
               {form === "portal" && (
                 <PortalForm
                   initial={editing}

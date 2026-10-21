@@ -24,10 +24,16 @@ export function Matrix({
     try {
       const event = calendarEvent(session, day);
       await Calendar.createEventInCalendarAsync(event);
-      setCalendarMessage("Calendar editor closed. Only events you saved there are added. Changes in Rheo do not update saved calendar events.");
+      setCalendarMessage(
+        "Calendar editor closed. Only events you saved there are added. Changes in Rheo do not update saved calendar events.",
+      );
     } catch (error) {
-      setCalendarMessage(error instanceof Error ? error.message : String(error));
-    } finally { setAdding(false); }
+      setCalendarMessage(
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setAdding(false);
+    }
   }
   const spaces = [...new Set(state.sessions.map((s) => s.space))];
   const toSlot = (t: string) =>
@@ -40,11 +46,11 @@ export function Matrix({
   });
   return (
     <>
-      <Text style={styles.eyebrow}>OPEN SPACE · YOUR CHOICE</Text>
-      <Text style={styles.title}>Surf the mycelium.</Text>
+      <Text style={styles.eyebrow}>ACTIVITIES · YOUR CHOICE</Text>
+      <Text style={styles.title}>Your day.</Text>
       <Text style={styles.body}>
-        Choose where you can learn or contribute. Change direction whenever you
-        need to. This is a local programme, not a booking service.
+        Choose activities for your day. Add them to your calendar when ready. A
+        saved activity is not a confirmed booking.
       </Text>
       <Button label="＋ Propose an activity" onPress={onPropose} />
       {state.sessions.length > 0 ? (
@@ -114,13 +120,24 @@ export function Matrix({
         </Card>
       )}
       <Text style={styles.h2}>My Path</Text>
-      <Field label="Calendar date (YYYY-MM-DD)" value={day} onChangeText={setDay} maxLength={10} />
+      <Field
+        label="Calendar date (YYYY-MM-DD)"
+        value={day}
+        onChangeText={setDay}
+        maxLength={10}
+      />
       <Text style={styles.small}>
-        Choose the date for these programme times. Add an activity through your phone’s calendar editor;
-        review the date, local time and calendar before saving. Your existing appointments stay private. Saving again can create a duplicate;
-        removing an activity here does not delete it from your calendar.
+        Choose the date for these programme times. Add an activity through your
+        phone’s calendar editor; review the date, local time and calendar before
+        saving. Your existing appointments stay private. Saving again can create
+        a duplicate; removing an activity here does not delete it from your
+        calendar.
       </Text>
-      {calendarMessage ? <Text accessibilityLiveRegion="polite" style={styles.body}>{calendarMessage}</Text> : null}
+      {calendarMessage ? (
+        <Text accessibilityLiveRegion="polite" style={styles.body}>
+          {calendarMessage}
+        </Text>
+      ) : null}
       {pathHasOverlap(state) && (
         <View style={styles.notice}>
           <Text style={styles.body}>
@@ -136,9 +153,14 @@ export function Matrix({
             {s.start}–{s.end} · {s.space}
             {s.demo ? " · Illustrative" : ""}
           </Text>
-          <Button secondary disabled={adding}
+          <Button
+            secondary
+            disabled={adding}
             label={s.demo ? "Preview sample in calendar" : "Add to calendar"}
-            onPress={() => { void addToCalendar(s); }} />
+            onPress={() => {
+              void addToCalendar(s);
+            }}
+          />
           <Button
             secondary
             label="Remove from My Path"

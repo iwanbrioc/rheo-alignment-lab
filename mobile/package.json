@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "smoke:local": "node smoke_local_context.mjs && node smoke_decision_sessions.mjs",
     "doctor": "npx expo-doctor@latest",
-    "test:mesh": "node --test tests/mesh.test.mjs tests/replication.test.mjs",
+    "test:mesh": "node --test tests/mesh.test.mjs tests/replication.test.mjs tests/discovery.test.mjs",
     "export:ios": "expo export --platform ios --output-dir dist-ios"
   },
   "dependencies": {

@@ -10,9 +10,9 @@ import {
 } from "react-native";
 export const palette = {
   ink: "#153a33",
-  muted: "#60736b",
+  muted: "#4f635a",
   paper: "#fffef8",
-  bg: "#f4f6ed",
+  bg: "#f7f8f4",
   line: "#d5dfce",
   green: "#2f6954",
   mint: "#e0ecd7",
@@ -49,11 +49,15 @@ export function Button({
     </Pressable>
   );
 }
-export function Field({ label, ...props }: TextInputProps & { label: string }) {
+export const Field = React.forwardRef<
+  TextInput,
+  TextInputProps & { label: string }
+>(function Field({ label, ...props }, ref) {
   return (
     <View style={{ marginBottom: 14 }}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        ref={ref}
         accessibilityLabel={label}
         placeholderTextColor="#7c8c80"
         {...props}
@@ -65,7 +69,7 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
       />
     </View>
   );
-}
+});
 export function Choice({
   label,
   selected,
@@ -105,28 +109,31 @@ export const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 40 },
   row: { flexDirection: "row", flexWrap: "wrap", gap: 8, alignItems: "center" },
   title: {
-    fontFamily: "Georgia",
+    fontFamily: "System",
+    fontWeight: "600",
     fontSize: 34,
     color: palette.ink,
     lineHeight: 40,
     marginBottom: 12,
   },
   h2: {
-    fontFamily: "Georgia",
+    fontFamily: "System",
+    fontWeight: "600",
     fontSize: 25,
     color: palette.ink,
     marginBottom: 10,
   },
   h3: {
-    fontFamily: "Georgia",
+    fontFamily: "System",
+    fontWeight: "600",
     fontSize: 21,
     color: palette.ink,
     marginBottom: 8,
   },
   body: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: palette.muted,
+    fontSize: 16,
+    lineHeight: 25,
+    color: palette.ink,
     marginBottom: 12,
   },
   small: {
@@ -143,7 +150,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    minHeight: 48,
+    minHeight: 52,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: palette.green,
@@ -152,7 +159,7 @@ export const styles = StyleSheet.create({
     borderRadius: 9,
     marginVertical: 4,
   },
-  buttonText: { fontSize: 14, fontWeight: "600", color: "white" },
+  buttonText: { fontSize: 16, fontWeight: "600", color: "white" },
   secondary: { backgroundColor: palette.mint },
   card: {
     padding: 18,

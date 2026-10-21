@@ -19,7 +19,7 @@ export function PortalForm({
     [category, setCategory] = useState<PortalInput["category"]>(
       initial?.category || "Essentials",
     ),
-    [kind, setKind] = useState<PortalInput["kind"]>(initial?.kind || "Place"),
+    [kind, setKind] = useState<PortalInput["kind"]>(initial?.kind || "Resource"),
     [steward, setSteward] = useState(initial?.steward || ""),
     [lat, setLat] = useState(
       initial?.location ? String(initial.location.latitude) : "",
@@ -28,7 +28,8 @@ export function PortalForm({
       initial?.location ? String(initial.location.longitude) : "",
     ),
     [shareable, setShareable] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [advanced, setAdvanced] = useState(false);
   async function submit() {
     setError("");
     try {
@@ -62,72 +63,56 @@ export function PortalForm({
       setError(e instanceof Error ? e.message : "Could not save this portal.");
     }
   }
+  const categoryLabels = {
+    Essentials: "Everyday needs",
+    Belonging: "Care & company",
+    Learning: "Skills & tools",
+    Creativity: "Arts & music",
+    Nature: "Gardens & nature",
+    Purpose: "Projects & purpose",
+  };
   return (
     <>
-      <Text style={styles.h2}>
-        {initial ? "Edit your portal" : "Create a portal"}
+      <Text style={styles.title}>
+        {initial ? "Edit resource" : "Share a resource"}
+      </Text>
+      <Text style={styles.body}>
+        A place, something useful, a skill or an invitation.
       </Text>
       <Field
-        label="What becomes possible?"
+        label="What can you offer?"
+        placeholder="A warm room, shared tools, a caring circle…"
         value={name}
         onChangeText={setName}
         maxLength={70}
       />
       <Field
-        label="Invitation, access conditions and sustaining care"
+        label="How can someone access it?"
+        placeholder="What is offered, when, any limits, and how to get in touch."
         value={description}
         onChangeText={setDescription}
         multiline
         maxLength={400}
       />
-      <Text style={styles.label}>Pathway</Text>
+      <Text style={styles.label}>What does it support?</Text>
       <View style={styles.row}>
         {categories.map((c) => (
           <Choice
             key={c}
-            label={c}
+            label={categoryLabels[c]}
             selected={category === c}
             onPress={() => setCategory(c)}
           />
         ))}
       </View>
-      <Text style={styles.label}>Kind of portal</Text>
-      <View style={styles.row}>
-        {(["Place", "People", "Resource", "Activity", "Skill"] as const).map(
-          (k) => (
-            <Choice
-              key={k}
-              label={k}
-              selected={kind === k}
-              onPress={() => setKind(k)}
-            />
-          ),
-        )}
-      </View>
       <Field
-        label="Steward / contact label (optional)"
+        label="Host or contact · optional"
+        placeholder="A name, phone number or email you may share"
         value={steward}
         onChangeText={setSteward}
         maxLength={70}
       />
-      <Text style={styles.h3}>A real location, if appropriate</Text>
-      <Text style={styles.small}>
-        Leave coordinates blank for a conceptual portal. Add only a place you
-        have permission to locate. Opening the geographic map shares the viewed
-        area with the map provider.
-      </Text>
-      <Field
-        label="Latitude (optional)"
-        value={lat}
-        onChangeText={setLat}
-        keyboardType="numbers-and-punctuation"
-      />
-      <Field
-        label="Longitude (optional)"
-        value={lon}
-        onChangeText={setLon}
-        keyboardType="numbers-and-punctuation"
-      />
+      <Text style={styles.h3}>Location · optional</Text>
       <Button
         secondary
         label="Use my approximate location"
@@ -143,22 +128,70 @@ export function PortalForm({
         }}
       />
       <Text style={styles.small}>
-        Device capture is rounded to about 100 metres. Enter coordinates
-        manually if the portal needs a more exact position.
+        {lat && lon
+          ? `${lat}, ${lon} · approximately 100 m when captured on this phone`
+          : "No location attached. Add only a place you have permission to locate."}
       </Text>
-      <View style={styles.row}>
+      {lat && lon && (
+        <Button
+          secondary
+          label="Remove location"
+          onPress={() => {
+            setLat("");
+            setLon("");
+          }}
+        />
+      )}
+      <Button
+        secondary
+        label={
+          advanced
+            ? "Hide extra options"
+            : "Extra options · exact location & type"
+        }
+        onPress={() => setAdvanced(!advanced)}
+      />
+      {advanced && (
+        <>
+          <Text style={styles.label}>Resource type</Text>
+          <View style={styles.row}>
+            {(
+              ["Place", "People", "Resource", "Activity", "Skill"] as const
+            ).map((k) => (
+              <Choice
+                key={k}
+                label={k}
+                selected={kind === k}
+                onPress={() => setKind(k)}
+              />
+            ))}
+          </View>
+          <Field
+            label="Latitude"
+            value={lat}
+            onChangeText={setLat}
+            keyboardType="numbers-and-punctuation"
+          />
+          <Field
+            label="Longitude"
+            value={lon}
+            onChangeText={setLon}
+            keyboardType="numbers-and-punctuation"
+          />
+        </>
+      )}
+      <View style={[styles.row, { marginTop: 16 }]}>
         <Switch
-          accessibilityLabel="Allow sharing this portal including its location"
+          accessibilityLabel="Allow nearby sharing including location and contact"
           value={shareable}
           onValueChange={setShareable}
         />
-        <Text style={[styles.body, { flex: 1 }]}>
-          Allow sharing this portal, including its location.
-        </Text>
+        <Text style={[styles.body, { flex: 1 }]}>Allow nearby sharing</Text>
       </View>
       <Text style={styles.small}>
-        New and edited portals are private by default. Distributed copies cannot
-        be erased remotely.
+        {shareable
+          ? "Location, contact and access details can be carried to other phones when you join nearby sharing. Distributed copies cannot be recalled."
+          : "Saved only on this phone until you allow sharing. Editing also starts private."}
       </Text>
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
@@ -167,7 +200,9 @@ export function PortalForm({
       ) : null}
       <Button
         disabled={busy}
-        label={busy ? "Saving…" : "Save portal"}
+        label={
+          busy ? "Saving…" : shareable ? "Save for sharing" : "Save privately"
+        }
         onPress={() => {
           void submit();
         }}
