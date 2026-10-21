@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
+import * as Calendar from "expo-calendar/legacy";
+import { calendarEvent, localDay } from "./calendarEvent.mjs";
 import { ScrollView, Text, View } from "react-native";
 import type { MeshState } from "./types";
 import { myPathSessions, pathHasOverlap } from "./model.mjs";
-import { Button, Card, palette, styles } from "./ui";
+import { Button, Card, Field, palette, styles } from "./ui";
 export function Matrix({
   state,
   onToggle,
@@ -12,6 +14,21 @@ export function Matrix({
   onToggle: (id: string) => void;
   onPropose: () => void;
 }) {
+  const [day, setDay] = useState(() => localDay());
+  const [calendarMessage, setCalendarMessage] = useState("");
+  const [adding, setAdding] = useState(false);
+  async function addToCalendar(session: MeshState["sessions"][number]) {
+    if (adding) return;
+    setAdding(true);
+    setCalendarMessage("");
+    try {
+      const event = calendarEvent(session, day);
+      await Calendar.createEventInCalendarAsync(event);
+      setCalendarMessage("Calendar editor closed. Only events you saved there are added. Changes in Rheo do not update saved calendar events.");
+    } catch (error) {
+      setCalendarMessage(error instanceof Error ? error.message : String(error));
+    } finally { setAdding(false); }
+  }
   const spaces = [...new Set(state.sessions.map((s) => s.space))];
   const toSlot = (t: string) =>
     Number(t.slice(0, 2)) * 2 + Number(t.slice(3)) / 30;
@@ -97,6 +114,13 @@ export function Matrix({
         </Card>
       )}
       <Text style={styles.h2}>My Path</Text>
+      <Field label="Calendar date (YYYY-MM-DD)" value={day} onChangeText={setDay} maxLength={10} />
+      <Text style={styles.small}>
+        Choose the date for these programme times. Add an activity through your phone’s calendar editor;
+        review the date, local time and calendar before saving. Your existing appointments stay private. Saving again can create a duplicate;
+        removing an activity here does not delete it from your calendar.
+      </Text>
+      {calendarMessage ? <Text accessibilityLiveRegion="polite" style={styles.body}>{calendarMessage}</Text> : null}
       {pathHasOverlap(state) && (
         <View style={styles.notice}>
           <Text style={styles.body}>
@@ -112,6 +136,9 @@ export function Matrix({
             {s.start}–{s.end} · {s.space}
             {s.demo ? " · Illustrative" : ""}
           </Text>
+          <Button secondary disabled={adding}
+            label={s.demo ? "Preview sample in calendar" : "Add to calendar"}
+            onPress={() => { void addToCalendar(s); }} />
           <Button
             secondary
             label="Remove from My Path"

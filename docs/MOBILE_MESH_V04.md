@@ -164,3 +164,27 @@ Platform reference: https://docs.expo.dev/versions/latest/sdk/map-view/
 No frozen research files were changed. The approved app icon is reused from the
 previous signed pilot branch. Existing notes are preserved by using a separate
 mesh store, not by migrating or rewriting historical decisions.
+
+
+### Local illustrative overlay
+
+Choose **Preview sample around me** and allow foreground location to see the
+fictional sample mesh placed around your approximate current area on Apple Maps.
+Location remains optional: denial or timeout still loads the conceptual sample.
+Purple sample pins and dashed connections are explicitly illustrative, not real
+local services, access points or routes. Generated positions exist only in the
+map display; they are not saved in portal records or included in exports.
+**Use my area** recentres the overlay. Real located portals retain their own
+coordinates. Loading the sample still asks before replacing an existing mesh.
+
+
+### Calendar handoff
+
+In **Time / Space → My Path**, choose a calendar date (YYYY-MM-DD), then
+**Add to calendar** on a chosen activity. Rheo opens the system event editor
+with the chosen local date, times and host space; review and save or cancel.
+The system selects its calendar and allows changing it. Rheo does not read
+appointments or perform background/two-way sync. Removing an activity from
+My Path does not delete a saved calendar event; repeated saves can duplicate it.
+Fictional activities are labelled Illustrative and carry no real venue.
+A new native build is required because this adds expo-calendar.

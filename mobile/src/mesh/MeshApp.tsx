@@ -146,9 +146,13 @@ function Contents() {
     }
   }
   async function replaceWithSample() {
+    const area = position ?? await locate();
     await commit(() => sampleState());
+    setTab("mycelium");
+    setSelected(null);
+    setMode(area ? "map" : "network");
     setMessage(
-      "Illustrative sample loaded. All starting portals and activities are fictional.",
+      "Illustrative sample loaded. With location allowed, fictional examples are overlaid around your approximate area; they are not real local listings.",
     );
   }
   function sample() {
@@ -705,7 +709,7 @@ function Contents() {
             </Text>
             <Button
               secondary
-              label="Explore the illustrative sample"
+              label="Preview sample around me"
               onPress={sample}
             />
           </Card>
@@ -718,7 +722,7 @@ function Contents() {
           <Button
             secondary
             disabled={busy}
-            label="Load illustrative sample"
+            label="Preview sample around me"
             onPress={sample}
           />
           <Button

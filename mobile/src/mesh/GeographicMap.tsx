@@ -6,6 +6,7 @@ import {
   geographicConnections,
   initialRegion,
   locatedPortals,
+  sampleOverlay,
 } from "./geography.mjs";
 import { Button, palette, styles } from "./ui";
 export function GeographicMap({
@@ -19,12 +20,16 @@ export function GeographicMap({
   onSelect: (id: string) => void;
   onLocate: () => void;
 }) {
-  const [enabled, setEnabled] = useState(false),
+  const [enabled, setEnabled] = useState(Boolean(position)),
     [ready, setReady] = useState(false);
   const map = useRef<MapView>(null);
   const portals = useMemo(() => locatedPortals(state), [state]),
     lines = useMemo(() => geographicConnections(state), [state]);
+  const samples = useMemo(() => sampleOverlay(state, position), [state, position]);
+  const sampleById = new Map(samples.map(p => [p.id, p]));
+  const sampleLinks = state.links.filter(l => sampleById.has(l.from) && sampleById.has(l.to));
   useEffect(() => {
+    if (position) setEnabled(true);
     if (ready && position)
       map.current?.animateToRegion(
         { ...position, latitudeDelta: 0.035, longitudeDelta: 0.035 },
@@ -37,8 +42,8 @@ export function GeographicMap({
         <Text style={styles.h3}>See the mycelium on a real map.</Text>
         <Text style={styles.body}>
           {Platform.OS === "ios" ? "Apple Maps" : "Google Maps"} supplies the
-          basemap and can receive the area you view. Only portals with
-          deliberately supplied coordinates appear. Network view remains
+          basemap and can receive the area you view. Real portals use deliberately supplied coordinates. With your permission,
+          fictional sample pins can be overlaid around your approximate area. Network view remains
           available offline.
         </Text>
         <Button label="Load geographic map" onPress={() => setEnabled(true)} />
@@ -87,6 +92,17 @@ export function GeographicMap({
               onPress={() => onSelect(p.id)}
             />
           ))}
+          {samples.map(p => (
+            <Marker key={p.id} coordinate={p.location}
+              title={`ILLUSTRATIVE · ${p.name}`}
+              description="Fictional example placed near you. No real place or access is implied."
+              pinColor="#9562a8" onPress={() => onSelect(p.id)} />
+          ))}
+          {sampleLinks.map(l => (
+            <Polyline key={`sample-${l.id}`}
+              coordinates={[sampleById.get(l.from)!.location, sampleById.get(l.to)!.location]}
+              strokeColor="#9562a8" strokeWidth={2} lineDashPattern={[6, 6]} />
+          ))}
           {lines.map((l) => (
             <Polyline
               key={l.id}
@@ -115,10 +131,17 @@ export function GeographicMap({
           to Network.
         </Text>
       )}
-      {!portals.length && (
+      {samples.length > 0 && (
+        <Text style={styles.body}>
+          ILLUSTRATIVE OVERLAY · {samples.length} fictional examples around your approximate area.
+          Purple pins and dashed connections are imagined possibilities, not real places or routes.
+          These generated positions are not saved or shared.
+        </Text>
+      )}
+      {!portals.length && !samples.length && (
         <Text style={styles.body}>
           No real portal locations yet. Add coordinates to a portal you know;
-          fictional samples stay off the geographic map.
+          use “Use my area” to preview fictional samples around you.
         </Text>
       )}
       <View style={styles.row}>
@@ -126,10 +149,10 @@ export function GeographicMap({
         <Button
           secondary
           label="Fit portals"
-          disabled={!portals.length || !ready}
+          disabled={!(portals.length + samples.length) || !ready}
           onPress={() =>
             map.current?.fitToCoordinates(
-              portals.map((p) => p.location),
+              [...portals, ...samples].map((p) => p.location),
               {
                 edgePadding: { top: 50, right: 40, bottom: 50, left: 40 },
                 animated: true,

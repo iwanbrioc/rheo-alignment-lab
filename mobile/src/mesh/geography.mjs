@@ -46,3 +46,21 @@ export function initialRegion(portals, position = null) {
     longitudeDelta: Math.min(350, Math.max(0.025, width * 1.5)),
   };
 }
+
+/** A display-only fictional overlay; never writes coordinates into mesh records. */
+export function sampleOverlay(state, position) {
+  if (!position || !Number.isFinite(position.latitude) ||
+      !Number.isFinite(position.longitude) || Math.abs(position.latitude) > 90 ||
+      Math.abs(position.longitude) > 180) return [];
+  const samples = state.portals.filter(p => p.demo);
+  const longitudeScale = Math.max(0.05, Math.cos(position.latitude * Math.PI / 180));
+  return samples.map((p, index) => {
+    const angle = index * 2 * Math.PI / samples.length;
+    const north = Math.cos(angle) * 0.006;
+    const east = Math.sin(angle) * 0.006 / longitudeScale;
+    return { ...p, location: {
+      latitude: Math.max(-90, Math.min(90, position.latitude + north)),
+      longitude: ((position.longitude + east + 540) % 360) - 180,
+    }};
+  });
+}

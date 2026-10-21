@@ -9,3 +9,5 @@ export function initialRegion(
   portals: Portal[],
   position?: Coordinate | null,
 ): Coordinate & { latitudeDelta: number; longitudeDelta: number };
+
+export function sampleOverlay(state: MeshState, position: Coordinate | null): (Portal & { location: Coordinate })[];

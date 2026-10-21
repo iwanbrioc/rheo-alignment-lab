@@ -14,6 +14,7 @@ import {
   locatedPortals,
   geographicConnections,
   initialRegion,
+  sampleOverlay,
 } from "../src/mesh/geography.mjs";
 import { sharedMesh, mergeMesh, parseMesh } from "../src/mesh/exchange.mjs";
 const empty = () => ({
@@ -243,4 +244,46 @@ test("adding a geographic position keeps the existing relationships and activiti
   assert.deepEqual(edited.sessions, s.sessions);
   assert.equal(locatedPortals(edited).length, 1);
   assert.throws(() => editPortal(s, "p1", details()), /fictional examples/);
+});
+
+
+test("local sample overlay stays fictional, nearby and outside saved/shared coordinates", () => {
+  const state = sampleState();
+  const before = JSON.stringify(state);
+  const area = { latitude: 51.5, longitude: -0.1 };
+  const pins = sampleOverlay(state, area);
+  assert.equal(pins.length, state.portals.length);
+  for (const pin of pins) {
+    assert.equal(pin.demo, true);
+    assert.ok(Math.abs(pin.location.latitude - area.latitude) < 0.01);
+    assert.ok(Math.abs(pin.location.longitude - area.longitude) < 0.02);
+  }
+  assert.equal(JSON.stringify(state), before);
+  assert.equal(locatedPortals(state).length, 0);
+  assert.ok(sharedMesh(state).portals.every(p => !p.location));
+  assert.deepEqual(sampleOverlay(state, null), []);
+  assert.deepEqual(sampleOverlay(state, {latitude: NaN, longitude: 0}), []);
+  for (const pin of sampleOverlay(state, {latitude: 89.999, longitude: 179.999})) {
+    assert.ok(pin.location.latitude <= 90);
+    assert.ok(pin.location.longitude >= -180 && pin.location.longitude <= 180);
+  }
+});
+
+
+test("calendar export uses chosen local date and labels fictional sessions", async () => {
+  const { calendarEvent } = await import('../src/mesh/calendarEvent.mjs');
+  const session = {title: 'Repair', start: '10:00', end: '11:00', space: 'Workshop', description: 'Bring tools', demo: false};
+  const event = calendarEvent(session, '2026-11-15');
+  assert.equal(event.startDate.getFullYear(), 2026);
+  assert.equal(event.startDate.getMonth(), 10);
+  assert.equal(event.startDate.getDate(), 15);
+  assert.equal(event.startDate.getHours(), 10);
+  assert.equal(event.endDate.getHours(), 11);
+  assert.equal(event.location, 'Workshop');
+  assert.throws(() => calendarEvent(session, '2026-02-30'));
+  assert.throws(() => calendarEvent(session, '15/11/2026'));
+  assert.throws(() => calendarEvent({...session, end: '09:00'}, '2026-11-15'));
+  const demo = calendarEvent({...session, demo: true}, '2026-11-15');
+  assert.match(demo.title, /Illustrative/);
+  assert.doesNotMatch(demo.location, /Workshop/);
 });

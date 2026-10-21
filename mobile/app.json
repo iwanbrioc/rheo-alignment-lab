@@ -14,7 +14,15 @@
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-calendar",
+        {
+          "writeOnlyAccess": true,
+          "writeOnlyCalendarPermission": "Allow Rheo to add an activity you choose to your calendar.",
+          "remindersPermission": false
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
