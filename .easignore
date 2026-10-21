@@ -1,0 +1,14 @@
+/*
+!/mobile/
+!/package.json
+!/package-lock.json
+/mobile/node_modules/
+/mobile/.expo/
+/mobile/.smoke-build/
+/mobile/dist-ios/
+/mobile/artifacts/
+/mobile/ios/
+/mobile/android/
+/mobile/.env
+/mobile/.env.*
+/mobile/private-beta/private/

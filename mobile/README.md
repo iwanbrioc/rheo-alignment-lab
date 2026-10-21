@@ -1,3 +1,11 @@
+# Rheo mobile v0.4 — mycelium and geographic portals
+
+The native app now opens the local-first v0.4 mesh. Start with
+[the mobile v0.4 guide](../docs/MOBILE_MESH_V04.md) for the real map, data/privacy
+boundaries, the existing Expo project and iPhone build/install instructions.
+The older alpha documentation below describes the retained legacy source; its AI
+server and invitation code are not required by the new native mesh.
+
 # Rheo mobile v0.2 - geolocated decision loop
 
 This is an Expo/React Native alpha for testing whether optional local context helps Rheo reveal practical pathways that would otherwise remain invisible.

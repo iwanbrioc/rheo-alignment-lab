@@ -29,6 +29,15 @@ jobs:
       - name: Mobile fixture and session smokes
         working-directory: mobile
         run: npm run smoke:local
+      - name: Native mesh and geographic overlay tests
+        working-directory: mobile
+        run: npm run test:mesh
       - name: Typecheck mobile app
         working-directory: mobile
         run: npm run typecheck
+      - name: Bundle native iOS JavaScript
+        working-directory: mobile
+        env:
+          EXPO_NO_TELEMETRY: '1'
+          EXPO_OFFLINE: '1'
+        run: npm run export:ios -- --max-workers 2

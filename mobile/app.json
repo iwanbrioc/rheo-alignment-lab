@@ -2,23 +2,36 @@
   "expo": {
     "name": "Rheo",
     "slug": "rheo-mobile",
-    "version": "0.2.0",
+    "version": "0.4.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "plugins": [
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Rheo to use your location while you are making a decision so it can look for nearby practical options."
+          "locationWhenInUsePermission": "Allow Rheo to locate you only when you ask, to position your map or a portal.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "org.rheo.mobile"
+      "bundleIdentifier": "org.rheo.mobile",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "org.rheo.mobile"
-    }
+    },
+    "owner": "rheocracy",
+    "extra": {
+      "eas": {
+        "projectId": "94482de9-a319-413d-a0ce-d9ec44d675f3"
+      }
+    },
+    "icon": "./assets/brand/icon.png"
   }
 }
