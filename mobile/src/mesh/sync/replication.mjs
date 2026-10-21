@@ -36,8 +36,16 @@ const canonical = value => {
   return JSON.stringify(rest);
 };
 // Same-key revisions may update untouched received mirrors. Local edits and other publishers cannot be overwritten.
-export function applyRecord(local, history, record, now = Date.now()) {
+export function applyRecord(local, history, record, now = Date.now(), owners = {}) {
   const incoming = validateRecord(record, now);
+  // First observed publishing keys are durable local provenance, not a reputation score.
+  // A re-signed duplicate must never grant another key permission to revise a mirror.
+  const knownOwners = {...owners};
+  for (const older of history.filter(r => r.status === 'accepted' || r.status === 'published')) {
+    const snapshot = parseMesh(older.payload);
+    for (const kind of ['portals', 'links', 'sessions']) for (const item of snapshot[kind])
+      knownOwners[`${kind}:${item.id}`] ??= older.publisher;
+  }
   const previous = history.filter(r => r.status === 'accepted' && r.publisher === record.publisher)
     .sort((a,b) => b.createdAt - a.createdAt)[0];
   if (previous && previous.createdAt >= record.createdAt && previous.id !== record.id)
@@ -48,7 +56,7 @@ export function applyRecord(local, history, record, now = Date.now()) {
     const mirrors = new Set();
     const portals = base.portals.filter(p => {
       const prior = old.portals.find(v => v.id === p.id);
-      if (prior && p.received && canonical({...p, shareable: true}) === canonical(prior)) {
+      if (prior && knownOwners[`portals:${p.id}`] === record.publisher && p.received && canonical({...p, shareable: true}) === canonical(prior)) {
         mirrors.add(p.id); return false;
       }
       return true;
@@ -73,4 +81,17 @@ export function relayWire(record) {
   if (record.hops >= 7) return null;
   const parsed = JSON.parse(record.wire);
   return JSON.stringify({...parsed, hops: record.hops + 1});
+}
+
+export function rememberOwners(owners, record) {
+  const next = {...owners};
+  const state = parseMesh(record.payload);
+  for (const kind of ['portals','links','sessions']) for (const item of state[kind]) {
+    const key = `${kind}:${item.id}`;
+    if (next[key] === undefined) {
+      if (Object.keys(next).length >= 2048) throw new Error('Publisher provenance store is full. Existing records were kept.');
+      next[key] = record.publisher;
+    }
+  }
+  return next;
 }

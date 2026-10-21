@@ -79,3 +79,14 @@ test('relay history is bounded, replay-safe and expires; hop-limited data is nev
   assert.throws(()=>validateRecord({...packets[0],payload:JSON.stringify({...a,myPath:['private']})},at));
   assert.throws(()=>validateRecord({...packets[0],payload:JSON.stringify(sampleState())},at));
 });
+
+test('re-signing an identical copy does not transfer revision authority to a different key', () => {
+  const a = newPortal(empty(),details), original = record(a);
+  const copied = record(a,2,'B'.repeat(43)+'=');
+  const b=applyRecord(empty(),[],original,at);
+  const history=[{...original,status:'accepted'},{...copied,status:'accepted'}];
+  const changed=editPortal(a,a.portals[0].id,{...details,name:'Malicious changed claim'});
+  assert.throws(()=>applyRecord(b,history,record(changed,3,copied.publisher),at),/Conflicting/);
+  const durable = {[`portals:${a.portals[0].id}`]:original.publisher};
+  assert.throws(()=>applyRecord(b,[history[1]],record(changed,4,copied.publisher),at,durable),/Conflicting/);
+});

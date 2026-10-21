@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { MeshState } from '../types';
 import { nativeMesh, type RadioStatus } from './native';
-import { applyRecord, publicPayload, relayWire, retainRecords, validateRecord, type MeshRecord } from './replication.mjs';
+import { applyRecord, publicPayload, relayWire, retainRecords, validateRecord, rememberOwners, type MeshRecord } from './replication.mjs';
 const KEY = '@rheo/radio-records/v1';
 const initialStatus: RadioStatus = { active: false, bluetooth: 'stopped', bluetoothLinks: 0, wifiPeers: 0 };
 
@@ -12,6 +12,7 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
   const [status, setStatus] = useState(initialStatus);
   const [message, setMessage] = useState('Nearby sharing is off. Your saved map remains available offline.');
   const [records, setRecords] = useState<MeshRecord[]>([]);
+  const owners = useRef<Record<string,string>>({});
   const saved = useRef<MeshRecord[]>([]), queue = useRef<Promise<unknown>>(Promise.resolve());
   const latest = useRef(state), commitRef = useRef(commit), active = useRef(false), mounted = useRef(true);
   latest.current = state; commitRef.current = commit;
@@ -22,7 +23,10 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
   }
   async function persist(next: MeshRecord[]) {
     const clean = retainRecords(next);
-    await AsyncStorage.setItem(KEY, JSON.stringify(clean.map(({wire, status, reason}) => ({wire, status, reason}))));
+    let provenance = owners.current;
+    for (const record of clean) if (record.status === 'accepted' || record.status === 'published') provenance = rememberOwners(provenance, record);
+    await AsyncStorage.setItem(KEY, JSON.stringify({records: clean.map(({wire, status, reason}) => ({wire, status, reason})), owners: provenance}));
+    owners.current = provenance;
     saved.current = clean;
     if (mounted.current) setRecords(clean);
   }
@@ -30,8 +34,15 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
     mounted.current = true;
     serial(async () => {
       const raw = await AsyncStorage.getItem(KEY);
-      if (raw && raw.length > 650000) throw new Error('Relay store exceeds its limit. Clear it before joining.');
-      const stored: unknown = raw ? JSON.parse(raw) : [];
+      if (raw && raw.length > 1000000) throw new Error('Relay store exceeds its limit. Clear it before joining.');
+      const decoded = raw ? JSON.parse(raw) : {records: [], owners: {}};
+      const stored: unknown = Array.isArray(decoded) ? decoded : decoded.records;
+      const provenance = Array.isArray(decoded) ? {} : decoded.owners;
+      if (!provenance || typeof provenance !== 'object' || Array.isArray(provenance) ||
+          Object.keys(provenance).length > 2048 || Object.entries(provenance).some(([key,value]) =>
+            !/^(portals|links|sessions):[A-Za-z0-9_-]+$/.test(key) || typeof value !== 'string' || value.length !== 44))
+        throw new Error('Publisher provenance could not be read. Clear relay storage explicitly to reset it.');
+      owners.current = provenance;
       if (!Array.isArray(stored) || stored.length > 12) throw new Error('Relay store could not be read. It was not replaced.');
       const verified: MeshRecord[] = [];
       if (nativeMesh) for (const item of stored) {
@@ -52,7 +63,7 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
       if (!active.current || !latest.current || saved.current.some(r => r.id === record.id)) return;
       validateRecord(record);
       let status: MeshRecord['status'] = 'accepted', reason: string | undefined;
-      try { await commitRef.current(local => applyRecord(local, saved.current, record)); }
+      try { rememberOwners(owners.current, record); await commitRef.current(local => applyRecord(local, saved.current, record, Date.now(), owners.current)); }
       catch (error) { status = 'held'; reason = error instanceof Error ? error.message : String(error); }
       await persist([...saved.current, {...record, status, reason}]);
       setMessage(status === 'accepted' ? 'Received map data saved on this phone. Claims remain unverified.' : 'A received revision was held for review. Your existing map was kept.');
@@ -96,9 +107,9 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
     catch (error) { active.current = false; throw error; }
   }
   async function stop() { active.current = false; setEnabled(false); await nativeMesh?.stop(); }
-  async function clear() {
+  async function clear(resetProvenance = false) {
     await stop();
-    serial(async () => { await persist([]); setReady(true); setMessage('Relay copies cleared on this phone. Your map is kept; copies already sent cannot be recalled.'); });
+    serial(async () => { if (resetProvenance) owners.current = {}; await persist([]); setReady(true); setMessage('Relay copies cleared on this phone. Your map and publisher provenance are kept; copies already sent cannot be recalled.'); });
   }
   async function retryHeld() {
     serial(async () => {
@@ -108,7 +119,8 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
         if (!record || record.status !== 'held') continue;
         try {
           validateRecord(record);
-          await commitRef.current(local => applyRecord(local, next, record));
+          rememberOwners(owners.current, record);
+          await commitRef.current(local => applyRecord(local, next, record, Date.now(), owners.current));
           next[i] = {...record, status: 'accepted', reason: undefined};
         } catch (error) { next[i] = {...record, reason: error instanceof Error ? error.message : String(error)}; }
       }

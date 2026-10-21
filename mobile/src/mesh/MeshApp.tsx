@@ -278,7 +278,7 @@ function Contents() {
                 myPath: s.myPath.filter((id) => ids.has(id)),
               };
             })
-              .then(async () => { await sync.clear(); setSelected(null); })
+              .then(async () => { await sync.clear(true); setSelected(null); })
               .catch(notify);
           },
         },
@@ -743,7 +743,7 @@ function Contents() {
                     style: "destructive",
                     onPress: () => {
                       void commit(() => emptyMesh())
-                        .then(async () => { await sync.clear(); setSelected(null); })
+                        .then(async () => { await sync.clear(true); setSelected(null); })
                         .catch(notify);
                     },
                   },

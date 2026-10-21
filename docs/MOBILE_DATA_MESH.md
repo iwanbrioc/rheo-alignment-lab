@@ -26,7 +26,7 @@ implemented. A new signed binary and multi-device testing are required.
 6. **Geographic map** opens a tile-independent coordinate schematic, usable with
    all internet connectivity absent. Detailed online Apple Maps is opt-in.
 7. Stop nearby sharing whenever desired. **Stop and clear retained relay records**
-   removes this phone's carriage copies, keeping the map. Erasing the local mesh
+   removes this phone's carriage copies, keeping the map and publisher-key index. Erasing the local mesh
    also stops/clears the relay. Previously distributed copies cannot be recalled.
 
 ## Native transport
@@ -88,8 +88,12 @@ and new-peer notifications provide a simple anti-entropy mechanism; transfer is
 best effort, not a durable delivery guarantee. Current public JSON is limited
 to 24 KB per publisher; the envelope is capped at 48 KB. Full queues or oversized
 maps produce recoverable status messages, with file exchange as fallback.
-Journal eviction/expiry/clearing can remove revision provenance; later conflicting
-updates then remain held. Already saved map entries do not expire automatically:
+A bounded first-observed publisher-key index (up to 2,048 entity IDs) remains
+on this phone even when relay copies expire or are cleared. Re-signing an
+identical copy does not transfer revision authority. The index is local
+provenance, not steward verification; erasing the mesh resets it. Journal
+eviction/expiry/clearing can remove the previous snapshot needed for a safe
+revision; later conflicting updates then remain held. Already saved map entries do not expire automatically:
 expiry limits transport carriage, not whether a place still exists. Live service
 availability must be checked with the host. Durable provenance, larger regional
 collections, fine-grained signed changes, acknowledgements and author-controlled
@@ -135,3 +139,15 @@ lifeboat or guaranteed emergency communications system.
 References:
 - [Bitchat source](https://github.com/permissionlesstech/bitchat)
 - [Apple Bluetooth background behaviour](https://developer.apple.com/library/archive/documentation/NetworkingInternetWeb/Conceptual/CoreBluetooth_concepts/CoreBluetoothBackgroundProcessingForIOSApps/PerformingTasksWhileYourAppIsInTheBackground.html)
+
+
+## Automated checks on 21 October 2026
+
+Initial embedded-radio commit `faf0589` passed all three GitHub workflows:
+mobile checks (including the iOS JS bundle), repository CI, and native iPhone
+radio checks. The native job compiled and ran frame/signature/buffer tests on
+macOS, typechecked CoreBluetooth/MultipeerConnectivity code for iOS Simulator,
+and parsed the Expo bridge. Local Expo Doctor passed 21/21 checks; Expo
+Autolinking resolved `RheoMeshModule`. The later provenance regression and
+reconnection changes are checked by the same workflows. No signed EAS binary
+or physical radio delivery result is asserted by these checks.
