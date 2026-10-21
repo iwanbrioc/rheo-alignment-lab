@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 import CoreBluetooth
 import MultipeerConnectivity
 
@@ -15,6 +16,7 @@ final class MeshRadio: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDe
   private var links: [UUID: CBPeripheral] = [:]
   private var characteristics: [UUID: CBCharacteristic] = [:]
   private var writes: [UUID: [Data]] = [:]
+  private var pendingWriteIDs: [UUID: Set<String>] = [:]
   private var writing = Set<UUID>()
   private var writeTickets: [UUID: UUID] = [:]
   private var subscribers: [UUID: CBCentral] = [:]
@@ -52,7 +54,7 @@ final class MeshRadio: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDe
     browser?.stopBrowsingForPeers(); advertiser?.stopAdvertisingPeer(); session?.disconnect()
     browser = nil; advertiser = nil; session = nil; peer = nil; connecting.removeAll()
     central = nil; peripheral = nil; characteristic = nil
-    links.removeAll(); characteristics.removeAll(); writes.removeAll(); writing.removeAll(); writeTickets.removeAll(); subscribers.removeAll()
+    links.removeAll(); characteristics.removeAll(); writes.removeAll(); pendingWriteIDs.removeAll(); writing.removeAll(); writeTickets.removeAll(); subscribers.removeAll()
     notifications.removeAll(); assemblies.clear(); status()
   }
   private func status() {
@@ -73,11 +75,14 @@ final class MeshRadio: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDe
       do { try session.send(bytes, toPeers: session.connectedPeers, with: .reliable) }
       catch { warning("Local Wi-Fi transfer failed; Bluetooth and later retries remain available.") }
     }
+    let packetID = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
     for (id, value) in characteristics {
+      if pendingWriteIDs[id]?.contains(packetID) == true { continue }
       guard let link = links[id] else { continue }
       let frames = MeshFrames.split(bytes, mtu: link.maximumWriteValueLength(for: .withResponse))
       guard !frames.isEmpty else { warning("A Bluetooth link has an unsupported packet size."); continue }
       if (writes[id]?.count ?? 0) + frames.count > 2048 { warning("Bluetooth send queue is full; records will retry later."); continue }
+      pendingWriteIDs[id, default: []].insert(packetID)
       writes[id, default: []].append(contentsOf: frames); pumpWrites(id)
     }
     for subscriber in subscribers.values {
@@ -150,7 +155,7 @@ final class MeshRadio: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDe
   func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) { peripheral.discoverServices([Self.service]) }
   func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) { if central === self.central { remove(peripheral.identifier) } }
   func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) { if central === self.central { remove(peripheral.identifier) } }
-  private func remove(_ id: UUID) { links.removeValue(forKey: id); characteristics.removeValue(forKey: id); writes.removeValue(forKey: id); writing.remove(id); writeTickets.removeValue(forKey: id); status() }
+  private func remove(_ id: UUID) { links.removeValue(forKey: id); characteristics.removeValue(forKey: id); writes.removeValue(forKey: id); pendingWriteIDs.removeValue(forKey: id); writing.remove(id); writeTickets.removeValue(forKey: id); status() }
   func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
     for service in peripheral.services ?? [] where service.uuid == Self.service { peripheral.discoverCharacteristics([Self.characteristic], for: service) }
   }
@@ -161,8 +166,9 @@ final class MeshRadio: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDe
   func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) { status() }
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
     let id = peripheral.identifier; writing.remove(id); writeTickets.removeValue(forKey: id)
-    guard error == nil else { writes[id] = []; warning("Bluetooth write failed; the map will retry later."); return }
+    guard error == nil else { writes[id] = []; pendingWriteIDs.removeValue(forKey: id); warning("Bluetooth write failed; the map will retry later."); return }
     if !(writes[id]?.isEmpty ?? true) { writes[id]?.removeFirst() }
+    if writes[id]?.isEmpty == true { pendingWriteIDs.removeValue(forKey: id) }
     pumpWrites(id)
   }
   func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {

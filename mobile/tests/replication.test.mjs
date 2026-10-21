@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newPortal, sampleState, editPortal, connect, proposeSession, togglePath } from '../src/mesh/model.mjs';
-import { publicPayload, validateRecord, applyRecord, retainRecords, relayWire, LIFETIME } from '../src/mesh/sync/replication.mjs';
+import { publicPayload, validateRecord, applyRecord, retainRecords, relayWire, LIFETIME, forwardingRecords } from '../src/mesh/sync/replication.mjs';
 const empty = () => ({version: 4, researchArm: null, portals: [], links: [], sessions: [], myPath: []});
 const details = {name:'Neighbourhood workshop', description:'Check with host', category:'Learning',kind:'Place',steward:'Local host',shareable:true,location:{latitude:51.5,longitude:-0.1}};
 const now = 1800000000000;
@@ -89,4 +89,13 @@ test('re-signing an identical copy does not transfer revision authority to a dif
   assert.throws(()=>applyRecord(b,history,record(changed,3,copied.publisher),at),/Conflicting/);
   const durable = {[`portals:${a.portals[0].id}`]:original.publisher};
   assert.throws(()=>applyRecord(b,[history[1]],record(changed,4,copied.publisher),at,durable),/Conflicting/);
+});
+
+
+test('anti-entropy forwards newest per publisher and rotates across bounded rounds', () => {
+  const state = newPortal(empty(),details);
+  const packets = [record(state,1),record(state,2),record(state,3,'B'.repeat(43)+'='),{...record(state,4,'C'.repeat(43)+'='),status:'held'}];
+  assert.deepEqual(forwardingRecords(packets,0,at).map(r=>r.id),[packets[2].id,packets[1].id]);
+  assert.deepEqual(forwardingRecords(packets,1,at).map(r=>r.id),[packets[1].id,packets[2].id]);
+  assert.deepEqual(forwardingRecords(packets,0,now+LIFETIME+10000),[]);
 });

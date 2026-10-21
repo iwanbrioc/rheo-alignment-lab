@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { MeshState } from '../types';
 import { nativeMesh, type RadioStatus } from './native';
-import { applyRecord, publicPayload, relayWire, retainRecords, validateRecord, rememberOwners, type MeshRecord } from './replication.mjs';
+import { applyRecord, publicPayload, relayWire, retainRecords, validateRecord, rememberOwners, forwardingRecords, type MeshRecord } from './replication.mjs';
 const KEY = '@rheo/radio-records/v1';
 const initialStatus: RadioStatus = { active: false, bluetooth: 'stopped', bluetoothLinks: 0, wifiPeers: 0 };
 
@@ -13,6 +13,7 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
   const [message, setMessage] = useState('Nearby sharing is off. Your saved map remains available offline.');
   const [records, setRecords] = useState<MeshRecord[]>([]);
   const owners = useRef<Record<string,string>>({});
+  const sendOffset = useRef(0);
   const saved = useRef<MeshRecord[]>([]), queue = useRef<Promise<unknown>>(Promise.resolve());
   const latest = useRef(state), commitRef = useRef(commit), active = useRef(false), mounted = useRef(true);
   latest.current = state; commitRef.current = commit;
@@ -86,9 +87,8 @@ export function useMeshSync(state: MeshState | null, commit: (update: (s: MeshSt
       validateRecord(record);
       await persist([...saved.current.filter(r => r.status !== 'published'), {...record, status: 'published'}]);
     }
-    const usable = retainRecords(saved.current).filter(r => r.status !== 'held');
-    // Send newest first. Native queues apply backpressure and later rounds retry whole records.
-    for (const record of [...usable].reverse()) {
+    // Rotate first sender between rounds so a busy BLE queue cannot starve older publishers.
+    for (const record of forwardingRecords(saved.current, sendOffset.current++)) {
       if (!active.current) return;
       const wire = record.status === 'published' ? record.wire : relayWire(record);
       if (wire) await nativeMesh?.send(wire);

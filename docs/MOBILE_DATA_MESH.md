@@ -83,8 +83,8 @@ winner or claim that all devices converge despite conflicting edits.
 The bounded persistent carriage journal is separate from the user's map. It
 stores at most 12 signed snapshots; records expire after at most seven days.
 Only non-held valid records with remaining hops are carried onward. Restart
-re-verifies retained signatures before radio replay. Periodic whole-record retries
-and new-peer notifications provide a simple anti-entropy mechanism; transfer is
+re-verifies retained signatures before radio replay. Periodic whole-record retries (newest snapshot per publisher, rotating send
+order to avoid starving peers) and new-peer notifications provide a simple anti-entropy mechanism; transfer is
 best effort, not a durable delivery guarantee. Current public JSON is limited
 to 24 KB per publisher; the envelope is capped at 48 KB. Full queues or oversized
 maps produce recoverable status messages, with file exchange as fallback.

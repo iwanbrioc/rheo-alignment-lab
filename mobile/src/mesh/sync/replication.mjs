@@ -95,3 +95,14 @@ export function rememberOwners(owners, record) {
   }
   return next;
 }
+
+export function forwardingRecords(records, offset = 0, now = Date.now()) {
+  const byPublisher = new Map();
+  for (const record of retainRecords(records, now).filter(r => r.status !== 'held')) {
+    const previous = byPublisher.get(record.publisher);
+    if (!previous || record.createdAt > previous.createdAt) byPublisher.set(record.publisher, record);
+  }
+  const usable = [...byPublisher.values()].sort((a,b) => b.createdAt - a.createdAt);
+  const start = Math.max(0, Math.floor(offset)) % Math.max(1, usable.length);
+  return [...usable.slice(start), ...usable.slice(0, start)];
+}

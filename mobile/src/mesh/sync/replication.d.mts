@@ -10,3 +10,5 @@ export function retainRecords(records: MeshRecord[], now?: number): MeshRecord[]
 export function relayWire(record: MeshRecord): string | null;
 
 export function rememberOwners(owners: Record<string,string>, record: MeshRecord): Record<string,string>;
+
+export function forwardingRecords(records: MeshRecord[], offset?: number, now?: number): MeshRecord[];
