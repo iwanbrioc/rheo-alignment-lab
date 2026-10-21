@@ -23,9 +23,12 @@ Work stays on `mobile-rheo-alpha-v0.2`; no frozen research material is changed.
   Rheo decision/session/pathway storage and keychain codes are never read or changed.
 - Bounded JSON import/merge, deliberate private backup/restore, and native file
   sharing through Files/AirDrop or another user-chosen channel.
-- Bitchat-compatible RHEO4 text token share/receive, with UTF-8/TLV framing parity.
-  Text tokens omit coordinates and steward labels. This is an OS share handoff;
-  there is no automatic native Bluetooth relay or control of the Bitchat app.
+- Embedded iPhone Bluetooth and local-network data replication, using selected
+  public-domain Bitchat queue code and a Rheo-specific signed-record protocol.
+  See [the transport specification](MOBILE_DATA_MESH.md). Manual RHEO4 text tokens
+  remain an optional fallback; no separate Bitchat app is required.
+- A tile-independent geographic schematic for saved portals and connections.
+  Detailed Apple Maps tiles are an optional online view.
 
 The app starts with an empty mesh. The user can explicitly load the fictional
 browser sample, including its nine activities. Sample x/y positions never become
@@ -50,13 +53,12 @@ or uninstall the existing app to update: uninstalling can remove local notes.
 ```sh
 cd mobile
 npm ci
-npx expo start --go
+npx expo start --dev-client
 ```
 
-Open with a compatible Expo Go version for SDK 57. For a physical iPhone outside
-the computer's LAN, an Expo tunnel or a signed preview build is needed. Expo Go
-is useful for checking the interface; the existing standalone pilot must receive a
-new signed binary because this change adds native map and sharing modules.
+The embedded radio and calendar require a native build; Expo Go cannot exercise
+these features. Use a development client for local development or the signed
+preview build below for the existing iPhone pilot.
 
 From an authenticated Expo account with access to the existing project:
 
@@ -169,7 +171,8 @@ mesh store, not by migrating or rewriting historical decisions.
 ### Local illustrative overlay
 
 Choose **Preview sample around me** and allow foreground location to see the
-fictional sample mesh placed around your approximate current area on Apple Maps.
+fictional sample mesh placed around your approximate current area on the offline
+geographic view, with optional detailed Apple Maps tiles.
 Location remains optional: denial or timeout still loads the conceptual sample.
 Purple sample pins and dashed connections are explicitly illustrative, not real
 local services, access points or routes. Generated positions exist only in the

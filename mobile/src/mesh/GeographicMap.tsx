@@ -8,6 +8,7 @@ import {
   locatedPortals,
   sampleOverlay,
 } from "./geography.mjs";
+import { OfflineMap } from "./OfflineMap";
 import { Button, palette, styles } from "./ui";
 export function GeographicMap({
   state,
@@ -20,7 +21,7 @@ export function GeographicMap({
   onSelect: (id: string) => void;
   onLocate: () => void;
 }) {
-  const [enabled, setEnabled] = useState(Boolean(position)),
+  const [enabled, setEnabled] = useState(false),
     [ready, setReady] = useState(false);
   const map = useRef<MapView>(null);
   const portals = useMemo(() => locatedPortals(state), [state]),
@@ -29,7 +30,6 @@ export function GeographicMap({
   const sampleById = new Map(samples.map(p => [p.id, p]));
   const sampleLinks = state.links.filter(l => sampleById.has(l.from) && sampleById.has(l.to));
   useEffect(() => {
-    if (position) setEnabled(true);
     if (ready && position)
       map.current?.animateToRegion(
         { ...position, latitudeDelta: 0.035, longitudeDelta: 0.035 },
@@ -38,6 +38,8 @@ export function GeographicMap({
   }, [position, ready]);
   if (!enabled)
     return (
+      <>
+      <OfflineMap state={state} position={position} onSelect={onSelect} />
       <View style={styles.card}>
         <Text style={styles.h3}>See the mycelium on a real map.</Text>
         <Text style={styles.body}>
@@ -46,8 +48,10 @@ export function GeographicMap({
           fictional sample pins can be overlaid around your approximate area. Network view remains
           available offline.
         </Text>
-        <Button label="Load geographic map" onPress={() => setEnabled(true)} />
+        <Button secondary label="Use my area" onPress={onLocate} />
+        <Button label="Load detailed online map" onPress={() => setEnabled(true)} />
       </View>
+      </>
     );
   if (Platform.OS === "android" && !process.env.EXPO_PUBLIC_GOOGLE_MAPS_ENABLED)
     return (
@@ -60,6 +64,8 @@ export function GeographicMap({
     );
   return (
     <View style={{ marginBottom: 16 }}>
+      <Button secondary label="Use offline geographic map" onPress={() => setEnabled(false)} />
+      <OfflineMap state={state} position={position} onSelect={onSelect} />
       <View
         style={{
           height: 360,

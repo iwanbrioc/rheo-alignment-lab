@@ -1,0 +1,81 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { newPortal, sampleState, editPortal, connect, proposeSession, togglePath } from '../src/mesh/model.mjs';
+import { publicPayload, validateRecord, applyRecord, retainRecords, relayWire, LIFETIME } from '../src/mesh/sync/replication.mjs';
+const empty = () => ({version: 4, researchArm: null, portals: [], links: [], sessions: [], myPath: []});
+const details = {name:'Neighbourhood workshop', description:'Check with host', category:'Learning',kind:'Place',steward:'Local host',shareable:true,location:{latitude:51.5,longitude:-0.1}};
+const now = 1800000000000;
+const publisher = 'A'.repeat(43) + '=';
+function record(state, sequence = 1, key = publisher, hops = 0) {
+  const payload = publicPayload(state), id = sequence.toString(16).padStart(64,'0');
+  const createdAt = now + sequence;
+  const wire = JSON.stringify({version:1, id, hops, body:'signed-native-test-fixture'});
+  return {id, publisher:key, payload, wire, createdAt, expiresAt:createdAt + LIFETIME, hops};
+}
+const at = now + 10000;
+test('radio projection excludes private, sample and My Path records and keeps public coordinates', () => {
+  let state = newPortal(sampleState(),details);
+  state = newPortal(state,{...details,name:'Private support',shareable:false});
+  const payload = JSON.parse(publicPayload(state));
+  assert.equal(payload.portals.length,1);
+  assert.equal(payload.portals[0].name,details.name);
+  assert.deepEqual(payload.portals[0].location,details.location);
+  assert.deepEqual(payload.myPath,[]);
+  assert.equal(payload.sessions.length,0);
+});
+test('A → B → C carries the data with both internet and message sharing absent', () => {
+  const a = newPortal(empty(),details), packet = record(a);
+  const b = applyRecord(empty(),[],packet,at);
+  const journal = JSON.parse(JSON.stringify([{...packet,status:'accepted'}]));
+  const onward = JSON.parse(relayWire(journal[0]));
+  const c = applyRecord(empty(),[],{...packet,wire:JSON.stringify(onward),hops:onward.hops},at);
+  assert.equal(b.portals[0].received,true);
+  assert.equal(b.portals[0].shareable,false);
+  assert.equal(c.portals[0].name,details.name);
+  assert.deepEqual(c.portals[0].location,details.location);
+  assert.deepEqual(JSON.parse(publicPayload(b)).portals,[]);
+  assert.equal(onward.hops,1);
+  assert.deepEqual(applyRecord(b,journal,packet,at),b);
+});
+test('same publishing key updates untouched mirrors but cannot overwrite local edits', () => {
+  const a = newPortal(empty(),details), first = record(a);
+  const b = applyRecord(empty(),[],first,at), history=[{...first,status:'accepted'}];
+  const changed = editPortal(a,a.portals[0].id,{...details,name:'Workshop new hours'});
+  const update = record(changed,2);
+  const next = applyRecord(b,history,update,at);
+  assert.equal(next.portals[0].name,'Workshop new hours');
+  const locallyEdited = editPortal(b,b.portals[0].id,{...details,name:'My own correction'});
+  assert.throws(()=>applyRecord(locallyEdited,history,update,at),/Conflicting/);
+  assert.throws(()=>applyRecord(b,history,{...update,publisher:'B'.repeat(43)+'='},at),/Conflicting/);
+  assert.throws(()=>applyRecord(next,[...history,{...update,status:'accepted'}],first,at),/older/);
+});
+test('same-key activity revisions retain My Path and source withdrawals remove only untouched mirrors', () => {
+  let a = newPortal(empty(),details);
+  a = proposeSession(a,{portalId:a.portals[0].id,title:'Repair',start:'10:00',end:'11:00',space:'Workshop',description:''});
+  const first = record(a), history=[{...first,status:'accepted'}];
+  const b = togglePath(applyRecord(empty(),[],first,at),a.sessions[0].id);
+  const revised = {...a,sessions:a.sessions.map(s=>({...s,start:'11:00',end:'12:00'}))};
+  const next=applyRecord(b,history,record(revised,2),at);
+  assert.equal(next.sessions[0].start,'11:00');
+  assert.deepEqual(next.myPath,b.myPath);
+  const withdrawn = applyRecord(b,history,record(empty(),3),at);
+  assert.deepEqual(withdrawn.portals,[]);
+  assert.deepEqual(withdrawn.myPath,[]);
+  const local = newPortal(b,{...details,name:'Own portal',shareable:false});
+  const connected = connect(local,local.portals[0].id,local.portals[1].id,'Local relationship');
+  assert.throws(()=>applyRecord(connected,history,record(empty(),4),at));
+});
+test('relay history is bounded, replay-safe and expires; hop-limited data is never forwarded again', () => {
+  const a = newPortal(empty(),details);
+  const packets=Array.from({length:20},(_,i)=>record(a,i+1));
+  const retained=retainRecords([...packets,packets[19]],at);
+  assert.equal(retained.length,12);
+  assert.equal(new Set(retained.map(r=>r.id)).size,12);
+  assert.equal(retainRecords(packets,now+LIFETIME+10000).length,0);
+  assert.equal(relayWire(record(a,1,publisher,7)),null);
+  assert.throws(()=>validateRecord({...packets[0],hops:8},at));
+  assert.throws(()=>validateRecord({...packets[0],expiresAt:now},at));
+  assert.throws(()=>validateRecord({...packets[0],createdAt:at+300001},at));
+  assert.throws(()=>validateRecord({...packets[0],payload:JSON.stringify({...a,myPath:['private']})},at));
+  assert.throws(()=>validateRecord({...packets[0],payload:JSON.stringify(sampleState())},at));
+});

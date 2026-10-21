@@ -37,6 +37,8 @@ import { pickMesh, shareMesh } from "./fileExchange";
 import { Button, Card, Choice, Field, palette, styles } from "./ui";
 import { Mycelium } from "./Mycelium";
 import { GeographicMap } from "./GeographicMap";
+import { useMeshSync } from "./sync/useMeshSync";
+import { SyncPanel } from "./sync/SyncPanel";
 import { Matrix } from "./Matrix";
 import { PortalForm } from "./PortalForm";
 import { ConnectionForm, SessionForm } from "./RelationshipForms";
@@ -101,6 +103,7 @@ function Contents() {
       setBusy(false);
     }
   }
+  const sync = useMeshSync(state, commit);
   async function locate(): Promise<Coordinate | null> {
     if (locating.current) return null;
     locating.current = true;
@@ -275,7 +278,7 @@ function Contents() {
                 myPath: s.myPath.filter((id) => ids.has(id)),
               };
             })
-              .then(() => setSelected(null))
+              .then(async () => { await sync.clear(); setSelected(null); })
               .catch(notify);
           },
         },
@@ -531,15 +534,14 @@ function Contents() {
                 <Button
                   secondary
                   disabled={busy || !selectedPortal.shareable}
-                  label="Share a Bitchat text token"
+                  label="Share a manual text token"
                   onPress={() => {
                     void shareToken(selectedPortal);
                   }}
                 />
                 <Text style={styles.small}>
-                  The token omits GPS and the steward label. Choose Bitchat or
-                  Copy in the share sheet if available; Rheo does not control
-                  Bitchat or its Bluetooth radio.
+                  This manual fallback omits GPS and the steward label.
+                  Automatic nearby data exchange is under Mesh &amp; data.
                 </Text>
                 {!selectedPortal.demo && (
                   <Button
@@ -614,6 +616,7 @@ function Contents() {
         {tab === "exchange" && (
           <>
             <Text style={styles.h2}>Your map travels with you.</Text>
+            <SyncPanel sync={sync} onError={notify} />
             <Card>
               <Text style={styles.h3}>Exchange a shared mesh</Text>
               <Text style={styles.body}>
@@ -639,8 +642,8 @@ function Contents() {
               <Text style={styles.small}>
                 Use Files, AirDrop or another channel you choose. Imports never
                 silently overwrite conflicting records. Received information
-                remains unverified. This version does not run a background
-                Bluetooth relay.
+                remains unverified. Nearby sharing runs while Rheo is open;
+                your saved map stays available when the radios are paused.
               </Text>
             </Card>
             <Card>
@@ -740,7 +743,7 @@ function Contents() {
                     style: "destructive",
                     onPress: () => {
                       void commit(() => emptyMesh())
-                        .then(() => setSelected(null))
+                        .then(async () => { await sync.clear(); setSelected(null); })
                         .catch(notify);
                     },
                   },

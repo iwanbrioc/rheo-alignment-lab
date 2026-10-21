@@ -1,0 +1,28 @@
+name: Rheo embedded iPhone radio checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [mobile-rheo-alpha-v0.2]
+    paths:
+      - 'mobile/modules/rheo-mesh/**'
+      - 'mobile/tests/native/**'
+      - '.github/workflows/ci-mobile-radio.yml'
+jobs:
+  native-radio:
+    runs-on: macos-15
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run native record and fragment tests
+        run: |
+          swiftc modules/rheo-mesh/ios/MeshFrames.swift modules/rheo-mesh/ios/MeshIdentity.swift modules/rheo-mesh/ios/BLEOutboundNotificationBuffer.swift tests/native/main.swift -o /tmp/rheo-native-tests
+          /tmp/rheo-native-tests
+      - name: Typecheck iPhone Bluetooth and local Wi-Fi transport
+        run: |
+          SDK_PATH="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          xcrun swiftc -typecheck -swift-version 5 -target arm64-apple-ios16.4-simulator -sdk "$SDK_PATH" modules/rheo-mesh/ios/MeshFrames.swift modules/rheo-mesh/ios/MeshIdentity.swift modules/rheo-mesh/ios/BLEOutboundNotificationBuffer.swift modules/rheo-mesh/ios/MeshRadio.swift
+      - name: Parse Expo module bridge
+        run: swiftc -frontend -parse modules/rheo-mesh/ios/RheoMeshModule.swift

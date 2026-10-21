@@ -29,6 +29,13 @@
       "bundleIdentifier": "org.rheo.mobile",
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Allow Rheo to exchange public mycelium records with nearby phones without internet.",
+        "NSLocalNetworkUsageDescription": "Allow Rheo to exchange public mycelium records over nearby Wi-Fi without an internet service.",
+        "NSBonjourServices": [
+          "_rheo-data-v1._tcp"
+        ]
       }
     },
     "android": {
