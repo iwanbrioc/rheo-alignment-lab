@@ -15,6 +15,8 @@ On an HTTPS deployment open `/app/v04/`. The page registers a service worker for
 
 ## Functionality
 
+- **Fairness Lab (experimental):** an AI-free, fictional two-scenario **Veil → Reveal → Revise** decision exercise inspired by Rawls and Context Oriented Arts. Choose a rule before being assigned one of several possible positions, reveal conflicting perspectives and missing evidence, revise the choice, and compare a recorded prediction with a pre-written simulated consequence. It stores only the fictional exercise choices in browser `localStorage`; it does not score people, decide real policy or use real participant testimony. Open directly with `/app/v04/?tab=fairness`.
+
 - Ten **fictional** starter portals, thirteen explicit sample connections and nine fictional Open Space invitations, positioned on a conceptual network diagram (not a geographic map).
 - Tap graph nodes; browse, search and filter portals; inspect actual recorded connections.
 - Add your own portal and connect two existing portals.

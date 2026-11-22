@@ -22,6 +22,12 @@ jobs:
           node --check app/app-analysis.js
           node --check app/app-report.js
           node --check app/sw.js
+          node --check app/v04/app.mjs
+          node --check app/v04/veil-core.mjs
+          node --check app/v04/veil-lab.mjs
+          node --check app/v04/sw.js
+      - name: Test v0.4 map and fictional fairness protocol
+        run: node --test app/v04/model.test.mjs app/v04/veil-core.test.mjs
       - name: Check local mesh engine and signed exchange
         run: |
           npm run check

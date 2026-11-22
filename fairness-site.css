@@ -1,0 +1,8 @@
+.fairness-teaser{background:#eaf2ed}
+.fairness-teaser .eyebrow{color:#2e6758}
+.fairness-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:20px 0 23px}
+.fairness-steps>div{background:#fff;border:1px solid #c5d6cb;border-radius:9px;padding:17px 14px;min-height:148px}
+.fairness-steps strong{display:block;font:1.35rem Georgia,serif;color:#173e32;margin-bottom:9px}
+.fairness-steps span{font-size:.87rem;line-height:1.45;display:block;color:#39574c}
+.fairness-teaser .button{background:#1c493a}
+@media(max-width:680px){.fairness-steps{grid-template-columns:1fr}.fairness-steps>div{min-height:0}}
