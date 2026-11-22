@@ -1,0 +1,26 @@
+/* Veil–Reveal–Revise is an optional, fictional exercise beside the existing v0.4 views. */
+.tabs{overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.tab{flex:none}
+.veil-shell{max-width:1050px;margin:18px auto 25px;background:#fffefa;border:1px solid var(--border);border-radius:15px;overflow:hidden;box-shadow:0 12px 36px #183f3510}
+.veil-controls{padding:20px 25px;background:#eaf1e5;display:flex;flex-wrap:wrap;gap:13px;align-items:center;border-bottom:1px solid var(--border)}
+.veil-controls label{font-size:15px;font-weight:700}.veil-controls select{min-width:240px;max-width:100%;border:1px solid #a8c0b1;background:white;color:var(--text);padding:10px 12px;border-radius:8px;font-size:15px}
+.veil-step{margin-left:auto;color:#255b4a;font-size:13px;font-weight:700;text-transform:capitalize}
+.veil-body{padding:28px 32px;font-size:16px;line-height:1.65;min-height:350px}
+.veil-body h3{font-size:28px;margin:0 0 15px}.veil-body h4{font-size:17px;font-family:inherit;font-weight:700;margin:24px 0 12px}.veil-body p{max-width:820px}
+.veil-muted{background:#f1f3e8;border-left:3px solid #a0bca2;padding:12px 16px;color:#516b5c}
+.veil-positions,.veil-perspectives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:18px 0}
+.veil-position,.veil-perspectives article{border:1px solid var(--border);background:#fafcf7;border-radius:10px;padding:14px 17px}
+.veil-position p,.veil-perspectives p{margin:7px 0 0}.veil-perspectives h4{font-size:16px;margin:0}
+.veil-code{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:#356e56;font-weight:800}
+.veil-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}
+.veil-choice{background:#fff;border:1px solid #a8c1b1;border-radius:11px;padding:20px 17px;text-align:left;color:var(--text);min-height:154px;transition:background .15s,border-color .15s}
+.veil-choice:hover,.veil-choice:focus-visible{background:#e9f3e9;border-color:#39715e}.veil-choice.is-picked{border:2px solid #377b61}
+.veil-choice-heading{display:block;font-family:Georgia,serif;font-size:22px;line-height:1.2;margin-bottom:10px}.veil-choice-description{display:block;font-size:14px;line-height:1.5;color:#496359}
+.veil-impact{padding:14px 18px;background:#f4f6ee;border-radius:9px;margin-top:18px}.veil-impact summary{cursor:pointer;font-weight:700}.veil-impact h4{margin:15px 0 4px}.veil-impact ul{margin:5px 0 14px}
+.veil-assigned{padding:20px 23px;background:#deeadc;border:1px solid #b5c9b6;border-radius:11px}.veil-assigned strong{font-size:19px;display:block;margin:7px 0}.veil-assigned p{margin:0}
+.veil-warning{background:#f7f0e3;border-left:4px solid #bda06d;padding:15px 20px;margin:17px 0}
+.veil-comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}.veil-comparison>div{padding:18px;background:#f1f5ee;border-radius:9px}.veil-comparison span{display:block;font-size:12px;color:#526e61;margin-bottom:7px}.veil-comparison strong{font-family:Georgia,serif;font-size:21px}
+.veil-prediction,.veil-outcome{padding:17px 20px;border:1px solid #c6d9c8;border-radius:10px;background:#edf4e9;margin:16px 0}.veil-outcome{background:#faf0dd;border-color:#e1cba4}.veil-prediction p,.veil-outcome p{margin:7px 0 0}
+.veil-actions{display:flex;gap:11px;flex-wrap:wrap}.veil-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--border);padding:12px 25px;background:#f8faf3}.veil-foot .small{margin:0;font-size:12px}.veil-foot .text-btn{margin:0}
+.veil-context{max-width:1050px;margin:0 auto 36px;border-top:1px solid var(--border);padding-top:20px;color:#536b5e;font-size:15px}.veil-context h3{font-size:25px;color:var(--text)}
+@media(max-width:780px){.veil-choices{grid-template-columns:1fr}.veil-choice{min-height:0}.veil-controls{padding:16px}.veil-body{padding:20px 17px}.veil-positions,.veil-perspectives{grid-template-columns:1fr}.veil-foot{padding:13px 16px;align-items:flex-start;flex-direction:column}.veil-step{margin-left:0}}
