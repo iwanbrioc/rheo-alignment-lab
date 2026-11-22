@@ -1,5 +1,5 @@
-const CACHE = 'rheo-mesh-v04-20261019-updates';
-const ASSETS = ['./', './index.html', './style.css', './app.mjs', './model.mjs', './bitchat-carrier.mjs', './manifest.webmanifest'];
+const CACHE = 'rheo-mesh-v04-20261122-fairness-lab';
+const ASSETS = ['./', './index.html', './style.css', './veil.css', './app.mjs', './model.mjs', './bitchat-carrier.mjs', './veil-core.mjs', './veil-lab.mjs', './manifest.webmanifest'];
 self.addEventListener('install', event => event.waitUntil(
   caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
 ));
