@@ -15,7 +15,7 @@ function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));storageAv
 function setState(next){state=validateState(next);persist();render();}
 function portalById(id){return state.portals.find(p=>p.id===id);}
 function related(portalId){return portalConnections(state,portalId);}
-function showTab(name){tab=name;for(const view of ['mycelium','portals','matrix','exchange']){$(view+'-panel').hidden=view!==name;}document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===name);if(b.dataset.tab===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});render();}
+function showTab(name){tab=name;for(const view of ['mycelium','portals','matrix','exchange','fairness']){$(view+'-panel').hidden=view!==name;}document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===name);if(b.dataset.tab===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});render();}
 function filtered(){const q=term.toLocaleLowerCase();return state.portals.filter(p=>(filter==='All'||p.category===filter)&&(!q||[p.name,p.description,p.steward,p.category].some(v=>v.toLocaleLowerCase().includes(q))));}
 function renderGraph(){
  const seen=new Set(filtered().map(p=>p.id));const visible=state.portals.filter(p=>seen.has(p.id));const activeLinks=state.links.filter(l=>seen.has(l.from)&&seen.has(l.to));
@@ -77,6 +77,7 @@ $('copy').addEventListener('click',async()=>{const txt=$('outgoing').value;if(!t
 $('receive').addEventListener('click',receive);
 $('download').addEventListener('click',download);
 $('import-file').addEventListener('change',async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{if(file.size>180000)throw new Error('File exceeds 180 KB.');const incoming=validateState(JSON.parse(await file.text()));if(!window.confirm('Replace your current local mesh with this imported file? Existing edits will be lost.'))return;selected=incoming.portals[0]?.id||null;setState(incoming);$('file-result').textContent='Imported '+state.portals.length+' portals and '+state.links.length+' connections. Sources are not authenticated.';}catch(err){$('file-result').textContent=err.message;}});
-render();
+const requestedTab=new URLSearchParams(location.search).get('tab');
+if(['mycelium','portals','matrix','exchange','fairness'].includes(requestedTab))showTab(requestedTab);else render();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 if(!storageAvailable)toast('Storage unavailable. Export your mesh before leaving.');
