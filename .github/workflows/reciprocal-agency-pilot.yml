@@ -1,0 +1,58 @@
+name: Reciprocal agency pilot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reciprocal-agency-pilot.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reciprocal-agency-pilot
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MODEL: gpt-5.4-mini-2026-03-17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Regression tests and reference policies
+        run: |
+          set -euo pipefail
+          mkdir -p pilot-results
+          python3 -m unittest discover -s evaluation/reciprocal_agency -p 'test_*.py'
+          python3 evaluation/reciprocal_agency/simulator.py smoke > pilot-results/reference-policies.json
+          git rev-parse HEAD > pilot-results/commit.txt
+          python3 --version > pilot-results/python-version.txt
+      - name: Run 72 matched model requests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::OPENAI_API_KEY repository secret is missing or inaccessible"
+            exit 1
+          fi
+          python3 evaluation/reciprocal_agency/simulator.py run --model "$MODEL" --out pilot-results/pilot.jsonl
+      - name: Analyze and verify completeness
+        run: |
+          set -euo pipefail
+          python3 evaluation/reciprocal_agency/simulator.py analyze pilot-results/pilot.jsonl > pilot-results/analysis.json
+          python3 -c 'import json; d=json.load(open("pilot-results/analysis.json")); assert d["complete_triplets"] == 24, "Incomplete model run"'
+          cat pilot-results/analysis.json
+      - name: Preserve synthetic pilot results (including partial runs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reciprocal-agency-pilot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: pilot-results/
+          retention-days: 30
+          if-no-files-found: warn
