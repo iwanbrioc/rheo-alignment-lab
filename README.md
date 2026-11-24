@@ -156,3 +156,7 @@ The current prototype does **not** establish that RWB improves real-world decisi
 **v0.3 situated trust field prototype — October 2026**
 
 **v0.2 research baseline — August 2026 (preserved)**
+
+## Proposed reciprocal agency research strand (November 2026)
+
+Research-only extension, pending review; no runtime or frozen-claim changes. See [design specification](docs/AI_ALIGNMENT_RESEARCH_STRAND.md), [position paper](research/RECIPROCAL_AGENCY_POSITION_PAPER.md) and [benchmark proposal](research/RECIPROCAL_AGENCY_BENCHMARK.md).
