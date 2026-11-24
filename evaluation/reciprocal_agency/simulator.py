@@ -83,11 +83,14 @@ def analyze(path,seed):
     groups={a:[r for r in rows if r["arm"]==a] for a in "ABC"}
     by={a:{r["case_id"]:r for r in rr} for a,rr in groups.items()}
     if any(len(by[a])!=len(groups[a]) for a in "ABC"): raise ValueError("duplicate case/arm")
+    if any(r["arm"] not in "ABC" or r["case_id"] not in {c["id"] for c in load()} for r in rows): raise ValueError("unknown arm/case")
     ids=sorted(set.intersection(*(set(v) for v in by.values())))
     eligible=[i for i in ids if by["B"][i]["feasible"]]
     d=[by["C"][i]["success"]-by["B"][i]["success"] for i in eligible]
     rng=random.Random(seed)
-    boot=sorted(statistics.mean(rng.choices(d,k=len(d))) for _ in range(5000)) if d else []
+    strata={}
+    for i,delta in zip(eligible,d): strata.setdefault(by["B"][i]["family"],[]).append(delta)
+    boot=sorted(statistics.mean([v for group in strata.values() for v in rng.choices(group,k=len(group))]) for _ in range(5000)) if d else []
     return {"metadata":meta,"arms":{a:summary(v) for a,v in groups.items()},"complete_triplets":len(ids),"expected_triplets":24,"C_minus_B":statistics.mean(d) if d else None,"exploratory_95pct_bootstrap":[boot[125],boot[4874]] if boot else None,"warning":"Development-only estimates; incomplete runs and invalid outputs must be examined; not independent confirmation."}
 
 def main():
