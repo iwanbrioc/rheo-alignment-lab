@@ -1,0 +1,50 @@
+name: Contextual discovery pilot
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/contextual-discovery-pilot.yml'
+permissions:
+  contents: read
+concurrency:
+  group: contextual-discovery-pilot
+  cancel-in-progress: false
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MODEL: gpt-5.4-mini-2026-03-17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate cases and scorer
+        run: |
+          set -euo pipefail
+          mkdir -p discovery-results
+          python3 -m py_compile evaluation/contextual_discovery/pilot.py
+          python3 -m unittest discover -s evaluation/contextual_discovery -p 'test_*.py'
+          git rev-parse HEAD > discovery-results/commit.txt
+          python3 --version > discovery-results/python-version.txt
+      - name: Generate 48 responses and 48 rubric assessments
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$OPENAI_API_KEY"
+          python3 evaluation/contextual_discovery/pilot.py run --model "$MODEL" --out discovery-results/pilot.jsonl
+      - name: Analyze exploratory outcomes
+        run: |
+          set -euo pipefail
+          python3 evaluation/contextual_discovery/pilot.py analyze discovery-results/pilot.jsonl > discovery-results/analysis.json
+          cat discovery-results/analysis.json
+      - name: Preserve raw responses, assessments and analysis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contextual-discovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: discovery-results/
+          retention-days: 30
+          if-no-files-found: warn
