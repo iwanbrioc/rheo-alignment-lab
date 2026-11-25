@@ -1,0 +1,52 @@
+name: Epistemic complexity pilot
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/epistemic-complexity-pilot.yml'
+permissions:
+  contents: read
+concurrency:
+  group: epistemic-complexity-pilot
+  cancel-in-progress: false
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MODEL: gpt-5.4-mini-2026-03-17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate dataset and regression tests
+        run: |
+          set -euo pipefail
+          mkdir -p complexity-results
+          python3 -m py_compile evaluation/epistemic_complexity/pilot.py
+          python3 -m unittest discover -s evaluation/epistemic_complexity -p 'test_*.py'
+          python3 evaluation/epistemic_complexity/pilot.py reference > complexity-results/reference.json
+          cat complexity-results/reference.json
+          git rev-parse HEAD > complexity-results/commit.txt
+          python3 --version > complexity-results/python-version.txt
+      - name: Execute 96 matched requests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$OPENAI_API_KEY"
+          python3 evaluation/epistemic_complexity/pilot.py run --model "$MODEL" --out complexity-results/pilot.jsonl
+      - name: Analyze
+        run: |
+          set -euo pipefail
+          python3 evaluation/epistemic_complexity/pilot.py analyze complexity-results/pilot.jsonl > complexity-results/analysis.json
+          cat complexity-results/analysis.json
+      - name: Preserve data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: epistemic-complexity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: complexity-results/
+          retention-days: 30
+          if-no-files-found: warn
